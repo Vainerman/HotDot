@@ -15,6 +15,7 @@ export default function LiveViewPage() {
   const [showResults, setShowResults] = useState(false)
   const [guesserDrawing, setGuesserDrawing] = useState<string>("")
   const [creatorDrawing, setCreatorDrawing] = useState<string>("")
+  const [drawingComplete, setDrawingComplete] = useState(false)
 
   useEffect(() => {
     const name = localStorage.getItem("creatorName")
@@ -258,6 +259,7 @@ export default function LiveViewPage() {
                                       // Save the simulated guesser drawing with background
                                       const simulatedDrawing = captureCanvasWithBackground(canvas)
                                       setGuesserDrawing(simulatedDrawing)
+                                      setDrawingComplete(true)
                                     })
                                   }, 600)
                                 })
@@ -276,10 +278,10 @@ export default function LiveViewPage() {
       }, 2000)
     }
 
-    if (!showResults) {
+    if (!showResults && !drawingComplete) {
       simulateCarDrawing()
     }
-  }, [showResults])
+  }, [showResults, drawingComplete])
 
   // Timer countdown
   useEffect(() => {
@@ -287,12 +289,24 @@ export default function LiveViewPage() {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000)
       return () => clearTimeout(timer)
     } else {
-      // Show results when time ends
-      setTimeout(() => {
-        setShowResults(true)
-      }, 1000)
+      // Show results when time ends, but only if drawing is complete
+      if (drawingComplete) {
+        setTimeout(() => {
+          setShowResults(true)
+        }, 1000)
+      } else {
+        // If drawing isn't complete yet, wait for it
+        const checkDrawingComplete = setInterval(() => {
+          if (drawingComplete) {
+            clearInterval(checkDrawingComplete)
+            setTimeout(() => {
+              setShowResults(true)
+            }, 1000)
+          }
+        }, 100)
+      }
     }
-  }, [timeLeft])
+  }, [timeLeft, drawingComplete])
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)

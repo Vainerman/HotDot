@@ -80,6 +80,13 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
     return Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100))
   }
 
+  const getPercentageFromTouch = (touch: Touch) => {
+    if (!sliderRef.current) return 0
+
+    const rect = sliderRef.current.getBoundingClientRect()
+    return Math.max(0, Math.min(100, ((touch.clientX - rect.left) / rect.width) * 100))
+  }
+
   const handleLabelClick = (index: number) => {
     if (disabled || !onChange) return
     onChange(SLIDER_POSITIONS[index])
@@ -94,13 +101,50 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
     setDragValue(percentage)
   }
 
+  // Touch event handlers for the thumb
+  const handleThumbTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation() // Prevent track touch
+    e.preventDefault() // Prevent scrolling
+    if (disabled) return
+    setIsDragging(true)
+    const percentage = getPercentageFromTouch(e.touches[0])
+    setDragValue(percentage)
+  }
+
+  const handleTouchMove = (e: TouchEvent) => {
+    if (!isDragging || disabled) return
+    e.preventDefault() // Prevent scrolling
+    const percentage = getPercentageFromTouch(e.touches[0])
+    setDragValue(percentage)
+  }
+
+  const handleTouchEnd = (e: TouchEvent) => {
+    if (!isDragging || disabled || !onChange) return
+    e.preventDefault()
+
+    // Snap to closest position when releasing
+    const closestIndex = getClosestPositionIndex(dragValue)
+    const snappedValue = SLIDER_POSITIONS[closestIndex]
+
+    onChange(snappedValue)
+    setIsDragging(false)
+  }
+
   useEffect(() => {
     if (isDragging) {
+      // Mouse events
       document.addEventListener("mousemove", handleMouseMove)
       document.addEventListener("mouseup", handleMouseUp)
+
+      // Touch events
+      document.addEventListener("touchmove", handleTouchMove, { passive: false })
+      document.addEventListener("touchend", handleTouchEnd, { passive: false })
+
       return () => {
         document.removeEventListener("mousemove", handleMouseMove)
         document.removeEventListener("mouseup", handleMouseUp)
+        document.removeEventListener("touchmove", handleTouchMove)
+        document.removeEventListener("touchend", handleTouchEnd)
       }
     }
   }, [isDragging, dragValue])
@@ -152,7 +196,7 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
           }}
           onMouseDown={handleMouseDown}
         >
-          {/* Handle/Thumb with larger hitbox */}
+          {/* Handle/Thumb with much larger hitbox for touch */}
           <div
             className="absolute transition-all duration-200 ease-out"
             style={{
@@ -161,9 +205,10 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
               top: "-32px",
             }}
             onMouseDown={handleThumbMouseDown}
+            onTouchStart={handleThumbTouchStart}
           >
-            {/* Invisible larger hitbox */}
-            <div className="absolute w-12 h-20 -left-6 -top-2" style={{ background: "transparent" }} />
+            {/* Much larger invisible hitbox for touch screens */}
+            <div className="absolute -left-8 -top-4 w-16 h-24" style={{ background: "transparent" }} />
             {/* Visible thumb */}
             <div className="w-0.5 h-16 bg-[#FF5C38]" />
           </div>
