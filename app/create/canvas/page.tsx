@@ -26,6 +26,55 @@ export default function CreateCanvasPage() {
     timeLeftRef.current = timeLeft
   }, [timeLeft])
 
+  // Function to capture canvas with background
+  const captureCanvasWithBackground = (canvas: HTMLCanvasElement) => {
+    const tempCanvas = document.createElement("canvas")
+    const tempCtx = tempCanvas.getContext("2d")
+    if (!tempCtx) return canvas.toDataURL()
+
+    // Set same dimensions as original canvas
+    tempCanvas.width = canvas.width
+    tempCanvas.height = canvas.height
+
+    // Fill with background color
+    tempCtx.fillStyle = "#f5f5f5"
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height)
+
+    // Get the container dimensions for proper scaling
+    const container = canvas.parentElement
+    if (container) {
+      const rect = container.getBoundingClientRect()
+      const devicePixelRatio = window.devicePixelRatio || 1
+      const scaledWidth = rect.width * devicePixelRatio
+      const scaledHeight = rect.height * devicePixelRatio
+
+      // Scale context to match the original canvas scaling
+      tempCtx.scale(devicePixelRatio, devicePixelRatio)
+
+      // Draw the two circles background
+      const centerX = rect.width / 2
+      const centerY = rect.height / 2
+
+      tempCtx.strokeStyle = "#000000"
+      tempCtx.lineWidth = 4
+      tempCtx.beginPath()
+      tempCtx.arc(centerX - 40, centerY, 48, 0, Math.PI * 2)
+      tempCtx.stroke()
+
+      tempCtx.beginPath()
+      tempCtx.arc(centerX + 40, centerY, 48, 0, Math.PI * 2)
+      tempCtx.stroke()
+
+      // Reset scale for drawing the canvas content
+      tempCtx.setTransform(1, 0, 0, 1, 0, 0)
+    }
+
+    // Draw the original canvas content on top
+    tempCtx.drawImage(canvas, 0, 0)
+
+    return tempCanvas.toDataURL()
+  }
+
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -216,10 +265,10 @@ export default function CreateCanvasPage() {
   }
 
   const handleFinish = () => {
-    // Save the drawing to localStorage for later reference
+    // Save the drawing with background to localStorage for later reference
     const canvas = canvasRef.current
     if (canvas) {
-      const drawingData = canvas.toDataURL()
+      const drawingData = captureCanvasWithBackground(canvas)
       localStorage.setItem("creatorDrawing", drawingData)
     }
     setIsFinished(true)

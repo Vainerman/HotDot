@@ -13,17 +13,17 @@ export default function AnimatedCat() {
   return (
     <div className="absolute top-20 left-6">
       <svg width="180" height="200" viewBox="0 0 180 200" className="overflow-visible">
-        {/* Moustache - Clean and straight, appears immediately in black */}
+        {/* Moustache - Clean and straight, appears immediately in black, moved more to the right */}
         <g className="opacity-100">
-          <path d="M18 68 Q30 66 42 68" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
-          <path d="M16 76 Q30 74 44 76" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
-          <path d="M18 84 Q30 82 42 84" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
-          <path d="M118 68 Q130 66 142 68" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
-          <path d="M116 76 Q130 74 144 76" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
-          <path d="M118 84 Q130 82 142 84" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
+          <path d="M30 68 Q42 66 54 68" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
+          <path d="M28 76 Q42 74 56 76" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
+          <path d="M30 84 Q42 82 54 84" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
+          <path d="M130 68 Q142 66 154 68" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
+          <path d="M128 76 Q142 74 156 76" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
+          <path d="M130 84 Q142 82 154 84" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
         </g>
 
-        {/* Cat Head - Single sketchy line, moved left to align with moustache */}
+        {/* Cat Head - Single sketchy line */}
         <path
           d="M40 60 Q38 30 70 32 Q90 28 110 30 Q130 32 140 60 Q142 80 130 100 Q110 120 90 118 Q70 116 50 100 Q38 80 40 60"
           fill="none"

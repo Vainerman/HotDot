@@ -13,6 +13,9 @@ export default function GuessPage() {
   const timeLeftRef = useRef(30)
   const [hotColdValue, setHotColdValue] = useState(50)
   const [isCanvasLocked, setIsCanvasLocked] = useState(false)
+  const [showResults, setShowResults] = useState(false)
+  const [guesserDrawing, setGuesserDrawing] = useState<string>("")
+  const [creatorDrawing, setCreatorDrawing] = useState<string>("")
 
   // Simulate hot-cold slider movement
   useEffect(() => {
@@ -39,6 +42,55 @@ export default function GuessPage() {
   useEffect(() => {
     timeLeftRef.current = timeLeft
   }, [timeLeft])
+
+  // Function to capture canvas with background
+  const captureCanvasWithBackground = (canvas: HTMLCanvasElement) => {
+    const tempCanvas = document.createElement("canvas")
+    const tempCtx = tempCanvas.getContext("2d")
+    if (!tempCtx) return canvas.toDataURL()
+
+    // Set same dimensions as original canvas
+    tempCanvas.width = canvas.width
+    tempCanvas.height = canvas.height
+
+    // Fill with background color
+    tempCtx.fillStyle = "#f5f5f5"
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height)
+
+    // Get the container dimensions for proper scaling
+    const container = canvas.parentElement
+    if (container) {
+      const rect = container.getBoundingClientRect()
+      const devicePixelRatio = window.devicePixelRatio || 1
+      const scaledWidth = rect.width * devicePixelRatio
+      const scaledHeight = rect.height * devicePixelRatio
+
+      // Scale context to match the original canvas scaling
+      tempCtx.scale(devicePixelRatio, devicePixelRatio)
+
+      // Draw the two circles background
+      const centerX = rect.width / 2
+      const centerY = rect.height / 2
+
+      tempCtx.strokeStyle = "#000000"
+      tempCtx.lineWidth = 4
+      tempCtx.beginPath()
+      tempCtx.arc(centerX - 40, centerY, 48, 0, Math.PI * 2)
+      tempCtx.stroke()
+
+      tempCtx.beginPath()
+      tempCtx.arc(centerX + 40, centerY, 48, 0, Math.PI * 2)
+      tempCtx.stroke()
+
+      // Reset scale for drawing the canvas content
+      tempCtx.setTransform(1, 0, 0, 1, 0, 0)
+    }
+
+    // Draw the original canvas content on top
+    tempCtx.drawImage(canvas, 0, 0)
+
+    return tempCanvas.toDataURL()
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -212,8 +264,26 @@ export default function GuessPage() {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000)
       return () => clearTimeout(timer)
     } else {
-      // Lock canvas when time ends
+      // Lock canvas and save drawings when time ends
       setIsCanvasLocked(true)
+
+      // Save guesser's drawing with background
+      const canvas = canvasRef.current
+      if (canvas) {
+        const guesserDrawingData = captureCanvasWithBackground(canvas)
+        setGuesserDrawing(guesserDrawingData)
+      }
+
+      // Get creator's drawing from localStorage
+      const creatorDrawingData = localStorage.getItem("creatorDrawing")
+      if (creatorDrawingData) {
+        setCreatorDrawing(creatorDrawingData)
+      }
+
+      // Show results after a brief delay
+      setTimeout(() => {
+        setShowResults(true)
+      }, 1000)
     }
   }, [timeLeft])
 
@@ -230,6 +300,71 @@ export default function GuessPage() {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
     ctx.clearRect(0, 0, canvas.width, canvas.height)
+  }
+
+  if (showResults) {
+    return (
+      <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
+        {/* Header */}
+        <div className="bg-[#e8e8e8] px-4 py-4 flex items-center justify-between border-b border-gray-300">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
+              <span className="text-black font-bold text-sm">Y</span>
+            </div>
+            <div>
+              <span className="text-black font-semibold">Results</span>
+              <span className="text-gray-500 ml-2">• Round 01/03</span>
+            </div>
+          </div>
+          <Link href="/">
+            <X className="w-6 h-6 text-black" />
+          </Link>
+        </div>
+
+        {/* Results Content */}
+        <div className="flex-1 p-6 space-y-6">
+          {/* Your Guess */}
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h2 className="text-xl font-bold text-black mb-4">Your Guess</h2>
+            <div className="relative bg-[#f5f5f5] rounded-lg" style={{ aspectRatio: "4/3" }}>
+              {guesserDrawing && (
+                <img
+                  src={guesserDrawing || "/placeholder.svg"}
+                  alt="Your guess"
+                  className="w-full h-full object-contain rounded-lg"
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Original Drawing */}
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <h2 className="text-xl font-bold text-black mb-4">Original Drawing</h2>
+            <div className="relative bg-[#f5f5f5] rounded-lg" style={{ aspectRatio: "4/3" }}>
+              {creatorDrawing && (
+                <img
+                  src={creatorDrawing || "/placeholder.svg"}
+                  alt="Original drawing"
+                  className="w-full h-full object-contain rounded-lg"
+                />
+              )}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-4">
+            <button className="flex-1 bg-[#ff5c38] text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-[#e54d2e] transition-colors">
+              Next Round
+            </button>
+            <Link href="/" className="flex-1">
+              <button className="w-full bg-gray-200 text-black py-3 px-6 rounded-lg text-lg font-semibold hover:bg-gray-300 transition-colors">
+                Home
+              </button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -287,7 +422,9 @@ export default function GuessPage() {
       {/* Bottom Hot-Cold Feedback Section */}
       <div className="bg-[#e8e8e8] px-4 py-6 border-t border-gray-300">
         <div className="text-center mb-4">
-          <h2 className="text-black text-2xl font-bold mb-2">GUESS {formatTime(timeLeft)}</h2>
+          <h2 className="text-black text-2xl font-bold mb-2">
+            {timeLeft === 0 ? "TIME'S UP!" : `GUESS ${formatTime(timeLeft)}`}
+          </h2>
         </div>
         <HotColdSlider value={hotColdValue} disabled={true} />
       </div>

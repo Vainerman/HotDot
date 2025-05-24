@@ -85,6 +85,15 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
     onChange(SLIDER_POSITIONS[index])
   }
 
+  // Handle thumb/pin interactions with larger hitbox
+  const handleThumbMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent track click
+    if (disabled) return
+    setIsDragging(true)
+    const percentage = getPercentageFromEvent(e.clientX)
+    setDragValue(percentage)
+  }
+
   useEffect(() => {
     if (isDragging) {
       document.addEventListener("mousemove", handleMouseMove)
@@ -143,15 +152,21 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
           }}
           onMouseDown={handleMouseDown}
         >
-          {/* Handle/Thumb */}
+          {/* Handle/Thumb with larger hitbox */}
           <div
-            className="absolute w-0.5 h-16 bg-[#FF5C38] transition-all duration-200 ease-out"
+            className="absolute transition-all duration-200 ease-out"
             style={{
               left: `${currentValue}%`,
               transform: "translateX(-50%)",
               top: "-32px",
             }}
-          />
+            onMouseDown={handleThumbMouseDown}
+          >
+            {/* Invisible larger hitbox */}
+            <div className="absolute w-12 h-20 -left-6 -top-2" style={{ background: "transparent" }} />
+            {/* Visible thumb */}
+            <div className="w-0.5 h-16 bg-[#FF5C38]" />
+          </div>
         </div>
       </div>
     </div>
