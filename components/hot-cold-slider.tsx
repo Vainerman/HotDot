@@ -10,11 +10,12 @@ interface HotColdSliderProps {
   disabled?: boolean
 }
 
-const SLIDER_POSITIONS = [0, 25, 50, 75, 100]
+const SLIDER_POSITIONS = [0, 35, 50, 65, 100]
 const SLIDER_LABELS = ["VERY COLD", "COLD", "WARM", "HOT", "VERY HOT"]
 
 export default function HotColdSlider({ value, onChange, disabled = false }: HotColdSliderProps) {
   const [isDragging, setIsDragging] = useState(false)
+  const [dragValue, setDragValue] = useState(value)
   const sliderRef = useRef<HTMLDivElement>(null)
 
   // Find the closest position index
@@ -34,15 +35,15 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
   }
 
   // Get the current active position index
-  const activeIndex = getClosestPositionIndex(value)
+  const currentValue = isDragging ? dragValue : value
+  const activeIndex = getClosestPositionIndex(currentValue)
 
   // Calculate the offset to center the active label on the handle
   const calculateLabelOffset = () => {
-    // We want to move the labels so the active one is at 50% (center)
-    // The active label is naturally at (activeIndex * 25)% position
-    // We need to shift by (50 - activeIndex * 25)%
-    const targetCenter = 50 // We want active label at center (50%)
-    const activeLabelPosition = activeIndex * 25 // Current position of active label
+    // Use wider spacing to prevent overlap
+    const labelPositions = [0, 30, 50, 70, 100] // Wider spacing for labels
+    const targetCenter = 50
+    const activeLabelPosition = labelPositions[activeIndex]
     return targetCenter - activeLabelPosition
   }
 
@@ -51,29 +52,32 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
   const handleMouseDown = (e: React.MouseEvent) => {
     if (disabled) return
     setIsDragging(true)
-    updateValue(e.clientX)
+    const percentage = getPercentageFromEvent(e.clientX)
+    setDragValue(percentage)
   }
 
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging || disabled) return
-    updateValue(e.clientX)
+    const percentage = getPercentageFromEvent(e.clientX)
+    setDragValue(percentage)
   }
 
   const handleMouseUp = () => {
-    setIsDragging(false)
-  }
+    if (!isDragging || disabled || !onChange) return
 
-  const updateValue = (clientX: number) => {
-    if (!sliderRef.current || !onChange) return
-
-    const rect = sliderRef.current.getBoundingClientRect()
-    const percentage = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100))
-
-    // Snap to the closest position
-    const closestIndex = getClosestPositionIndex(percentage)
+    // Snap to closest position when releasing
+    const closestIndex = getClosestPositionIndex(dragValue)
     const snappedValue = SLIDER_POSITIONS[closestIndex]
 
     onChange(snappedValue)
+    setIsDragging(false)
+  }
+
+  const getPercentageFromEvent = (clientX: number) => {
+    if (!sliderRef.current) return 0
+
+    const rect = sliderRef.current.getBoundingClientRect()
+    return Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100))
   }
 
   const handleLabelClick = (index: number) => {
@@ -90,16 +94,25 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
         document.removeEventListener("mouseup", handleMouseUp)
       }
     }
-  }, [isDragging])
+  }, [isDragging, dragValue])
+
+  // Update dragValue when value prop changes (for external updates)
+  useEffect(() => {
+    if (!isDragging) {
+      setDragValue(value)
+    }
+  }, [value, isDragging])
 
   return (
     <div className="w-full max-w-4xl mx-auto">
       {/* Labels Container */}
       <div className="relative mb-2 overflow-hidden h-12">
         <div
-          className="flex absolute w-full transition-transform duration-300 ease-out"
+          className="flex absolute transition-transform duration-300 ease-out"
           style={{
             transform: `translateX(${labelOffset}%)`,
+            width: "200%", // Make container wider to accommodate spacing
+            left: "-50%", // Center the wider container
           }}
         >
           {SLIDER_LABELS.map((label, index) => (
@@ -109,7 +122,8 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
                 disabled ? "cursor-default" : "cursor-pointer"
               } ${index === activeIndex ? "text-black" : "text-gray-400"}`}
               style={{
-                width: "25%",
+                width: "20%", // Smaller percentage of the wider container
+                padding: "0 10px", // Add padding to prevent overlap
               }}
               onClick={() => handleLabelClick(index)}
             >
@@ -129,13 +143,13 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
           }}
           onMouseDown={handleMouseDown}
         >
-          {/* Handle/Thumb - Made longer */}
+          {/* Handle/Thumb */}
           <div
-            className="absolute w-0.5 h-16 bg-[#FF5C38] transition-all duration-300 ease-out"
+            className="absolute w-0.5 h-16 bg-[#FF5C38] transition-all duration-200 ease-out"
             style={{
-              left: `${value}%`,
+              left: `${currentValue}%`,
               transform: "translateX(-50%)",
-              top: "-32px", // Adjusted to center the longer line
+              top: "-32px",
             }}
           />
         </div>

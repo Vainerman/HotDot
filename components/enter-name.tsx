@@ -10,7 +10,7 @@ interface EnterNameProps {
 }
 
 export default function EnterName({ mode, onContinue }: EnterNameProps) {
-  const [name, setName] = useState("")
+  const [name, setName] = useState("Player")
 
   const handleContinue = () => {
     if (name.trim()) {
@@ -50,7 +50,7 @@ export default function EnterName({ mode, onContinue }: EnterNameProps) {
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your name"
+                placeholder="Player"
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-lg focus:border-[#ff5c38] focus:outline-none transition-colors"
                 maxLength={20}
                 onKeyPress={(e) => {

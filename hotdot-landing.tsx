@@ -10,12 +10,12 @@ export default function Component() {
         <span className="text-[#928e82] text-lg font-light">(Hot —— Dot)</span>
       </div>
 
-      {/* Animated Cat */}
+      {/* Animated Cat - Now positioned above menu */}
       <AnimatedCat />
 
       {/* Bottom Left Menu and Text */}
       <div className="absolute bottom-8 left-6">
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3 mb-8 relative z-10">
           <Menu className="w-6 h-6 text-[#928e82]" />
           <span className="text-[#928e82] text-lg">Menu</span>
         </div>

@@ -274,10 +274,10 @@ export default function CreateCanvasPage() {
         <div className="absolute top-4 left-4 z-10">
           <button
             onClick={handleFinish}
-            disabled={isFinished || timeLeft === 0}
+            disabled={isFinished}
             className="bg-[#ff5c38] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#e54d2e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
           >
-            {timeLeft === 0 ? "Time's Up!" : "Finish"}
+            {isFinished ? "Finished" : "Finish"}
           </button>
         </div>
 

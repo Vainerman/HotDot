@@ -50,27 +50,74 @@ export default function LiveViewPage() {
     const centerX = rect.width / 2
     const centerY = rect.height / 2
 
-    // Smooth drawing simulation
-    const drawPath = (points: { x: number; y: number }[], duration: number, callback?: () => void) => {
+    // Generate smooth, natural curves for freehand drawing
+    const generateSmoothCurve = (startX: number, startY: number, endX: number, endY: number, curviness = 0.3) => {
+      const points = []
+      const steps = 30
+
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps
+
+        // Add natural hand tremor
+        const tremor = (Math.sin(t * 20) + Math.cos(t * 15)) * 2
+
+        // Bezier curve with natural variation
+        const x = startX + (endX - startX) * t + Math.sin(t * Math.PI * 2) * curviness * 20 + tremor
+        const y = startY + (endY - startY) * t + Math.cos(t * Math.PI * 3) * curviness * 15 + tremor
+
+        points.push({ x, y })
+      }
+      return points
+    }
+
+    const generateCircle = (centerX: number, centerY: number, radius: number, irregularity = 0.1) => {
+      const points = []
+      const steps = 40
+
+      for (let i = 0; i <= steps; i++) {
+        const angle = (i / steps) * Math.PI * 2
+        const radiusVariation = radius + Math.sin(angle * 5) * irregularity * radius
+        const tremor = (Math.sin(angle * 10) + Math.cos(angle * 7)) * 1.5
+
+        const x = centerX + Math.cos(angle) * radiusVariation + tremor
+        const y = centerY + Math.sin(angle) * radiusVariation + tremor
+
+        points.push({ x, y })
+      }
+      return points
+    }
+
+    // Smooth drawing simulation with natural hand movement
+    const drawSmoothPath = (points: { x: number; y: number }[], duration: number, callback?: () => void) => {
       let currentIndex = 0
       const totalPoints = points.length
-      const interval = duration / totalPoints
+      const baseInterval = duration / totalPoints
 
       const drawNextPoint = () => {
         if (currentIndex < totalPoints) {
           const point = points[currentIndex]
 
+          // Vary drawing speed naturally
+          const speedVariation = 0.5 + Math.random() * 1
+          const interval = baseInterval * speedVariation
+
           if (currentIndex === 0) {
             ctx.beginPath()
             ctx.moveTo(point.x, point.y)
           } else {
-            ctx.lineTo(point.x, point.y)
+            // Use quadratic curves for smoother lines
+            const prevPoint = points[currentIndex - 1]
+            const midX = (prevPoint.x + point.x) / 2
+            const midY = (prevPoint.y + point.y) / 2
+
+            ctx.quadraticCurveTo(prevPoint.x, prevPoint.y, midX, midY)
             ctx.stroke()
           }
 
           currentIndex++
           setTimeout(drawNextPoint, interval)
         } else {
+          ctx.stroke()
           if (callback) callback()
         }
       }
@@ -78,73 +125,97 @@ export default function LiveViewPage() {
       drawNextPoint()
     }
 
-    const simulateDrawing = () => {
-      // Generate smooth circle path for left circle
-      const leftCirclePoints = []
-      for (let i = 0; i <= 60; i++) {
-        const angle = (i / 60) * Math.PI * 2
-        leftCirclePoints.push({
-          x: centerX - 64 + Math.cos(angle) * 40,
-          y: centerY + Math.sin(angle) * 40,
-        })
-      }
+    const simulateCarDrawing = () => {
+      // Car body - smooth freehand rectangle
+      const carBody = [
+        ...generateSmoothCurve(centerX - 80, centerY + 20, centerX - 75, centerY - 15, 0.2),
+        ...generateSmoothCurve(centerX - 75, centerY - 15, centerX + 85, centerY - 12, 0.1),
+        ...generateSmoothCurve(centerX + 85, centerY - 12, centerX + 82, centerY + 22, 0.2),
+        ...generateSmoothCurve(centerX + 82, centerY + 22, centerX - 80, centerY + 20, 0.1),
+      ]
 
-      // Generate smooth circle path for right circle
-      const rightCirclePoints = []
-      for (let i = 0; i <= 60; i++) {
-        const angle = (i / 60) * Math.PI * 2
-        rightCirclePoints.push({
-          x: centerX + 64 + Math.cos(angle) * 40,
-          y: centerY + Math.sin(angle) * 40,
-        })
-      }
+      // Car roof - smooth trapezoid
+      const roof = [
+        ...generateSmoothCurve(centerX - 45, centerY - 15, centerX - 38, centerY - 45, 0.15),
+        ...generateSmoothCurve(centerX - 38, centerY - 45, centerX + 42, centerY - 43, 0.1),
+        ...generateSmoothCurve(centerX + 42, centerY - 43, centerX + 48, centerY - 12, 0.15),
+      ]
 
-      // Generate connecting line
-      const connectPoints = []
-      for (let i = 0; i <= 20; i++) {
-        connectPoints.push({
-          x: centerX - 24 + (i / 20) * 48,
-          y: centerY,
-        })
-      }
+      // Wheels - natural circles
+      const leftWheel = generateCircle(centerX - 50, centerY + 35, 18, 0.15)
+      const rightWheel = generateCircle(centerX + 45, centerY + 37, 16, 0.12)
 
-      // Generate vertical line
-      const verticalPoints = []
-      for (let i = 0; i <= 30; i++) {
-        verticalPoints.push({
-          x: centerX,
-          y: centerY - 60 + (i / 30) * 120,
-        })
-      }
+      // Windows - smooth rectangles
+      const leftWindow = [
+        ...generateSmoothCurve(centerX - 35, centerY - 12, centerX - 32, centerY - 38, 0.1),
+        ...generateSmoothCurve(centerX - 32, centerY - 38, centerX - 5, centerY - 36, 0.05),
+        ...generateSmoothCurve(centerX - 5, centerY - 36, centerX - 8, centerY - 14, 0.1),
+        ...generateSmoothCurve(centerX - 8, centerY - 14, centerX - 35, centerY - 12, 0.05),
+      ]
 
-      // Execute drawing sequence
+      const rightWindow = [
+        ...generateSmoothCurve(centerX + 8, centerY - 14, centerX + 12, centerY - 37, 0.1),
+        ...generateSmoothCurve(centerX + 12, centerY - 37, centerX + 38, centerY - 35, 0.05),
+        ...generateSmoothCurve(centerX + 38, centerY - 35, centerX + 42, centerY - 12, 0.1),
+        ...generateSmoothCurve(centerX + 42, centerY - 12, centerX + 8, centerY - 14, 0.05),
+      ]
+
+      // Headlights - small natural circles
+      const leftHeadlight = generateCircle(centerX - 78, centerY - 2, 8, 0.2)
+      const rightHeadlight = generateCircle(centerX + 80, centerY + 1, 7, 0.18)
+
+      // Execute smooth drawing sequence
       setTimeout(() => {
         setIsDrawing(true)
-        drawPath(leftCirclePoints, 2000, () => {
+        drawSmoothPath(carBody, 4000, () => {
           setIsDrawing(false)
           setTimeout(() => {
             setIsDrawing(true)
-            drawPath(rightCirclePoints, 2000, () => {
+            drawSmoothPath(roof, 2500, () => {
               setIsDrawing(false)
               setTimeout(() => {
                 setIsDrawing(true)
-                drawPath(connectPoints, 1000, () => {
+                drawSmoothPath(leftWheel, 2000, () => {
                   setIsDrawing(false)
                   setTimeout(() => {
                     setIsDrawing(true)
-                    drawPath(verticalPoints, 1500, () => {
+                    drawSmoothPath(rightWheel, 1800, () => {
                       setIsDrawing(false)
+                      setTimeout(() => {
+                        setIsDrawing(true)
+                        drawSmoothPath(leftWindow, 1500, () => {
+                          setIsDrawing(false)
+                          setTimeout(() => {
+                            setIsDrawing(true)
+                            drawSmoothPath(rightWindow, 1400, () => {
+                              setIsDrawing(false)
+                              setTimeout(() => {
+                                setIsDrawing(true)
+                                drawSmoothPath(leftHeadlight, 800, () => {
+                                  setIsDrawing(false)
+                                  setTimeout(() => {
+                                    setIsDrawing(true)
+                                    drawSmoothPath(rightHeadlight, 700, () => {
+                                      setIsDrawing(false)
+                                    })
+                                  }, 600)
+                                })
+                              }, 500)
+                            })
+                          }, 400)
+                        })
+                      }, 800)
                     })
-                  }, 1000)
+                  }, 700)
                 })
-              }, 1000)
+              }, 900)
             })
-          }, 1500)
+          }, 1200)
         })
       }, 2000)
     }
 
-    simulateDrawing()
+    simulateCarDrawing()
   }, [])
 
   // Timer countdown
