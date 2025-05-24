@@ -45,24 +45,22 @@ export default function CreateCanvasPage() {
     if (container) {
       const rect = container.getBoundingClientRect()
       const devicePixelRatio = window.devicePixelRatio || 1
-      const scaledWidth = rect.width * devicePixelRatio
-      const scaledHeight = rect.height * devicePixelRatio
 
       // Scale context to match the original canvas scaling
       tempCtx.scale(devicePixelRatio, devicePixelRatio)
 
-      // Draw the two circles background
+      // Draw the two circles background directly
       const centerX = rect.width / 2
       const centerY = rect.height / 2
 
       tempCtx.strokeStyle = "#000000"
       tempCtx.lineWidth = 4
       tempCtx.beginPath()
-      tempCtx.arc(centerX - 40, centerY, 48, 0, Math.PI * 2)
+      tempCtx.arc(centerX - 64, centerY, 48, 0, Math.PI * 2)
       tempCtx.stroke()
 
       tempCtx.beginPath()
-      tempCtx.arc(centerX + 40, centerY, 48, 0, Math.PI * 2)
+      tempCtx.arc(centerX + 64, centerY, 48, 0, Math.PI * 2)
       tempCtx.stroke()
 
       // Reset scale for drawing the canvas content
@@ -300,7 +298,7 @@ export default function CreateCanvasPage() {
 
       {/* Main Drawing Area */}
       <div className="flex-1 relative bg-[#f5f5f5] flex items-center justify-center">
-        {/* Two Circles Background */}
+        {/* Two Circles Background - Back to CSS circles */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="flex gap-8">
             <div className="w-24 h-24 border-4 border-black rounded-full"></div>

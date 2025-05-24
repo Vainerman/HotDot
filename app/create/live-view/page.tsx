@@ -49,24 +49,22 @@ export default function LiveViewPage() {
     if (container) {
       const rect = container.getBoundingClientRect()
       const devicePixelRatio = window.devicePixelRatio || 1
-      const scaledWidth = rect.width * devicePixelRatio
-      const scaledHeight = rect.height * devicePixelRatio
 
       // Scale context to match the original canvas scaling
       tempCtx.scale(devicePixelRatio, devicePixelRatio)
 
-      // Draw the two circles background
+      // Draw the two circles background directly
       const centerX = rect.width / 2
       const centerY = rect.height / 2
 
       tempCtx.strokeStyle = "#000000"
       tempCtx.lineWidth = 4
       tempCtx.beginPath()
-      tempCtx.arc(centerX - 40, centerY, 48, 0, Math.PI * 2)
+      tempCtx.arc(centerX - 64, centerY, 48, 0, Math.PI * 2)
       tempCtx.stroke()
 
       tempCtx.beginPath()
-      tempCtx.arc(centerX + 40, centerY, 48, 0, Math.PI * 2)
+      tempCtx.arc(centerX + 64, centerY, 48, 0, Math.PI * 2)
       tempCtx.stroke()
 
       // Reset scale for drawing the canvas content
@@ -105,38 +103,40 @@ export default function LiveViewPage() {
     ctx.globalCompositeOperation = "source-over"
     ctx.imageSmoothingEnabled = true
     ctx.imageSmoothingQuality = "high"
+    // Add this line to ensure drawings are preserved
+    ctx.save()
 
     const centerX = rect.width / 2
     const centerY = rect.height / 2
 
-    // Generate smooth, natural curves for freehand drawing
-    const generateSmoothCurve = (startX: number, startY: number, endX: number, endY: number, curviness = 0.3) => {
+    // Generate smoother, less wiggly curves for cleaner drawing
+    const generateSmoothCurve = (startX: number, startY: number, endX: number, endY: number, curviness = 0.1) => {
       const points = []
-      const steps = 30
+      const steps = 25
 
       for (let i = 0; i <= steps; i++) {
         const t = i / steps
 
-        // Add natural hand tremor
-        const tremor = (Math.sin(t * 20) + Math.cos(t * 15)) * 2
+        // Reduced tremor for cleaner lines
+        const tremor = (Math.sin(t * 12) + Math.cos(t * 8)) * 0.8
 
-        // Bezier curve with natural variation
-        const x = startX + (endX - startX) * t + Math.sin(t * Math.PI * 2) * curviness * 20 + tremor
-        const y = startY + (endY - startY) * t + Math.cos(t * Math.PI * 3) * curviness * 15 + tremor
+        // Less curvy bezier curve
+        const x = startX + (endX - startX) * t + Math.sin(t * Math.PI * 1.5) * curviness * 12 + tremor
+        const y = startY + (endY - startY) * t + Math.cos(t * Math.PI * 2) * curviness * 8 + tremor
 
         points.push({ x, y })
       }
       return points
     }
 
-    const generateCircle = (centerX: number, centerY: number, radius: number, irregularity = 0.1) => {
+    const generateCircle = (centerX: number, centerY: number, radius: number, irregularity = 0.05) => {
       const points = []
-      const steps = 40
+      const steps = 35
 
       for (let i = 0; i <= steps; i++) {
         const angle = (i / steps) * Math.PI * 2
-        const radiusVariation = radius + Math.sin(angle * 5) * irregularity * radius
-        const tremor = (Math.sin(angle * 10) + Math.cos(angle * 7)) * 1.5
+        const radiusVariation = radius + Math.sin(angle * 4) * irregularity * radius
+        const tremor = (Math.sin(angle * 8) + Math.cos(angle * 6)) * 0.8
 
         const x = centerX + Math.cos(angle) * radiusVariation + tremor
         const y = centerY + Math.sin(angle) * radiusVariation + tremor
@@ -152,30 +152,29 @@ export default function LiveViewPage() {
       const totalPoints = points.length
       const baseInterval = duration / totalPoints
 
-      const drawNextPoint = () => {
-        if (currentIndex < totalPoints) {
-          const point = points[currentIndex]
+      // Start a new path for this drawing segment
+      ctx.beginPath()
+      ctx.moveTo(points[0].x, points[0].y)
 
-          // Vary drawing speed naturally
-          const speedVariation = 0.5 + Math.random() * 1
+      const drawNextPoint = () => {
+        if (currentIndex < totalPoints - 1) {
+          const currentPoint = points[currentIndex]
+          const nextPoint = points[currentIndex + 1]
+
+          // Less speed variation for smoother drawing
+          const speedVariation = 0.7 + Math.random() * 0.6
           const interval = baseInterval * speedVariation
 
-          if (currentIndex === 0) {
-            ctx.beginPath()
-            ctx.moveTo(point.x, point.y)
-          } else {
-            // Use quadratic curves for smoother lines
-            const prevPoint = points[currentIndex - 1]
-            const midX = (prevPoint.x + point.x) / 2
-            const midY = (prevPoint.y + point.y) / 2
+          // Use quadratic curves for smoother lines
+          const midX = (currentPoint.x + nextPoint.x) / 2
+          const midY = (currentPoint.y + nextPoint.y) / 2
 
-            ctx.quadraticCurveTo(prevPoint.x, prevPoint.y, midX, midY)
-            ctx.stroke()
-          }
+          ctx.quadraticCurveTo(currentPoint.x, currentPoint.y, midX, midY)
 
           currentIndex++
           setTimeout(drawNextPoint, interval)
         } else {
+          // Finish the path and stroke it to make it permanent
           ctx.stroke()
           if (callback) callback()
         }
@@ -185,95 +184,96 @@ export default function LiveViewPage() {
     }
 
     const simulateCarDrawing = () => {
-      // Car body - smooth freehand rectangle
+      // Car body - proportioned to the connected circles
       const carBody = [
-        ...generateSmoothCurve(centerX - 80, centerY + 20, centerX - 75, centerY - 15, 0.2),
-        ...generateSmoothCurve(centerX - 75, centerY - 15, centerX + 85, centerY - 12, 0.1),
-        ...generateSmoothCurve(centerX + 85, centerY - 12, centerX + 82, centerY + 22, 0.2),
-        ...generateSmoothCurve(centerX + 82, centerY + 22, centerX - 80, centerY + 20, 0.1),
+        ...generateSmoothCurve(centerX - 90, centerY + 15, centerX - 85, centerY - 20, 0.08),
+        ...generateSmoothCurve(centerX - 85, centerY - 20, centerX + 95, centerY - 18, 0.05),
+        ...generateSmoothCurve(centerX + 95, centerY - 18, centerX + 90, centerY + 17, 0.08),
+        ...generateSmoothCurve(centerX + 90, centerY + 17, centerX - 90, centerY + 15, 0.05),
       ]
 
-      // Car roof - smooth trapezoid
+      // Car roof - cleaner trapezoid
       const roof = [
-        ...generateSmoothCurve(centerX - 45, centerY - 15, centerX - 38, centerY - 45, 0.15),
-        ...generateSmoothCurve(centerX - 38, centerY - 45, centerX + 42, centerY - 43, 0.1),
-        ...generateSmoothCurve(centerX + 42, centerY - 43, centerX + 48, centerY - 12, 0.15),
+        ...generateSmoothCurve(centerX - 50, centerY - 20, centerX - 45, centerY - 50, 0.06),
+        ...generateSmoothCurve(centerX - 45, centerY - 50, centerX + 50, centerY - 48, 0.04),
+        ...generateSmoothCurve(centerX + 50, centerY - 48, centerX + 55, centerY - 18, 0.06),
       ]
 
-      // Wheels - natural circles
-      const leftWheel = generateCircle(centerX - 50, centerY + 35, 18, 0.15)
-      const rightWheel = generateCircle(centerX + 45, centerY + 37, 16, 0.12)
+      // Wheels - positioned to align with the black circles (48px radius each)
+      // Left wheel at centerX - 40, right wheel at centerX + 40
+      const leftWheel = generateCircle(centerX - 40, centerY + 35, 22, 0.08)
+      const rightWheel = generateCircle(centerX + 40, centerY + 35, 22, 0.08)
 
-      // Windows - smooth rectangles
+      // Windows - cleaner rectangles
       const leftWindow = [
-        ...generateSmoothCurve(centerX - 35, centerY - 12, centerX - 32, centerY - 38, 0.1),
-        ...generateSmoothCurve(centerX - 32, centerY - 38, centerX - 5, centerY - 36, 0.05),
-        ...generateSmoothCurve(centerX - 5, centerY - 36, centerX - 8, centerY - 14, 0.1),
-        ...generateSmoothCurve(centerX - 8, centerY - 14, centerX - 35, centerY - 12, 0.05),
+        ...generateSmoothCurve(centerX - 40, centerY - 18, centerX - 38, centerY - 42, 0.04),
+        ...generateSmoothCurve(centerX - 38, centerY - 42, centerX - 8, centerY - 40, 0.02),
+        ...generateSmoothCurve(centerX - 8, centerY - 40, centerX - 10, centerY - 20, 0.04),
+        ...generateSmoothCurve(centerX - 10, centerY - 20, centerX - 40, centerY - 18, 0.02),
       ]
 
       const rightWindow = [
-        ...generateSmoothCurve(centerX + 8, centerY - 14, centerX + 12, centerY - 37, 0.1),
-        ...generateSmoothCurve(centerX + 12, centerY - 37, centerX + 38, centerY - 35, 0.05),
-        ...generateSmoothCurve(centerX + 38, centerY - 35, centerX + 42, centerY - 12, 0.1),
-        ...generateSmoothCurve(centerX + 42, centerY - 12, centerX + 8, centerY - 14, 0.05),
+        ...generateSmoothCurve(centerX + 10, centerY - 20, centerX + 12, centerY - 41, 0.04),
+        ...generateSmoothCurve(centerX + 12, centerY - 41, centerX + 42, centerY - 39, 0.02),
+        ...generateSmoothCurve(centerX + 42, centerY - 39, centerX + 48, centerY - 18, 0.04),
+        ...generateSmoothCurve(centerX + 48, centerY - 18, centerX + 10, centerY - 20, 0.02),
       ]
 
-      // Headlights - small natural circles
-      const leftHeadlight = generateCircle(centerX - 78, centerY - 2, 8, 0.2)
-      const rightHeadlight = generateCircle(centerX + 80, centerY + 1, 7, 0.18)
+      // Headlights - small clean circles
+      const leftHeadlight = generateCircle(centerX - 88, centerY - 5, 6, 0.1)
+      const rightHeadlight = generateCircle(centerX + 92, centerY - 3, 6, 0.1)
 
-      // Execute smooth drawing sequence
+      // Execute smooth drawing sequence with better timing
       setTimeout(() => {
         setIsDrawing(true)
-        drawSmoothPath(carBody, 4000, () => {
+        drawSmoothPath(carBody, 3500, () => {
           setIsDrawing(false)
           setTimeout(() => {
             setIsDrawing(true)
-            drawSmoothPath(roof, 2500, () => {
+            drawSmoothPath(roof, 2200, () => {
               setIsDrawing(false)
               setTimeout(() => {
                 setIsDrawing(true)
-                drawSmoothPath(leftWheel, 2000, () => {
+                drawSmoothPath(leftWheel, 1800, () => {
                   setIsDrawing(false)
                   setTimeout(() => {
                     setIsDrawing(true)
-                    drawSmoothPath(rightWheel, 1800, () => {
+                    drawSmoothPath(rightWheel, 1600, () => {
                       setIsDrawing(false)
                       setTimeout(() => {
                         setIsDrawing(true)
-                        drawSmoothPath(leftWindow, 1500, () => {
+                        drawSmoothPath(leftWindow, 1300, () => {
                           setIsDrawing(false)
                           setTimeout(() => {
                             setIsDrawing(true)
-                            drawSmoothPath(rightWindow, 1400, () => {
+                            drawSmoothPath(rightWindow, 1200, () => {
                               setIsDrawing(false)
                               setTimeout(() => {
                                 setIsDrawing(true)
-                                drawSmoothPath(leftHeadlight, 800, () => {
+                                drawSmoothPath(leftHeadlight, 700, () => {
                                   setIsDrawing(false)
                                   setTimeout(() => {
                                     setIsDrawing(true)
-                                    drawSmoothPath(rightHeadlight, 700, () => {
+                                    drawSmoothPath(rightHeadlight, 600, () => {
                                       setIsDrawing(false)
                                       // Save the simulated guesser drawing with background
                                       const simulatedDrawing = captureCanvasWithBackground(canvas)
                                       setGuesserDrawing(simulatedDrawing)
                                       setDrawingComplete(true)
                                     })
-                                  }, 600)
+                                  }, 500)
                                 })
-                              }, 500)
+                              }, 400)
                             })
-                          }, 400)
+                          }, 300)
                         })
-                      }, 800)
+                      }, 600)
                     })
-                  }, 700)
+                  }, 500)
                 })
-              }, 900)
+              }, 700)
             })
-          }, 1200)
+          }, 1000)
         })
       }, 2000)
     }
@@ -411,7 +411,7 @@ export default function LiveViewPage() {
 
       {/* Main Drawing Area */}
       <div className="flex-1 relative bg-[#f5f5f5] flex items-center justify-center">
-        {/* Two Circles Background */}
+        {/* Two Circles Background - Back to CSS circles */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="flex gap-8">
             <div className="w-24 h-24 border-4 border-black rounded-full"></div>
@@ -431,11 +431,13 @@ export default function LiveViewPage() {
         <canvas ref={canvasRef} className="absolute inset-0" style={{ pointerEvents: "none" }} />
       </div>
 
-      {/* Bottom Hot-Cold Slider Section */}
+      {/* Bottom Section with Timer and Hot-Cold Slider */}
       <div className="bg-[#e8e8e8] px-4 py-6 border-t border-gray-300">
         <div className="text-center mb-4">
-          <h2 className="text-black text-2xl font-bold mb-2">Give {guesserName} a hint</h2>
-          <p className="text-gray-600">Move the slider to show how close they are</p>
+          <h2 className="text-black text-2xl font-bold mb-2">
+            {timeLeft === 0 ? "TIME'S UP!" : `WATCH ${formatTime(timeLeft)}`}
+          </h2>
+          <p className="text-gray-600">Give {guesserName} a hint</p>
         </div>
         <HotColdSlider value={hotColdValue} onChange={setHotColdValue} />
       </div>

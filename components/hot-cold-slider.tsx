@@ -101,11 +101,13 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
     setDragValue(percentage)
   }
 
-  // Touch event handlers for the thumb
+  // Touch event handlers for the thumb - optimized for iPad
   const handleThumbTouchStart = (e: React.TouchEvent) => {
     e.stopPropagation() // Prevent track touch
     e.preventDefault() // Prevent scrolling
     if (disabled) return
+
+    // Immediate response for touch
     setIsDragging(true)
     const percentage = getPercentageFromTouch(e.touches[0])
     setDragValue(percentage)
@@ -136,7 +138,7 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
       document.addEventListener("mousemove", handleMouseMove)
       document.addEventListener("mouseup", handleMouseUp)
 
-      // Touch events
+      // Touch events with immediate response
       document.addEventListener("touchmove", handleTouchMove, { passive: false })
       document.addEventListener("touchend", handleTouchEnd, { passive: false })
 
@@ -196,21 +198,27 @@ export default function HotColdSlider({ value, onChange, disabled = false }: Hot
           }}
           onMouseDown={handleMouseDown}
         >
-          {/* Handle/Thumb with much larger hitbox for touch */}
+          {/* Handle/Thumb with much larger hitbox for iPad */}
           <div
             className="absolute transition-all duration-200 ease-out"
             style={{
               left: `${currentValue}%`,
               transform: "translateX(-50%)",
-              top: "-32px",
+              top: "-40px",
             }}
             onMouseDown={handleThumbMouseDown}
             onTouchStart={handleThumbTouchStart}
           >
-            {/* Much larger invisible hitbox for touch screens */}
-            <div className="absolute -left-8 -top-4 w-16 h-24" style={{ background: "transparent" }} />
+            {/* Extra large invisible hitbox for iPad - 80px wide, 80px tall */}
+            <div
+              className="absolute -left-10 -top-6 w-20 h-20 cursor-pointer"
+              style={{
+                background: "transparent",
+                touchAction: "none", // Prevent any touch delays
+              }}
+            />
             {/* Visible thumb */}
-            <div className="w-0.5 h-16 bg-[#FF5C38]" />
+            <div className="w-0.5 h-16 bg-[#FF5C38] pointer-events-none" />
           </div>
         </div>
       </div>
