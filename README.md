@@ -28,3 +28,7 @@ Continue building your app on:
 2. Deploy your chats from the v0 interface
 3. Changes are automatically pushed to this repository
 4. Vercel deploys the latest version from this repository
+
+## Backend Proxy
+
+A Next.js API route is provided to forward requests to the external Flask service `https://flasker-jc14.onrender.com/process_image`. Use `/api/process-image` from the frontend to avoid CORS errors.
