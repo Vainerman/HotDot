@@ -103,6 +103,8 @@ export default function LiveViewPage() {
     ctx.globalCompositeOperation = "source-over"
     ctx.imageSmoothingEnabled = true
     ctx.imageSmoothingQuality = "high"
+    // Add this line to ensure drawings are preserved
+    ctx.save()
 
     const centerX = rect.width / 2
     const centerY = rect.height / 2
@@ -150,30 +152,29 @@ export default function LiveViewPage() {
       const totalPoints = points.length
       const baseInterval = duration / totalPoints
 
+      // Start a new path for this drawing segment
+      ctx.beginPath()
+      ctx.moveTo(points[0].x, points[0].y)
+
       const drawNextPoint = () => {
-        if (currentIndex < totalPoints) {
-          const point = points[currentIndex]
+        if (currentIndex < totalPoints - 1) {
+          const currentPoint = points[currentIndex]
+          const nextPoint = points[currentIndex + 1]
 
           // Less speed variation for smoother drawing
           const speedVariation = 0.7 + Math.random() * 0.6
           const interval = baseInterval * speedVariation
 
-          if (currentIndex === 0) {
-            ctx.beginPath()
-            ctx.moveTo(point.x, point.y)
-          } else {
-            // Use quadratic curves for smoother lines
-            const prevPoint = points[currentIndex - 1]
-            const midX = (prevPoint.x + point.x) / 2
-            const midY = (prevPoint.y + point.y) / 2
+          // Use quadratic curves for smoother lines
+          const midX = (currentPoint.x + nextPoint.x) / 2
+          const midY = (currentPoint.y + nextPoint.y) / 2
 
-            ctx.quadraticCurveTo(prevPoint.x, prevPoint.y, midX, midY)
-            ctx.stroke()
-          }
+          ctx.quadraticCurveTo(currentPoint.x, currentPoint.y, midX, midY)
 
           currentIndex++
           setTimeout(drawNextPoint, interval)
         } else {
+          // Finish the path and stroke it to make it permanent
           ctx.stroke()
           if (callback) callback()
         }
