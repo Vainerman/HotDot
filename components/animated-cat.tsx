@@ -13,19 +13,17 @@ export default function AnimatedCat() {
   return (
     <div className="absolute top-20 left-6">
       <svg width="180" height="200" viewBox="0 0 180 200" className="overflow-visible">
-        {/* Moustache - Clean and straight, appears immediately in black, moved more to the right */}
+        {/* Goofy moustache */}
         <g className="opacity-100">
-          <path d="M30 68 Q42 66 54 68" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
-          <path d="M28 76 Q42 74 56 76" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
-          <path d="M30 84 Q42 82 54 84" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
-          <path d="M130 68 Q142 66 154 68" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
-          <path d="M128 76 Q142 74 156 76" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
-          <path d="M130 84 Q142 82 154 84" fill="none" stroke="#000000" strokeWidth="2" strokeLinecap="round" />
+          <path d="M90 78 q-15 -8 -35 -6" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+          <path d="M90 82 q-15 2 -35 6" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+          <path d="M90 78 q15 -8 35 -6" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" />
+          <path d="M90 82 q15 2 35 6" fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" />
         </g>
 
-        {/* Cat Head - Single sketchy line */}
+        {/* Goofy Cat Head - loose wobbly line */}
         <path
-          d="M40 60 Q38 30 70 32 Q90 28 110 30 Q130 32 140 60 Q142 80 130 100 Q110 120 90 118 Q70 116 50 100 Q38 80 40 60"
+          d="M40 60 Q30 25 70 20 Q90 15 110 20 Q150 35 140 60 Q150 90 120 110 Q90 130 60 115 Q35 100 40 60"
           fill="none"
           stroke="#ff5c38"
           strokeWidth="2.5"
@@ -39,9 +37,9 @@ export default function AnimatedCat() {
           }}
         />
 
-        {/* Left Ear - Single sketchy line */}
+        {/* Left Ear - wobbly */}
         <path
-          d="M55 40 Q45 20 60 25 Q70 30 65 45"
+          d="M60 38 Q45 5 70 15 Q80 25 75 45"
           fill="none"
           stroke="#ff5c38"
           strokeWidth="2.5"
@@ -55,9 +53,9 @@ export default function AnimatedCat() {
           }}
         />
 
-        {/* Right Ear - Single sketchy line */}
+        {/* Right Ear - wobbly */}
         <path
-          d="M115 45 Q110 30 125 25 Q135 20 125 40"
+          d="M120 40 Q135 5 142 22 Q130 30 135 50"
           fill="none"
           stroke="#ff5c38"
           strokeWidth="2.5"
@@ -73,9 +71,9 @@ export default function AnimatedCat() {
 
         {/* Eyes - Simple circles */}
         <circle
-          cx="65"
-          cy="65"
-          r="6"
+          cx="70"
+          cy="70"
+          r="8"
           fill="none"
           stroke="#ff5c38"
           strokeWidth="2.5"
@@ -88,9 +86,9 @@ export default function AnimatedCat() {
         />
 
         <circle
-          cx="115"
-          cy="65"
-          r="6"
+          cx="110"
+          cy="70"
+          r="8"
           fill="none"
           stroke="#ff5c38"
           strokeWidth="2.5"
@@ -102,9 +100,9 @@ export default function AnimatedCat() {
           }}
         />
 
-        {/* Nose - Simple triangle */}
+        {/* Nose - larger */}
         <path
-          d="M85 80 Q90 75 95 80 Q90 85 85 80"
+          d="M88 90 Q92 85 96 90 Q92 95 88 90"
           fill="none"
           stroke="#ff5c38"
           strokeWidth="2.5"
@@ -118,9 +116,9 @@ export default function AnimatedCat() {
           }}
         />
 
-        {/* Mouth - Simple curved lines */}
+        {/* Mouth - big goofy grin */}
         <path
-          d="M90 85 Q80 95 75 90 M90 85 Q100 95 105 90"
+          d="M78 98 Q90 115 102 98"
           fill="none"
           stroke="#ff5c38"
           strokeWidth="2.5"
@@ -134,20 +132,17 @@ export default function AnimatedCat() {
           }}
         />
 
-        {/* Body - Horizontal oval for standing cat */}
-        <ellipse
-          cx="90"
-          cy="130"
-          rx="35"
-          ry="18"
+        {/* Body - loose oval */}
+        <path
+          d="M55 130 Q90 110 125 130 Q110 150 90 152 Q70 150 55 130"
           fill="none"
           stroke="#ff5c38"
           strokeWidth="2.5"
           strokeLinecap="round"
           className={`${isVisible ? "animate-draw-body" : ""}`}
           style={{
-            strokeDasharray: 160,
-            strokeDashoffset: isVisible ? 0 : 160,
+            strokeDasharray: 180,
+            strokeDashoffset: isVisible ? 0 : 180,
             transition: "stroke-dashoffset 1.8s ease-in-out 9s",
           }}
         />
@@ -163,7 +158,7 @@ export default function AnimatedCat() {
         >
           {/* Front left leg */}
           <path
-            d="M65 145 L65 170 M60 170 L70 170"
+            d="M65 145 q-1 12 -3 24 l10 0"
             fill="none"
             stroke="#ff5c38"
             strokeWidth="2.5"
@@ -171,7 +166,7 @@ export default function AnimatedCat() {
           />
           {/* Front right leg */}
           <path
-            d="M85 145 L85 170 M80 170 L90 170"
+            d="M85 145 q-1 12 -3 24 l10 0"
             fill="none"
             stroke="#ff5c38"
             strokeWidth="2.5"
@@ -179,7 +174,7 @@ export default function AnimatedCat() {
           />
           {/* Back left leg */}
           <path
-            d="M95 145 L95 170 M90 170 L100 170"
+            d="M95 145 q1 12 3 24 l10 0"
             fill="none"
             stroke="#ff5c38"
             strokeWidth="2.5"
@@ -187,7 +182,7 @@ export default function AnimatedCat() {
           />
           {/* Back right leg */}
           <path
-            d="M115 145 L115 170 M110 170 L120 170"
+            d="M115 145 q1 12 3 24 l10 0"
             fill="none"
             stroke="#ff5c38"
             strokeWidth="2.5"
@@ -195,9 +190,9 @@ export default function AnimatedCat() {
           />
         </g>
 
-        {/* Tail - Simple curved line */}
+        {/* Tail - playful swirl */}
         <path
-          d="M125 125 Q145 110 160 95"
+          d="M125 125 q25 -20 20 -40 q20 10 10 30 q5 20 -15 25"
           fill="none"
           stroke="#ff5c38"
           strokeWidth="2.5"
