@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - web
+    restart: unless-stopped
+
+  web:
+    build: ./web
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./web/app:/app
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  db:
+    build: ./db
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  db_data:
