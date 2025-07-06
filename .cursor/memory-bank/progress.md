@@ -22,4 +22,4 @@ The project is in the **initial design and development phase** of a major pivot.
 ## Known Issues
 - The legacy backend code in the `/canvas` directory is a major piece of technical debt that should be ignored and eventually removed.
 - The current UI flow (`/create`, `/guess`) is a remnant of the old concept and needs to be replaced.
-- Several dependencies (`react-day-picker`, `vaul`) are not fully compatible with React 19 and required the `--legacy-peer-deps` flag to install. This should be addressed in the future. 
+- Several dependencies (`react-day-picker`, `vaul`) are not fully compatible with React 19 and required the `--legacy-peer-deps` flag to install. This should be addressed in the future.

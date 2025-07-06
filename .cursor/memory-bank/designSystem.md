@@ -29,4 +29,4 @@ This document contains the specific design tokens used in the HotDot project, so
 - **Navigation:** `52px`
 - **Header:** `16px`
 
-</rewritten_file> 
+</rewritten_file>
