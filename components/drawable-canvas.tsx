@@ -25,8 +25,18 @@ const DrawableCanvas = () => {
     }
   }, []);
 
-  const startDrawing = ({ nativeEvent }: React.MouseEvent<HTMLCanvasElement>) => {
-    const { offsetX, offsetY } = nativeEvent;
+  const getCoordinates = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (event.nativeEvent instanceof MouseEvent) {
+      return { offsetX: event.nativeEvent.offsetX, offsetY: event.nativeEvent.offsetY };
+    }
+    event.preventDefault();
+    const touch = (event.nativeEvent as TouchEvent).touches[0];
+    const rect = (event.target as HTMLCanvasElement).getBoundingClientRect();
+    return { offsetX: touch.clientX - rect.left, offsetY: touch.clientY - rect.top };
+  };
+
+  const startDrawing = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const { offsetX, offsetY } = getCoordinates(event);
     if (context) {
       context.beginPath();
       context.moveTo(offsetX, offsetY);
@@ -41,11 +51,11 @@ const DrawableCanvas = () => {
     }
   };
 
-  const draw = ({ nativeEvent }: React.MouseEvent<HTMLCanvasElement>) => {
+  const draw = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     if (!isDrawing || !context) {
       return;
     }
-    const { offsetX, offsetY } = nativeEvent;
+    const { offsetX, offsetY } = getCoordinates(event);
     context.lineTo(offsetX, offsetY);
     context.stroke();
   };
@@ -57,6 +67,9 @@ const DrawableCanvas = () => {
       onMouseUp={finishDrawing}
       onMouseMove={draw}
       onMouseLeave={finishDrawing} // Stop drawing if mouse leaves canvas
+      onTouchStart={startDrawing}
+      onTouchEnd={finishDrawing}
+      onTouchMove={draw}
       className="w-full h-full bg-white rounded-lg shadow-lg"
     />
   );

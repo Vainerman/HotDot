@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import DrawableCanvas from "@/components/drawable-canvas";
+import AnimatedHotColdSlider from "@/components/animated-hot-cold-slider";
 
 export default function SoloPlayPage() {
   return (
@@ -16,7 +17,8 @@ export default function SoloPlayPage() {
           </div>
         </div>
       </header>
-      <main className="flex-1 flex items-center justify-center p-8">
+      <main className="flex-1 flex flex-col items-center justify-center p-8 gap-8">
+        <AnimatedHotColdSlider />
         <div className="w-[800px] h-[600px] rounded-lg shadow-lg">
           <DrawableCanvas />
         </div>
