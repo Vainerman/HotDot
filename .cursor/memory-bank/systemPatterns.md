@@ -8,4 +8,4 @@
 ## Key Decisions & Patterns
 - **Ignoring the Legacy Backend:** All development will proceed without depending on the old backend codebase. This is a critical constraint to avoid building on a deprecated system.
 - **Component-Driven UI:** Leveraging `shadcn/ui` means we build interfaces by composing small, single-purpose components, which improves maintainability and development speed.
-- **Vercel for Deployment:** The frontend will be built and deployed using Vercel's infrastructure, which is optimized for Next.js applications. 
+- **Vercel for Deployment:** The frontend will be built and deployed using Vercel's infrastructure, which is optimized for Next.js applications.

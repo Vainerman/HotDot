@@ -12,4 +12,4 @@
 - **Fun & Playful:** The experience should feel like a game, not a professional art tool.
 - **Simple & Accessible:** Anyone should be able to pick it up and start drawing immediately.
 - **Creative & Expressive:** While simple, the tool should allow for a high degree of creativity.
-- **Social & Collaborative:** The core loop should encourage sharing and interaction between users. 
+- **Social & Collaborative:** The core loop should encourage sharing and interaction between users.

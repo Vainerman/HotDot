@@ -14,4 +14,4 @@
 
 ## Development Environment
 - The primary development workflow is to run the Next.js frontend locally using `npm run dev`.
-- The backend is not currently part of the active development environment. 
+- The backend is not currently part of the active development environment.
