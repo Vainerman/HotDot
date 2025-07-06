@@ -30,4 +30,4 @@ export default function SoloPlayPage() {
       </footer>
     </div>
   );
-} 
+}

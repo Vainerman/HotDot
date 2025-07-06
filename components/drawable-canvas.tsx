@@ -62,4 +62,4 @@ const DrawableCanvas = () => {
   );
 };
 
-export default DrawableCanvas; 
+export default DrawableCanvas;
