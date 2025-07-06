@@ -20,4 +20,4 @@ The project is in the **initial design and development phase** of a major pivot.
 
 ## Known Issues
 - The legacy backend code in the `/canvas` directory is a major piece of technical debt that should be ignored and eventually removed.
-- The current UI flow (`/create`, `/guess`) is a remnant of the old concept and needs to be replaced. 
+- The current UI flow (`/create`, `/guess`) is a remnant of the old concept and needs to be replaced.

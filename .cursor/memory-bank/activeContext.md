@@ -9,4 +9,4 @@
 **Recent Key Decisions:**
 - The project's core concept has been clarified: it is a social drawing game, not a "Hot or Cold" game.
 - The existing backend has been officially deprecated and will be ignored for all new development.
-- Development will focus on the frontend first, hosted on Vercel. 
+- Development will focus on the frontend first, hosted on Vercel.

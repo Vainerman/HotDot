@@ -21,10 +21,10 @@ terminating reverse proxy.
    separately.
 3. Run:
 
-```bash
+\`\`\`bash
 docker compose build
 docker compose up
-```
+\`\`\`
 
 The Flask application will be available via HTTPS through Nginx.
 
