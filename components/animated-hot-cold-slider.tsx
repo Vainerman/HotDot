@@ -51,4 +51,4 @@ const AnimatedHotColdSlider = () => {
   );
 };
 
-export default AnimatedHotColdSlider; 
+export default AnimatedHotColdSlider;
