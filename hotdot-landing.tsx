@@ -25,14 +25,14 @@ export default function Component() {
           <Image src="/images/home-doodle/vector-282.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '96.06px', left: '155.95px', width: '6.9px', height: '8.54px' }} />
           <Image src="/images/home-doodle/vector-277.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '104.86px', left: '149.74px', width: '118.06px', height: '29.2px' }} />
           <Image src="/images/home-doodle/vector-278.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '117.37px', left: '147.66px', width: '109.3px', height: '38.8px' }} />
-          <Image src="/images/home-doodle/vector-270.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '185px', left: '63.56px', width: '184.96px', height: '55.52px' }} />
+          <Image src="/images/home-doodle/vector-270.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '39.48px', left: '63.56px', width: '184.96px', height: '55.52px' }} />
         </div>
       </main>
 
       {/* Footer Navigation */}
       <footer className="absolute bottom-8 left-6 z-10">
         <nav className="flex flex-col items-start gap-2 text-[#1A1A1A] text-[52px] font-medium leading-tight tracking-[-2%]">
-          <Link href="#" className="hover:text-[#FF5C38] transition-colors">SOLO-PLAY</Link>
+          <Link href="/solo-play" className="hover:text-[#FF5C38] transition-colors">SOLO-PLAY</Link>
           <Link href="#" className="hover:text-[#FF5C38] transition-colors">CHALLENGE</Link>
           <Link href="#" className="hover:text-[#FF5C38] transition-colors">GUESS-IT</Link>
           <Link href="#" className="hover:text-[#FF5C38] transition-colors">PROFILE</Link>
