@@ -1,0 +1,7 @@
+{
+  "rules": {
+    "always-show-read-file": true
+  },
+  "model": "gpt-4o",
+  "experimental.auto-enable-context": true
+} 

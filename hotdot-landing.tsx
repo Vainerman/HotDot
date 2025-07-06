@@ -1,44 +1,43 @@
-import { Menu } from "lucide-react"
 import Link from "next/link"
-import AnimatedCat from "./components/animated-cat"
+import Image from "next/image"
 
 export default function Component() {
   return (
-    <div className="min-h-screen bg-[#faf9f6] relative overflow-hidden">
+    <div className="relative flex flex-col min-h-screen bg-[#F4F1E9] overflow-hidden">
       {/* Header */}
-      <div className="absolute top-6 left-6">
-        <span className="text-[#928e82] text-lg font-light">(Hot —— Dot)</span>
-      </div>
+      <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-10 font-bold text-[#928E82] text-base font-['Helvetica_Neue']">
+        <span>(Hot</span>
+        <span>Dot)</span>
+      </header>
 
-      {/* Animated Cat - Now positioned above menu */}
-      <AnimatedCat />
-
-      {/* Bottom Left Menu and Text */}
-      <div className="absolute bottom-8 left-6">
-        <div className="flex items-center gap-3 mb-8 relative z-10">
-          <Menu className="w-6 h-6 text-[#928e82]" />
-          <span className="text-[#928e82] text-lg">Menu</span>
+      {/* Main Doodle Graphic */}
+      <main className="flex-grow flex items-center justify-center">
+        <div className="relative w-[373px] h-[341px]">
+          <Image src="/images/home-doodle/vector-271.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '-0.55px', left: '28.67px', width: '344.13px', height: '333.5px' }} />
+          <Image src="/images/home-doodle/vector-272.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '29.37px', left: '29.68px', width: '260.63px', height: '37.6px' }} />
+          <Image src="/images/home-doodle/vector-273.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '95px', left: '0px', width: '105px', height: '237.39px' }} />
+          <Image src="/images/home-doodle/vector-274.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '133.58px', left: '59.1px', width: '96.96px', height: '164.04px' }} />
+          <Image src="/images/home-doodle/vector-275.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '147.78px', left: '87.72px', width: '109.43px', height: '192.6px' }} />
+          <Image src="/images/home-doodle/vector-279.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '105.67px', left: '15.83px', width: '120.14px', height: '13.78px' }} />
+          <Image src="/images/home-doodle/vector-280.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '118.04px', left: '22.93px', width: '111.38px', height: '24.77px' }} />
+          <Image src="/images/home-doodle/vector-276.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '109.12px', left: '132.52px', width: '16.35px', height: '15.74px' }} />
+          <Image src="/images/home-doodle/vector-281.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '95.03px', left: '126.78px', width: '6.71px', height: '8.27px' }} />
+          <Image src="/images/home-doodle/vector-282.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '96.06px', left: '155.95px', width: '6.9px', height: '8.54px' }} />
+          <Image src="/images/home-doodle/vector-277.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '104.86px', left: '149.74px', width: '118.06px', height: '29.2px' }} />
+          <Image src="/images/home-doodle/vector-278.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '117.37px', left: '147.66px', width: '109.3px', height: '38.8px' }} />
+          <Image src="/images/home-doodle/vector-270.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '202.2px', left: '63.56px', width: '184.96px', height: '55.52px' }} />
         </div>
+      </main>
 
-        <div className="space-y-2">
-          <Link href="/create/enter-name">
-            <div className="text-[#1a1a1a] text-4xl md:text-5xl font-bold leading-tight cursor-pointer hover:text-[#ff5c38] transition-colors">
-              CREATE
-            </div>
-          </Link>
-          <Link href="/guess/enter-name">
-            <div className="text-[#1a1a1a] text-4xl md:text-5xl font-bold leading-tight cursor-pointer hover:text-[#ff5c38] transition-colors">
-              GUESS
-            </div>
-          </Link>
-          <div className="text-[#1a1a1a] text-4xl md:text-5xl font-bold leading-tight cursor-pointer hover:text-[#ff5c38] transition-colors">
-            PROFILE
-          </div>
-          <div className="text-[#1a1a1a] text-4xl md:text-5xl font-bold leading-tight cursor-pointer hover:text-[#ff5c38] transition-colors">
-            GALLERY
-          </div>
-        </div>
-      </div>
+      {/* Footer Navigation */}
+      <footer className="absolute bottom-8 left-6 z-10">
+        <nav className="flex flex-col items-start gap-2 font-['Space_Grotesk'] text-[#1A1A1A] text-[52px] font-medium leading-tight tracking-[-2%]">
+          <Link href="#" className="hover:text-[#FF5C38] transition-colors">SOLO-PLAY</Link>
+          <Link href="#" className="hover:text-[#FF5C38] transition-colors">CHALLENGE</Link>
+          <Link href="#" className="hover:text-[#FF5C38] transition-colors">GUESS-IT</Link>
+          <Link href="#" className="hover:text-[#FF5C38] transition-colors">PROFILE</Link>
+        </nav>
+      </footer>
     </div>
   )
 }
