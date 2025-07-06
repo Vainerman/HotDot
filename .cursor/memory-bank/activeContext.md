@@ -1,10 +1,12 @@
 # Active Context
 
-**Current Mission:**
-1.  **Redesign the Homepage:** Rework the main landing page (`hotdot-landing.tsx`) to align with the new vision of a social drawing game.
-2.  **Implement Daily Challenges:** Create the new primary game mode, where users can participate in a new drawing challenge each day.
+**Completed Mission:**
+- **Redesign the Homepage:** Reworked the main landing page (`hotdot-landing.tsx`) to align with the new vision of a social drawing game. This included setting up the Figma MCP integration, downloading assets, fixing dependency issues, and implementing the correct fonts.
 
-**Active Branch:** `new_home`
+**Current Mission:**
+- **Implement Daily Challenges:** Create the new primary game mode, where users can participate in a new drawing challenge each day.
+
+**Active Branch:** `main`
 
 **Recent Key Decisions:**
 - The project's core concept has been clarified: it is a social drawing game, not a "Hot or Cold" game.
