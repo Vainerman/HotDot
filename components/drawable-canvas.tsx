@@ -4,7 +4,7 @@ import { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo } fr
 
 export interface DrawableCanvasRef {
   clear: () => void;
-  drawSvg: (svgPath: string) => void;
+  animateSvg: (pathData: string) => void;
 }
 
 const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
@@ -19,32 +19,27 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
         context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
       }
     },
-    drawSvg(svgPath: string) {
-      if (context && canvasRef.current) {
-        console.log(`Attempting to load and draw SVG: ${svgPath}`);
-        const img = new Image();
-        img.src = svgPath;
-        img.onload = () => {
-          console.log(`SVG loaded successfully. Drawing on canvas: ${svgPath}`);
-          const canvas = canvasRef.current!;
-          const canvasWidth = canvas.offsetWidth;
-          const canvasHeight = canvas.offsetHeight;
+    animateSvg(pathData: string) {
+      if (!context) return;
+      
+      const path = new Path2D(pathData);
+      const pathLength = 1000; // This is an approximation. A more accurate method is complex.
+      let currentStep = 0;
+      const stepSize = 20; // Controls drawing speed
 
-          // Make the image width 50% of the canvas width
-          const newWidth = canvasWidth / 3;
-          const aspectRatio = img.height / img.width;
-          const newHeight = newWidth * aspectRatio;
+      const animate = () => {
+        if (currentStep > pathLength) return;
 
-          // Center the image
-          const x = (canvasWidth - newWidth) / 2;
-          const y = (canvasHeight - newHeight) / 4;
+        // This is a simplified animation. For production, you'd use a more robust SVG path animation library.
+        // @ts-ignore - setLineDash is not yet in the default TS DOM lib for Path2D
+        context.setLineDash([currentStep, pathLength]);
+        context.stroke(path);
 
-          context.drawImage(img, x, y, newWidth, newHeight);
-        };
-        img.onerror = () => {
-          console.error(`Failed to load SVG image: ${svgPath}`);
-        };
-      }
+        currentStep += stepSize;
+        requestAnimationFrame(animate);
+      };
+      
+      requestAnimationFrame(animate);
     },
   }));
 

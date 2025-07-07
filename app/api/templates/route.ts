@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { JSDOM } from 'jsdom';
 
 export async function GET() {
   try {
@@ -16,9 +17,23 @@ export async function GET() {
     
     const svgFiles = filenames.filter(file => file.endsWith('.svg'));
 
-    return NextResponse.json({ files: svgFiles });
+    if (svgFiles.length === 0) {
+      return NextResponse.json({ pathData: null });
+    }
+    
+    // Pick a random SVG
+    const randomSvgFile = svgFiles[Math.floor(Math.random() * svgFiles.length)];
+    const filePath = path.join(templatesDirectory, randomSvgFile);
+    const fileContents = fs.readFileSync(filePath, 'utf8');
+
+    // Parse the SVG and extract the path data
+    const dom = new JSDOM(fileContents);
+    const svgPath = dom.window.document.querySelector("path");
+    const pathData = svgPath ? svgPath.getAttribute('d') : null;
+
+    return NextResponse.json({ pathData });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Failed to read template files' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to read or parse template file' }, { status: 500 });
   }
 }

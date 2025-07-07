@@ -9,20 +9,15 @@ export default function SoloPlayPage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);
 
   useEffect(() => {
-    console.log("Fetching templates...");
+    console.log("Fetching SVG path data...");
     fetch('/api/templates', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        console.log("Templates fetched:", data);
-        if (data.files && data.files.length > 0) {
-          const templates = data.files;
-          console.log("Templates available:", templates);
+        console.log("Path data fetched:", data);
+        if (data.pathData) {
+          console.log("Path data available. Animating on canvas...");
           if (canvasRef.current) {
-            const randomIndex = Math.floor(Math.random() * templates.length);
-            const randomSvg = templates[randomIndex];
-            const svgPath = `/assets/templates/${randomSvg}`;
-            console.log("Drawing template:", svgPath);
-            canvasRef.current.drawSvg(svgPath);
+            canvasRef.current.animateSvg(data.pathData);
           }
         }
       });
@@ -39,7 +34,7 @@ export default function SoloPlayPage() {
       <main className="flex-1 flex flex-col items-center justify-center gap-4">
         <AnimatedChallengeHeader onCountdownStart={() => {}} />
         <div
-          className="shadow-lg"
+          className=""
           style={{ 
             width: '346px',
             height: '562px',
