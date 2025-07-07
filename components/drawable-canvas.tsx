@@ -21,10 +21,15 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
     },
     drawSvg(svgPath: string) {
       if (context && canvasRef.current) {
+        console.log(`Attempting to load and draw SVG: ${svgPath}`);
         const img = new Image();
         img.src = svgPath;
         img.onload = () => {
+          console.log(`SVG loaded successfully. Drawing on canvas: ${svgPath}`);
           context.drawImage(img, 0, 0, canvasRef.current!.offsetWidth, canvasRef.current!.offsetHeight);
+        };
+        img.onerror = () => {
+          console.error(`Failed to load SVG image: ${svgPath}`);
         };
       }
     },

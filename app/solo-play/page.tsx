@@ -10,9 +10,11 @@ export default function SoloPlayPage() {
   const [templates, setTemplates] = useState<string[]>([]);
 
   useEffect(() => {
+    console.log("Fetching templates...");
     fetch('/api/templates')
       .then(res => res.json())
       .then(data => {
+        console.log("Templates fetched:", data);
         if (data.files) {
           setTemplates(data.files);
         }
@@ -26,10 +28,15 @@ export default function SoloPlayPage() {
   };
 
   const handleCountdownStart = () => {
+    console.log("Countdown started. Templates available:", templates);
     if (canvasRef.current && templates.length > 0) {
       const randomIndex = Math.floor(Math.random() * templates.length);
       const randomSvg = templates[randomIndex];
-      canvasRef.current.drawSvg(`/assets/templates/${randomSvg}`);
+      const svgPath = `/assets/templates/${randomSvg}`;
+      console.log("Drawing template:", svgPath);
+      canvasRef.current.drawSvg(svgPath);
+    } else {
+        console.log("Cannot draw template: no templates found or canvas not ready.");
     }
   };
 
