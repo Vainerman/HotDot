@@ -25,7 +25,7 @@ export default function Component() {
           <Image src="/images/home-doodle/vector-282.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '96.06px', left: '155.95px', width: '6.9px', height: '8.54px' }} />
           <Image src="/images/home-doodle/vector-277.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '104.86px', left: '149.74px', width: '118.06px', height: '29.2px' }} />
           <Image src="/images/home-doodle/vector-278.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '117.37px', left: '147.66px', width: '109.3px', height: '38.8px' }} />
-          <Image src="/images/home-doodle/vector-270.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '39.48px', left: '105px', width: '184.96px', height: '55.52px' }} />
+          <Image src="/images/home-doodle/vector-270.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '39.48px', left: '85px', width: '184.96px', height: '55.52px' }} />
         </div>
       </main>
 

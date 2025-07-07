@@ -2,15 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 const AnimatedChallengeHeader = () => {
   const [step, setStep] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
 
   const slides = [
-    { id: 0, text: '→ SHAPE OF THE DAY' },
-    { id: 1, text: '1,457 DRAWINGS TODAY' },
-    { id: 2, text: `00:${timeLeft < 10 ? '0' : ''}${timeLeft}` },
+    { id: 0, text: 'SHAPE OF THE DAY', icon: '/assets/rightVector.svg', iconWidth: 28, iconHeight: 29 },
+    { id: 1, text: '1,457 DRAWINGS TODAY', icon: '/assets/rightVector.svg', iconWidth: 28, iconHeight: 29 },
+    { id: 2, text: `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`, icon: '/assets/clock.svg', iconWidth: 25, iconHeight: 39 },
   ];
 
   useEffect(() => {
@@ -35,13 +36,13 @@ const AnimatedChallengeHeader = () => {
   }, [step, timeLeft]);
   
   const slideVariants = {
-    enter: { x: '100%', opacity: 0 },
-    center: { x: 0, opacity: 1 },
-    exit: { x: '-100%', opacity: 0 },
+    enter: { x: '-100%' },
+    center: { x: 0 },
+    exit: { x: '100%' },
   };
 
   return (
-    <div className="w-full max-w-lg h-16 flex items-center justify-center bg-black overflow-hidden relative">
+    <div className="w-full max-w-lg h-16 flex items-center justify-center bg-transparent overflow-hidden relative">
       <AnimatePresence initial={false} mode="wait">
         <motion.div
           key={step}
@@ -50,9 +51,17 @@ const AnimatedChallengeHeader = () => {
           animate="center"
           exit="exit"
           transition={{ type: 'tween', ease: 'easeInOut', duration: 0.5 }}
-          className="text-gray-300 text-3xl font-bold tracking-tight uppercase absolute"
+          className="text-black text-3xl font-bold tracking-tight uppercase absolute"
         >
-          {slides[step].text}
+          <div className="flex items-center justify-center gap-4">
+            <Image 
+              src={slides[step].icon} 
+              width={slides[step].iconWidth} 
+              height={slides[step].iconHeight} 
+              alt="Slide icon" 
+            />
+            <span>{slides[step].text}</span>
+          </div>
         </motion.div>
       </AnimatePresence>
     </div>
