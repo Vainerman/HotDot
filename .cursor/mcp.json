@@ -10,6 +10,15 @@
         "--figma-api-key=figd_mqk_w0sJ1I7i1wL6AR29VnB2dwTvF_hrRb-j9PO-",
         "--stdio"
       ]
-    }
+    },
+    "supabase": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@supabase/mcp-server-supabase@latest",
+          "--project-ref=rzoazqjrwfictdzmvlyo",
+          "--features=database,storage"        ],
+        "env": { "SUPABASE_ACCESS_TOKEN": "sbp_c1402616645b59a85e999827d6c1333ccfb6e940" }
+      }
   }
 }

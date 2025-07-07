@@ -1,5 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
+import SignInButton from "@/components/auth/sign-in-button";
 
 export default function Component() {
   return (
@@ -7,7 +8,10 @@ export default function Component() {
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-10 font-bold text-[#928E82] text-base font-['Helvetica_Neue']">
         <span>(Hot</span>
-        <span>Dot)</span>
+        <div className="flex items-center space-x-4">
+          <SignInButton />
+          <span>Dot)</span>
+        </div>
       </header>
 
       {/* Main Doodle Graphic */}
