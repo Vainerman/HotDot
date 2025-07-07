@@ -1,13 +1,17 @@
 import { Button } from "@/components/ui/button";
 import DrawableCanvas from "@/components/drawable-canvas";
+import AnimatedChallengeHeader from "@/components/animated-challenge-header";
 
 export default function SoloPlayPage() {
   return (
     <div className="flex flex-col h-screen bg-[#F4F1E9]">
-      <main className="flex-1 flex flex-col items-center justify-center p-8">
+      <main className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
+        <AnimatedChallengeHeader />
         <div
-          className="w-[800px] h-[600px] rounded-lg shadow-lg"
+          className="rounded-lg shadow-lg"
           style={{ 
+            width: '346px',
+            height: '562px',
             backgroundImage: "url('/assets/Card_1.svg')",
             backgroundSize: 'cover',
             backgroundPosition: 'center' 
