@@ -11,7 +11,7 @@ export default function SoloPlayPage() {
 
   useEffect(() => {
     console.log("Fetching templates...");
-    fetch('/api/templates')
+    fetch('/api/templates', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         console.log("Templates fetched:", data);
