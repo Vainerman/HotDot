@@ -1,13 +1,14 @@
 import { Button } from "@/components/ui/button";
 import DrawableCanvas from "@/components/drawable-canvas";
-import DailyChallengeHeader from "@/components/daily-challenge-header";
 
 export default function SoloPlayPage() {
   return (
     <div className="flex flex-col h-screen bg-[#F4F1E9]">
-      <main className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
-        <DailyChallengeHeader />
-        <div className="w-[800px] h-[600px] rounded-lg shadow-lg">
+      <main className="flex-1 flex flex-col items-center justify-center p-8">
+        <div 
+          className="w-[800px] h-[600px] rounded-lg shadow-lg"
+          style={{ backgroundImage: "url('/images/canvas-background.png')" }}
+        >
           <DrawableCanvas />
         </div>
       </main>
