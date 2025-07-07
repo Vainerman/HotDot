@@ -12,46 +12,63 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
   const lastPointRef = useRef<{ x: number, y: number } | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
+  const [template, setTemplate] = useState<{ pathData: string, viewBox: string | null } | null>(null);
 
   useImperativeHandle(ref, () => ({
     clear() {
       if (context && canvasRef.current) {
         context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        if (template) {
+          this.animateSvg(template.pathData, template.viewBox, false); // Redraw without animation
+        }
       }
     },
-    animateSvg(pathData: string, viewBox: string | null) {
+    animateSvg(pathData: string, viewBox: string | null, shouldAnimate = true) {
       if (!context || !canvasRef.current || !viewBox) return;
 
-      const path = new Path2D(pathData);
-      const pathLength = 2000; // Increased for a longer, smoother animation
-      let currentStep = 0;
-      const stepSize = 10; // Decreased for smaller, smoother steps
+      if(shouldAnimate) {
+        setTemplate({ pathData, viewBox });
+      }
 
+      const path = new Path2D(pathData);
+      
       const viewboxParts = viewBox.split(' ').map(parseFloat);
       const [,, vbWidth, vbHeight] = viewboxParts;
 
       const canvasWidth = canvasRef.current.offsetWidth;
       const canvasHeight = canvasRef.current.offsetHeight;
       
-      const scale = Math.min(canvasWidth / vbWidth, canvasHeight / vbHeight) * 0.5; // Scale to 50% of fit
+      const scale = Math.min(canvasWidth / vbWidth, canvasHeight / vbHeight) * 0.5;
       const offsetX = (canvasWidth - (vbWidth * scale)) / 2;
-      const offsetY = (canvasHeight - (vbHeight * scale)) / 4; // Positioned a bit higher
+      const offsetY = (canvasHeight - (vbHeight * scale)) / 4;
 
-      const animate = () => {
-        if (currentStep > pathLength) {
-          context.setLineDash([]); // Clear dash effect
-          return;
-        }
-        
+      const drawPath = (dashOffset: number = 0) => {
         context.save();
-        context.strokeStyle = 'orange';
-        context.lineWidth = 3; // Slightly thicker for visibility
-        context.setLineDash([currentStep, pathLength]);
+        context.strokeStyle = '#FF5C38';
+        context.lineWidth = 3;
+        if(dashOffset > 0) context.setLineDash([dashOffset, 2000]);
         context.translate(offsetX, offsetY);
         context.scale(scale, scale);
         context.stroke(path);
         context.restore();
+      }
 
+      if (!shouldAnimate) {
+        drawPath();
+        return;
+      }
+
+      let currentStep = 0;
+      const stepSize = 10;
+      const pathLength = 2000;
+
+      const animate = () => {
+        if (currentStep > pathLength) {
+          context.setLineDash([]);
+          return;
+        }
+        
+        drawPath(currentStep)
         currentStep += stepSize;
         requestAnimationFrame(animate);
       };
@@ -63,7 +80,6 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
   useEffect(() => {
     if (canvasRef.current) {
       const canvas = canvasRef.current;
-      // Set canvas dimensions for high-resolution displays
       canvas.width = canvas.offsetWidth * window.devicePixelRatio;
       canvas.height = canvas.offsetHeight * window.devicePixelRatio;
       
@@ -71,10 +87,9 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
       if (ctx) {
         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
         ctx.lineCap = 'round';
-        ctx.lineJoin = 'round'; // For smoother line joins
+        ctx.lineJoin = 'round';
         ctx.strokeStyle = 'black';
-        ctx.lineWidth = 2; // Thinner pen
-        ctx.globalCompositeOperation = 'destination-over';
+        ctx.lineWidth = 2;
         setContext(ctx);
       }
     }
@@ -95,12 +110,15 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
     if (context) {
       setIsDrawing(true);
       lastPointRef.current = { x: offsetX, y: offsetY };
+      context.beginPath();
+      context.moveTo(offsetX, offsetY);
     }
   };
 
   const finishDrawing = () => {
     setIsDrawing(false);
     lastPointRef.current = null;
+    if(context) context.closePath();
   };
 
   const draw = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
@@ -112,12 +130,9 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
     const midPointX = (lastPointRef.current.x + offsetX) / 2;
     const midPointY = (lastPointRef.current.y + offsetY) / 2;
     
-    context.beginPath();
-    context.moveTo(lastPointRef.current.x, lastPointRef.current.y);
     context.quadraticCurveTo(lastPointRef.current.x, lastPointRef.current.y, midPointX, midPointY);
     context.lineTo(offsetX, offsetY);
     context.stroke();
-    context.closePath();
 
     lastPointRef.current = { x: offsetX, y: offsetY };
   };
@@ -133,6 +148,7 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
       onTouchEnd={finishDrawing}
       onTouchMove={draw}
       className="w-full h-full"
+      style={{ touchAction: 'none' }}
     />
   );
 });

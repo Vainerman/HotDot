@@ -38,9 +38,7 @@ export default function SoloPlayPage() {
           style={{ 
             width: '346px',
             height: '562px',
-            backgroundImage: "url('/assets/Card_1.svg')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center' 
+            backgroundImage: "url('/assets/Card_1.svg')"
           }}
         >
           <DrawableCanvas ref={canvasRef} />
