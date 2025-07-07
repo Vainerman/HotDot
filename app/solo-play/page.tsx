@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import DrawableCanvas, { DrawableCanvasRef } from "@/components/drawable-canvas";
 import AnimatedChallengeHeader from "@/components/animated-challenge-header";
