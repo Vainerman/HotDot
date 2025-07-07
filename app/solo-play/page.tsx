@@ -1,8 +1,17 @@
 import { Button } from "@/components/ui/button";
-import DrawableCanvas from "@/components/drawable-canvas";
+import DrawableCanvas, { DrawableCanvasRef } from "@/components/drawable-canvas";
 import AnimatedChallengeHeader from "@/components/animated-challenge-header";
+import { useRef } from "react";
 
 export default function SoloPlayPage() {
+  const canvasRef = useRef<DrawableCanvasRef>(null);
+
+  const handleClear = () => {
+    if (canvasRef.current) {
+      canvasRef.current.clear();
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#F4F1E9]">
       <main className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
@@ -17,13 +26,13 @@ export default function SoloPlayPage() {
             backgroundPosition: 'center' 
           }}
         >
-          <DrawableCanvas />
+          <DrawableCanvas ref={canvasRef} />
         </div>
       </main>
       <footer className="flex items-center justify-between p-4 border-t border-gray-300">
         <div className="flex items-center gap-4">
           <Button variant="outline">Undo</Button>
-          <Button variant="outline">Clear</Button>
+          <Button variant="outline" onClick={handleClear}>Clear</Button>
         </div>
         <Button>Done</Button>
       </footer>

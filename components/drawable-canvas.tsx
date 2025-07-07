@@ -1,11 +1,23 @@
 "use client";
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo } from 'react';
 
-const DrawableCanvas = () => {
+export interface DrawableCanvasRef {
+  clear: () => void;
+}
+
+const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    clear() {
+      if (context && canvasRef.current) {
+        context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      }
+    },
+  }));
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -20,6 +32,7 @@ const DrawableCanvas = () => {
         ctx.lineCap = 'round';
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 5;
+        ctx.globalCompositeOperation = 'destination-over';
         setContext(ctx);
       }
     }
@@ -73,6 +86,7 @@ const DrawableCanvas = () => {
       className="w-full h-full"
     />
   );
-};
+});
 
-export default DrawableCanvas;
+DrawableCanvas.displayName = "DrawableCanvas";
+export default memo(DrawableCanvas);
