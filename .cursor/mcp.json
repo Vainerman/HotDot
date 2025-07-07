@@ -18,7 +18,8 @@
           "@supabase/mcp-server-supabase@latest",
           "--project-ref=rzoazqjrwfictdzmvlyo",
           "--features=database,storage"        ],
-        "env": { "SUPABASE_ACCESS_TOKEN": "sbp_c1402616645b59a85e999827d6c1333ccfb6e940" }
+        "env": { "SUPABASE_ACCESS_TOKEN": "sbp_c1402616645b59a85e999827d6c1333ccfb6e940",
+        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6b2F6cWpyd2ZpY3Rkem12bHlvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTg4MzA1MSwiZXhwIjoyMDY3NDU5MDUxfQ.TAAP2hVIm1FNcC2YpsLKrrw19yKIud528ofJY0TStn8" }
       }
   }
 }
