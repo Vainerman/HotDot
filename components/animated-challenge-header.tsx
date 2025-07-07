@@ -59,4 +59,4 @@ const AnimatedChallengeHeader = () => {
   );
 };
 
-export default AnimatedChallengeHeader; 
+export default AnimatedChallengeHeader;
