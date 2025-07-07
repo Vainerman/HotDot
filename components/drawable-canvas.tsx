@@ -26,7 +26,20 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
         img.src = svgPath;
         img.onload = () => {
           console.log(`SVG loaded successfully. Drawing on canvas: ${svgPath}`);
-          context.drawImage(img, 0, 0, canvasRef.current!.offsetWidth, canvasRef.current!.offsetHeight);
+          const canvas = canvasRef.current!;
+          const canvasWidth = canvas.offsetWidth;
+          const canvasHeight = canvas.offsetHeight;
+
+          // Make the image width 50% of the canvas width
+          const newWidth = canvasWidth / 3;
+          const aspectRatio = img.height / img.width;
+          const newHeight = newWidth * aspectRatio;
+
+          // Center the image
+          const x = (canvasWidth - newWidth) / 2;
+          const y = (canvasHeight - newHeight) / 2;
+
+          context.drawImage(img, x, y, newWidth, newHeight);
         };
         img.onerror = () => {
           console.error(`Failed to load SVG image: ${svgPath}`);
