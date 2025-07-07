@@ -17,21 +17,18 @@ export const authOptions = {
   providers: [
     EmailProvider({
       async sendVerificationRequest({ identifier: email, url }) {
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        );
+        const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
 
         const { error } = await supabase.auth.signInWithOtp({
           email,
           options: {
             emailRedirectTo: url,
           },
-        });
+        })
 
         if (error) {
-          console.error("Error sending magic link:", error);
-          throw new Error("Error sending magic link");
+          console.error("Error sending magic link:", error)
+          throw new Error("Error sending magic link")
         }
       },
     }),
