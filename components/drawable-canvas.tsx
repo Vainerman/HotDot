@@ -70,7 +70,7 @@ const DrawableCanvas = () => {
       onTouchStart={startDrawing}
       onTouchEnd={finishDrawing}
       onTouchMove={draw}
-      className="w-full h-full bg-white rounded-lg shadow-lg"
+      className="w-full h-full"
     />
   );
 };
