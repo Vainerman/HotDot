@@ -4,7 +4,7 @@ import { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo } fr
 
 export interface DrawableCanvasRef {
   clear: () => void;
-  animateSvg: (pathData: string) => void;
+  animateSvg: (pathData: string, viewBox: string | null) => void;
 }
 
 const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
@@ -19,21 +19,38 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
         context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
       }
     },
-    animateSvg(pathData: string) {
-      if (!context) return;
-      
+    animateSvg(pathData: string, viewBox: string | null) {
+      if (!context || !canvasRef.current || !viewBox) return;
+
       const path = new Path2D(pathData);
-      const pathLength = 1000; // This is an approximation. A more accurate method is complex.
+      const pathLength = 2000; // Increased for a longer, smoother animation
       let currentStep = 0;
-      const stepSize = 20; // Controls drawing speed
+      const stepSize = 10; // Decreased for smaller, smoother steps
+
+      const viewboxParts = viewBox.split(' ').map(parseFloat);
+      const [,, vbWidth, vbHeight] = viewboxParts;
+
+      const canvasWidth = canvasRef.current.offsetWidth;
+      const canvasHeight = canvasRef.current.offsetHeight;
+      
+      const scale = Math.min(canvasWidth / vbWidth, canvasHeight / vbHeight) * 0.5; // Scale to 50% of fit
+      const offsetX = (canvasWidth - (vbWidth * scale)) / 2;
+      const offsetY = (canvasHeight - (vbHeight * scale)) / 4; // Positioned a bit higher
 
       const animate = () => {
-        if (currentStep > pathLength) return;
-
-        // This is a simplified animation. For production, you'd use a more robust SVG path animation library.
-        // @ts-ignore - setLineDash is not yet in the default TS DOM lib for Path2D
+        if (currentStep > pathLength) {
+          context.setLineDash([]); // Clear dash effect
+          return;
+        }
+        
+        context.save();
+        context.strokeStyle = 'orange';
+        context.lineWidth = 3; // Slightly thicker for visibility
         context.setLineDash([currentStep, pathLength]);
+        context.translate(offsetX, offsetY);
+        context.scale(scale, scale);
         context.stroke(path);
+        context.restore();
 
         currentStep += stepSize;
         requestAnimationFrame(animate);

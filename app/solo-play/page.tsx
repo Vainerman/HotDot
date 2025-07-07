@@ -17,7 +17,7 @@ export default function SoloPlayPage() {
         if (data.pathData) {
           console.log("Path data available. Animating on canvas...");
           if (canvasRef.current) {
-            canvasRef.current.animateSvg(data.pathData);
+            canvasRef.current.animateSvg(data.pathData, data.viewBox);
           }
         }
       });
