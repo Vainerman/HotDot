@@ -11,6 +11,7 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: 'HOTDOT',
   description: 'A drawing game of hot and cold.',
+    generator: 'v0.dev'
 }
 
 export default function RootLayout({
