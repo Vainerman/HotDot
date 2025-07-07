@@ -14,4 +14,4 @@ export async function GET() {
     console.error(error);
     return NextResponse.json({ error: 'Failed to read template files' }, { status: 500 });
   }
-} 
+}
