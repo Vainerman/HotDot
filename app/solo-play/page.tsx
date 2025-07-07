@@ -36,10 +36,10 @@ export default function SoloPlayPage() {
 
   return (
     <div className="flex flex-col h-screen">
-      <main className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
+      <main className="flex-1 flex flex-col items-center justify-center gap-4">
         <AnimatedChallengeHeader onCountdownStart={() => {}} />
         <div
-          className="rounded-lg shadow-lg"
+          className="shadow-lg"
           style={{ 
             width: '346px',
             height: '562px',

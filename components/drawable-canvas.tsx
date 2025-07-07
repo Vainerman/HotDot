@@ -116,11 +116,13 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
       onMouseDown={startDrawing}
       onMouseUp={finishDrawing}
       onMouseMove={draw}
-      onMouseLeave={finishDrawing} // Stop drawing if mouse leaves canvas
+      onMouseLeave={finishDrawing}
       onTouchStart={startDrawing}
       onTouchEnd={finishDrawing}
       onTouchMove={draw}
-      className="w-full h-full"
+      width="346"
+      height="562"
+      className=""
     />
   );
 });
