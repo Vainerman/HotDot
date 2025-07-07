@@ -4,7 +4,11 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
-const AnimatedChallengeHeader = () => {
+interface AnimatedChallengeHeaderProps {
+  onCountdownStart: () => void;
+}
+
+const AnimatedChallengeHeader = ({ onCountdownStart }: AnimatedChallengeHeaderProps) => {
   const [step, setStep] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
 
@@ -32,8 +36,10 @@ const AnimatedChallengeHeader = () => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
       return () => clearInterval(interval);
+    } else if (step === 2 && timeLeft === 30) { // Should only fire once
+      onCountdownStart();
     }
-  }, [step, timeLeft]);
+  }, [step, timeLeft, onCountdownStart]);
   
   const slideVariants = {
     enter: { x: '-100%' },

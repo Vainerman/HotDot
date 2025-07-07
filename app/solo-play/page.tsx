@@ -1,10 +1,21 @@
 import { Button } from "@/components/ui/button";
 import DrawableCanvas, { DrawableCanvasRef } from "@/components/drawable-canvas";
 import AnimatedChallengeHeader from "@/components/animated-challenge-header";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export default function SoloPlayPage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);
+  const [templates, setTemplates] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch('/api/templates')
+      .then(res => res.json())
+      .then(data => {
+        if (data.files) {
+          setTemplates(data.files);
+        }
+      });
+  }, []);
 
   const handleClear = () => {
     if (canvasRef.current) {
@@ -12,10 +23,18 @@ export default function SoloPlayPage() {
     }
   };
 
+  const handleCountdownStart = () => {
+    if (canvasRef.current && templates.length > 0) {
+      const randomIndex = Math.floor(Math.random() * templates.length);
+      const randomSvg = templates[randomIndex];
+      canvasRef.current.drawSvg(`/assets/templates/${randomSvg}`);
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#F4F1E9]">
       <main className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
-        <AnimatedChallengeHeader />
+        <AnimatedChallengeHeader onCountdownStart={handleCountdownStart} />
         <div
           className="rounded-lg shadow-lg"
           style={{ 

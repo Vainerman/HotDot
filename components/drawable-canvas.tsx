@@ -4,10 +4,12 @@ import { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo } fr
 
 export interface DrawableCanvasRef {
   clear: () => void;
+  drawSvg: (svgPath: string) => void;
 }
 
 const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const lastPointRef = useRef<{ x: number, y: number } | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
 
@@ -15,6 +17,15 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
     clear() {
       if (context && canvasRef.current) {
         context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      }
+    },
+    drawSvg(svgPath: string) {
+      if (context && canvasRef.current) {
+        const img = new Image();
+        img.src = svgPath;
+        img.onload = () => {
+          context.drawImage(img, 0, 0, canvasRef.current!.offsetWidth, canvasRef.current!.offsetHeight);
+        };
       }
     },
   }));
@@ -30,8 +41,9 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
       if (ctx) {
         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
         ctx.lineCap = 'round';
+        ctx.lineJoin = 'round'; // For smoother line joins
         ctx.strokeStyle = 'black';
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 2; // Thinner pen
         ctx.globalCompositeOperation = 'destination-over';
         setContext(ctx);
       }
@@ -51,26 +63,33 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
   const startDrawing = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     const { offsetX, offsetY } = getCoordinates(event);
     if (context) {
-      context.beginPath();
-      context.moveTo(offsetX, offsetY);
       setIsDrawing(true);
+      lastPointRef.current = { x: offsetX, y: offsetY };
     }
   };
 
   const finishDrawing = () => {
-    if (context) {
-      context.closePath();
-      setIsDrawing(false);
-    }
+    setIsDrawing(false);
+    lastPointRef.current = null;
   };
 
   const draw = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !context) {
+    if (!isDrawing || !context || !lastPointRef.current) {
       return;
     }
     const { offsetX, offsetY } = getCoordinates(event);
+    
+    const midPointX = (lastPointRef.current.x + offsetX) / 2;
+    const midPointY = (lastPointRef.current.y + offsetY) / 2;
+    
+    context.beginPath();
+    context.moveTo(lastPointRef.current.x, lastPointRef.current.y);
+    context.quadraticCurveTo(lastPointRef.current.x, lastPointRef.current.y, midPointX, midPointY);
     context.lineTo(offsetX, offsetY);
     context.stroke();
+    context.closePath();
+
+    lastPointRef.current = { x: offsetX, y: offsetY };
   };
 
   return (
