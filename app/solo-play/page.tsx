@@ -7,7 +7,6 @@ import { useRef, useState, useEffect } from "react";
 
 export default function SoloPlayPage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);
-  const [templates, setTemplates] = useState<string[]>([]);
 
   useEffect(() => {
     console.log("Fetching templates...");
@@ -15,8 +14,16 @@ export default function SoloPlayPage() {
       .then(res => res.json())
       .then(data => {
         console.log("Templates fetched:", data);
-        if (data.files) {
-          setTemplates(data.files);
+        if (data.files && data.files.length > 0) {
+          const templates = data.files;
+          console.log("Templates available:", templates);
+          if (canvasRef.current) {
+            const randomIndex = Math.floor(Math.random() * templates.length);
+            const randomSvg = templates[randomIndex];
+            const svgPath = `/assets/templates/${randomSvg}`;
+            console.log("Drawing template:", svgPath);
+            canvasRef.current.drawSvg(svgPath);
+          }
         }
       });
   }, []);
@@ -27,23 +34,10 @@ export default function SoloPlayPage() {
     }
   };
 
-  const handleCountdownStart = () => {
-    console.log("Countdown started. Templates available:", templates);
-    if (canvasRef.current && templates.length > 0) {
-      const randomIndex = Math.floor(Math.random() * templates.length);
-      const randomSvg = templates[randomIndex];
-      const svgPath = `/assets/templates/${randomSvg}`;
-      console.log("Drawing template:", svgPath);
-      canvasRef.current.drawSvg(svgPath);
-    } else {
-        console.log("Cannot draw template: no templates found or canvas not ready.");
-    }
-  };
-
   return (
     <div className="flex flex-col h-screen bg-[#F4F1E9]">
       <main className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
-        <AnimatedChallengeHeader onCountdownStart={handleCountdownStart} />
+        <AnimatedChallengeHeader onCountdownStart={() => {}} />
         <div
           className="rounded-lg shadow-lg"
           style={{ 
