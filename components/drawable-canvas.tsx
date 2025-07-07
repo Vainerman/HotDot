@@ -37,7 +37,7 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
 
           // Center the image
           const x = (canvasWidth - newWidth) / 2;
-          const y = (canvasHeight - newHeight) / 2;
+          const y = (canvasHeight - newHeight) / 4;
 
           context.drawImage(img, x, y, newWidth, newHeight);
         };
