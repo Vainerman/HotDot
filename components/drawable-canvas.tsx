@@ -120,9 +120,7 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
       onTouchStart={startDrawing}
       onTouchEnd={finishDrawing}
       onTouchMove={draw}
-      width="346"
-      height="562"
-      className=""
+      className="w-full h-full"
     />
   );
 });
