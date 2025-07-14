@@ -1,23 +1,15 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import Link from "next/link";
 import Image from "next/image";
-import SignInButton from "@/components/auth/sign-in-button";
+import HeaderAuth from "@/components/auth/header-auth";
 
-export default async function Component() {
-  const session = await getServerSession(authOptions);
-
+export default function Component() {
   return (
     <div className="relative flex flex-col min-h-screen bg-[#F4F1E9] overflow-hidden">
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-10 font-bold text-[#928E82] text-base font-['Helvetica_Neue']">
         <span>(Hot</span>
         <div className="flex items-center space-x-4">
-          {session?.user?.email ? (
-            <span className="text-sm">{session.user.email}</span>
-          ) : (
-            <SignInButton />
-          )}
+          <HeaderAuth />
           <span>Dot)</span>
         </div>
       </header>
