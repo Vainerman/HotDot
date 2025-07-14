@@ -61,7 +61,7 @@ export default function SoloPlayPage() {
   return (
     <div className="flex flex-col h-screen">
       <main className="flex-1 flex flex-col items-center justify-center gap-4">
-        <AnimatedChallengeHeader onCountdownStart={() => {}} />
+        <AnimatedChallengeHeader onCountdownStart={() => {}} onCountdownFinish={handleDone} />
         <div
           className=""
           style={{ 
@@ -70,7 +70,7 @@ export default function SoloPlayPage() {
             backgroundImage: "url('/assets/Card_1.svg')"
           }}
         >
-          <DrawableCanvas ref={canvasRef} />
+          <DrawableCanvas ref={canvasRef} isLocked={isFinished} />
         </div>
       </main>
       <footer className="flex items-center justify-between p-4 border-t border-gray-300">

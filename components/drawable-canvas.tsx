@@ -8,7 +8,11 @@ export interface DrawableCanvasRef {
   getSvg: () => string;
 }
 
-const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
+interface DrawableCanvasProps {
+  isLocked?: boolean;
+}
+
+const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isLocked = false }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const lastPointRef = useRef<{ x: number, y: number } | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -129,7 +133,7 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
   };
 
   const draw = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !context || !lastPointRef.current) {
+    if (!isDrawing || !context || !lastPointRef.current || isLocked) {
       return;
     }
     const { offsetX, offsetY } = getCoordinates(event);
@@ -147,13 +151,13 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
   return (
     <canvas
       ref={canvasRef}
-      onMouseDown={startDrawing}
-      onMouseUp={finishDrawing}
-      onMouseMove={draw}
-      onMouseLeave={finishDrawing}
-      onTouchStart={startDrawing}
-      onTouchEnd={finishDrawing}
-      onTouchMove={draw}
+      onMouseDown={!isLocked ? startDrawing : undefined}
+      onMouseUp={!isLocked ? finishDrawing : undefined}
+      onMouseMove={!isLocked ? draw : undefined}
+      onMouseLeave={!isLocked ? finishDrawing : undefined}
+      onTouchStart={!isLocked ? startDrawing : undefined}
+      onTouchEnd={!isLocked ? finishDrawing : undefined}
+      onTouchMove={!isLocked ? draw : undefined}
       className="w-full h-full"
       style={{ touchAction: 'none' }}
     />

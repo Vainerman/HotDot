@@ -6,9 +6,10 @@ import Image from 'next/image';
 
 interface AnimatedChallengeHeaderProps {
   onCountdownStart: () => void;
+  onCountdownFinish: () => void;
 }
 
-const AnimatedChallengeHeader = ({ onCountdownStart }: AnimatedChallengeHeaderProps) => {
+const AnimatedChallengeHeader = ({ onCountdownStart, onCountdownFinish }: AnimatedChallengeHeaderProps) => {
   const [step, setStep] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
 
@@ -36,10 +37,12 @@ const AnimatedChallengeHeader = ({ onCountdownStart }: AnimatedChallengeHeaderPr
         setTimeLeft((prev) => prev - 1);
       }, 1000);
       return () => clearInterval(interval);
-    } else if (step === 2 && timeLeft === 30) { // Should only fire once
+    } else if (timeLeft === 0) {
+      onCountdownFinish();
+    } else if (step === 2 && timeLeft === 30) { 
       onCountdownStart();
     }
-  }, [step, timeLeft, onCountdownStart]);
+  }, [step, timeLeft, onCountdownStart, onCountdownFinish]);
   
   const slideVariants = {
     enter: { x: '-100%' },
