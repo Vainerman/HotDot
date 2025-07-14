@@ -1,8 +1,7 @@
 "use client"
 
-import { useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import SignInButton from "./sign-in-button"
-import Link from "next/link"
 
 export default function HeaderAuth() {
   const { data: session } = useSession()
@@ -10,7 +9,15 @@ export default function HeaderAuth() {
   return (
     <>
       {session?.user?.email ? (
-        <span className="text-sm">{session.user.email}</span>
+        <div className="flex items-center space-x-4">
+          <span className="text-sm">{session.user.email}</span>
+          <button
+            onClick={() => signOut()}
+            className="hover:text-[#FF5C38] transition-colors"
+          >
+            SIGN OUT
+          </button>
+        </div>
       ) : (
         <SignInButton />
       )}
