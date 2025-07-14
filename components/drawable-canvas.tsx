@@ -5,6 +5,7 @@ import { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo } fr
 export interface DrawableCanvasRef {
   clear: () => void;
   animateSvg: (pathData: string, viewBox: string | null) => void;
+  getSvg: () => string;
 }
 
 const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
@@ -22,6 +23,12 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, {}>((props, ref) => {
           this.animateSvg(template.pathData, template.viewBox, false); // Redraw without animation
         }
       }
+    },
+    getSvg() {
+      if (canvasRef.current) {
+        return canvasRef.current.toDataURL();
+      }
+      return "";
     },
     animateSvg(pathData: string, viewBox: string | null, shouldAnimate = true) {
       if (!context || !canvasRef.current || !viewBox) return;

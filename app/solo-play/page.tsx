@@ -4,11 +4,15 @@ import { Button } from "@/components/ui/button";
 import DrawableCanvas, { DrawableCanvasRef } from "@/components/drawable-canvas";
 import AnimatedChallengeHeader from "@/components/animated-challenge-header";
 import { useRef, useState, useEffect } from "react";
+import SaveChallengeModal from "@/components/ui/save-challenge-modal";
 
 export default function SoloPlayPage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);
+  const [isFinished, setIsFinished] = useState(false);
+  const [drawingData, setDrawingData] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
+  const fetchNewTemplate = () => {
     console.log("Fetching SVG path data...");
     fetch('/api/templates', { cache: 'no-store' })
       .then(res => res.json())
@@ -21,12 +25,37 @@ export default function SoloPlayPage() {
           }
         }
       });
+  };
+
+  useEffect(() => {
+    fetchNewTemplate();
   }, []);
 
   const handleClear = () => {
     if (canvasRef.current) {
       canvasRef.current.clear();
     }
+  };
+
+  const handleDone = () => {
+    if (canvasRef.current) {
+      const data = canvasRef.current.getSvg();
+      setDrawingData(data);
+    }
+    setIsFinished(true);
+  };
+
+  const handlePlayAgain = () => {
+    setIsFinished(false);
+    setIsModalOpen(false);
+    if (canvasRef.current) {
+      canvasRef.current.clear();
+      fetchNewTemplate();
+    }
+  };
+
+  const handleKeep = () => {
+    setIsModalOpen(true);
   };
 
   return (
@@ -45,12 +74,30 @@ export default function SoloPlayPage() {
         </div>
       </main>
       <footer className="flex items-center justify-between p-4 border-t border-gray-300">
-        <div className="flex items-center gap-4">
-          <Button variant="outline">Undo</Button>
-          <Button variant="outline" onClick={handleClear}>Clear</Button>
-        </div>
-        <Button>Done</Button>
+        {!isFinished ? (
+          <>
+            <div className="flex items-center gap-4">
+              <Button variant="outline">Undo</Button>
+              <Button variant="outline" onClick={handleClear}>
+                Clear
+              </Button>
+            </div>
+            <Button onClick={handleDone}>Done</Button>
+          </>
+        ) : (
+          <div className="flex w-full justify-around">
+            <Button variant="destructive" onClick={handlePlayAgain}>
+              NOPE
+            </Button>
+            <Button onClick={handleKeep}>KEEP</Button>
+          </div>
+        )}
       </footer>
+      <SaveChallengeModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        drawingData={drawingData}
+      />
     </div>
   );
 }
