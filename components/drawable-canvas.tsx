@@ -35,9 +35,11 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
         const { width, height } = canvasRef.current;
         const pixelRatio = window.devicePixelRatio || 1;
         
-        const templatePath = template ? `<path d="${template.pathData}" stroke="lightgray" stroke-width="1" fill="none" />` : '';
+        const templatePath = template ? `<path d="${template.pathData}" stroke="#FF6338" stroke-width="2" fill="none" />` : '';
 
-        const drawingContent = drawnPathsRef.current.join(' ');
+        const drawingContent = drawnPathsRef.current.map(pathD => 
+          `<path d="${pathD}" stroke="black" stroke-width="2" fill="none" />`
+        ).join('');
         
         const svgString = `<svg width="${width / pixelRatio}" height="${height / pixelRatio}" viewBox="0 0 ${width / pixelRatio} ${height / pixelRatio}" xmlns="http://www.w3.org/2000/svg">${templatePath}${drawingContent}</svg>`;
         return svgString;
