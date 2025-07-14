@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import DrawableCanvas, { DrawableCanvasRef } from "@/components/drawable-canvas";
 import AnimatedChallengeHeader from "@/components/animated-challenge-header";
 import { useRef, useState, useEffect } from "react";
+import Image from "next/image";
 
 export default function SoloPlayPage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);
@@ -75,10 +76,30 @@ export default function SoloPlayPage() {
       case "finished":
         return (
           <div className="flex w-full justify-around">
-            <Button variant="destructive" onClick={handleNope}>
-              NOPE
+            <Button
+              onClick={handleNope}
+              className="px-8 py-4 text-lg font-sans bg-black text-white hover:bg-gray-800 flex items-center gap-2"
+            >
+              <Image
+                src="/assets/NopeX.svg"
+                width={20}
+                height={20}
+                alt="Nope icon"
+              />
+              <span>NOPE</span>
             </Button>
-            <Button onClick={handleKeep}>KEEP</Button>
+            <Button
+              onClick={handleKeep}
+              className="px-8 py-4 text-lg font-sans bg-[#FF6338] text-black hover:bg-[#C9330A] flex items-center gap-2"
+            >
+              <Image
+                src="/assets/keepV.svg"
+                width={20}
+                height={20}
+                alt="Keep icon"
+              />
+              <span>KEEP</span>
+            </Button>
           </div>
         );
       case "saved":
@@ -86,11 +107,11 @@ export default function SoloPlayPage() {
           <div className="flex w-full justify-around">
             <Button
               onClick={handleChallengeIt}
-              className="bg-[#FF6338] text-black hover:bg-[#FF5C38]"
+              className="bg-[#FF6338] text-black hover:bg-[#FF5C38] font-sans"
             >
               CHALLENGE IT
             </Button>
-            <Button variant="secondary" onClick={handlePlayAgain}>
+            <Button variant="secondary" onClick={handlePlayAgain} className="font-sans">
               PLAY AGAIN
             </Button>
           </div>
@@ -100,12 +121,12 @@ export default function SoloPlayPage() {
         return (
           <>
             <div className="flex items-center gap-4">
-              <Button variant="outline">Undo</Button>
-              <Button variant="outline" onClick={handleClear}>
+              <Button variant="outline" className="font-sans">Undo</Button>
+              <Button variant="outline" onClick={handleClear} className="font-sans">
                 Clear
               </Button>
             </div>
-            <Button onClick={handleDone}>Done</Button>
+            <Button onClick={handleDone} className="font-sans">Done</Button>
           </>
         );
     }

@@ -12,6 +12,7 @@ interface AnimatedChallengeHeaderProps {
 const AnimatedChallengeHeader = ({ onCountdownStart, onCountdownFinish }: AnimatedChallengeHeaderProps) => {
   const [step, setStep] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
+  const [isFinished, setIsFinished] = useState(false);
 
   const slides = [
     { id: 0, text: 'SHAPE OF THE DAY', icon: '/assets/rightVector.svg', iconWidth: 28, iconHeight: 29 },
@@ -37,12 +38,13 @@ const AnimatedChallengeHeader = ({ onCountdownStart, onCountdownFinish }: Animat
         setTimeLeft((prev) => prev - 1);
       }, 1000);
       return () => clearInterval(interval);
-    } else if (timeLeft === 0) {
+    } else if (timeLeft === 0 && !isFinished) {
       onCountdownFinish();
+      setIsFinished(true);
     } else if (step === 2 && timeLeft === 30) { 
       onCountdownStart();
     }
-  }, [step, timeLeft, onCountdownStart, onCountdownFinish]);
+  }, [step, timeLeft, onCountdownStart, onCountdownFinish, isFinished]);
   
   const slideVariants = {
     enter: { x: '-100%' },

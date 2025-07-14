@@ -1,9 +1,11 @@
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
-import SignInButton from "./sign-in-button"
+"use client"
 
-export default async function HeaderAuth() {
-  const session = await getServerSession(authOptions)
+import { useSession } from "next-auth/react"
+import SignInButton from "./sign-in-button"
+import Link from "next/link"
+
+export default function HeaderAuth() {
+  const { data: session } = useSession()
 
   return (
     <>
