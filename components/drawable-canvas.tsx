@@ -34,14 +34,31 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
       if (canvasRef.current) {
         const { width, height } = canvasRef.current;
         const pixelRatio = window.devicePixelRatio || 1;
-        
-        const templatePath = template ? `<path d="${template.pathData}" stroke="#FF6338" stroke-width="2" fill="none" />` : '';
+        const canvasWidth = width / pixelRatio;
+        const canvasHeight = height / pixelRatio;
+
+        let templateElement = '';
+        if (template && template.pathData && template.viewBox) {
+            const tempViewBox = template.viewBox.split(' ').map(Number);
+            const pathWidth = tempViewBox[2];
+            const pathHeight = tempViewBox[3];
+
+            const scale = Math.min(canvasWidth / pathWidth, canvasHeight / pathHeight) * 0.9;
+            const offsetX = (canvasWidth - pathWidth * scale) / 2;
+            const offsetY = (canvasHeight - pathHeight * scale) / 2;
+            
+            const strokeWidth = 2 / scale;
+
+            templateElement = `<g transform="translate(${offsetX} ${offsetY}) scale(${scale})">
+              <path d="${template.pathData}" stroke="#FF6338" stroke-width="${strokeWidth}" fill="none" />
+            </g>`;
+        }
 
         const drawingContent = drawnPathsRef.current.map(pathD => 
           `<path d="${pathD}" stroke="black" stroke-width="2" fill="none" />`
         ).join('');
         
-        const svgString = `<svg width="${width / pixelRatio}" height="${height / pixelRatio}" viewBox="0 0 ${width / pixelRatio} ${height / pixelRatio}" xmlns="http://www.w3.org/2000/svg">${templatePath}${drawingContent}</svg>`;
+        const svgString = `<svg width="${canvasWidth}" height="${canvasHeight}" viewBox="0 0 ${canvasWidth} ${canvasHeight}" xmlns="http://www.w3.org/2000/svg">${templateElement}${drawingContent}</svg>`;
         return svgString;
       }
       return "";
