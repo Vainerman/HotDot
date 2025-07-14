@@ -14,6 +14,7 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
 }
 
 export const authOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     EmailProvider({
       async sendVerificationRequest({ identifier: email, url }) {
