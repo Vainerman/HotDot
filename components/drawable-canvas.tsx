@@ -4,8 +4,8 @@ import { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo } fr
 
 export interface DrawableCanvasRef {
   clear: (redrawTemplate?: boolean) => void;
-  animateSvg: (pathData: string, viewBox: string | null) => void;
-  getSvg: () => string;
+  getDrawingAsSvg: () => string;
+  animateSvg: (pathData: string, viewBox: string | null, animated?: boolean) => void;
 }
 
 interface DrawableCanvasProps {
@@ -28,18 +28,21 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
         }
       }
     },
-    getSvg() {
+    getDrawingAsSvg() {
       if (canvasRef.current) {
-        return canvasRef.current.toDataURL();
+        const pngDataUrl = canvasRef.current.toDataURL();
+        const { width, height } = canvasRef.current;
+        // Use the real pixel dimensions for the SVG, not the scaled CSS dimensions
+        const pixelRatio = window.devicePixelRatio || 1;
+        const svgString = `<svg width="${width / pixelRatio}" height="${height / pixelRatio}" xmlns="http://www.w3.org/2000/svg"><image href="${pngDataUrl}" width="${width / pixelRatio}" height="${height / pixelRatio}" /></svg>`;
+        return svgString;
       }
       return "";
     },
-    animateSvg(pathData: string, viewBox: string | null, shouldAnimate = true) {
-      if (!context || !canvasRef.current || !viewBox) return;
+    animateSvg(pathData: string, viewBox: string | null, animated = true) {
+      if (!context || !canvasRef.current) return;
 
-      if(shouldAnimate) {
-        setTemplate({ pathData, viewBox });
-      }
+      setTemplate({ pathData, viewBox });
 
       const path = new Path2D(pathData);
       
@@ -64,7 +67,7 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
         context.restore();
       }
 
-      if (!shouldAnimate) {
+      if (!animated) {
         drawPath();
         return;
       }

@@ -40,7 +40,7 @@ export default function SoloPlayPage() {
 
   const handleDone = () => {
     if (canvasRef.current) {
-      const data = canvasRef.current.getSvg();
+      const data = canvasRef.current.getDrawingAsSvg();
       setDrawingData(data);
     }
     setGameState("finished");

@@ -38,7 +38,7 @@ export default function Component() {
           <Link href="/solo-play" className="hover:text-[#FF5C38] transition-colors">SOLO-PLAY</Link>
           <Link href="#" className="hover:text-[#FF5C38] transition-colors">CHALLENGE</Link>
           <Link href="#" className="hover:text-[#FF5C38] transition-colors">GUESS-IT</Link>
-          <Link href="#" className="hover:text-[#FF5C38] transition-colors">PROFILE</Link>
+          <Link href="/profile" className="hover:text-[#FF5C38] transition-colors">PROFILE</Link>
         </nav>
       </footer>
     </div>

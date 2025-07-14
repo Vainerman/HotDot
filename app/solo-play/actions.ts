@@ -3,7 +3,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { v4 as uuidv4 } from 'uuid';
 
-export async function saveDrawing(dataUrl: string) {
+export async function saveDrawing(svgString: string) {
   const supabase = await createClient();
 
   const {
@@ -15,16 +15,15 @@ export async function saveDrawing(dataUrl: string) {
     return { success: false, error: "User not authenticated" };
   }
 
-  // Convert data URL to buffer
-  const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
-  const imageBuffer = Buffer.from(base64Data, 'base64');
-  const filePath = `${user.id}/${uuidv4()}.png`;
+  // The input is a raw SVG string, so we can convert it directly to a buffer.
+  const imageBuffer = Buffer.from(svgString, 'utf8');
+  const filePath = `${user.id}/${uuidv4()}.svg`;
 
   // Upload to storage
   const { error: storageError } = await supabase.storage
     .from("drawings")
     .upload(filePath, imageBuffer, {
-      contentType: 'image/png',
+      contentType: 'image/svg+xml',
     });
 
   if (storageError) {
