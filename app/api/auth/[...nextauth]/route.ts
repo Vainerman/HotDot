@@ -46,6 +46,7 @@ export const authOptions = {
     async session({ session, user }) {
       const signingSecret = process.env.SUPABASE_JWT_SECRET
       if (signingSecret) {
+        console.log("Supabase JWT secret found. Generating token.");
         const payload = {
           aud: "authenticated",
           exp: Math.floor(new Date(session.expires).getTime() / 1000),
@@ -54,6 +55,8 @@ export const authOptions = {
           role: "authenticated",
         }
         session.supabaseAccessToken = sign(payload, signingSecret)
+      } else {
+        console.error("Supabase JWT secret not found. Token not generated.");
       }
       return session
     },

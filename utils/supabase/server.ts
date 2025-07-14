@@ -9,6 +9,10 @@ export const createClient = async () => {
 
   const supabaseAccessToken = session?.supabaseAccessToken as string
 
+  console.log("Session from getServerSession:", session ? "found" : "not found");
+  console.log("Supabase Access Token:", supabaseAccessToken ? "found" : "not found");
+
+
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
