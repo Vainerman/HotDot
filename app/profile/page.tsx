@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
+import AnimatedSvg from '@/components/animated-svg'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -47,13 +47,7 @@ export default async function ProfilePage() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {drawingsWithUrls.map((drawing) => (
             <div key={drawing.id} className="aspect-square bg-gray-200 rounded-lg overflow-hidden shadow-lg relative">
-              <Image
-                src={drawing.signedUrl}
-                alt="User drawing"
-                layout="fill"
-                objectFit="contain"
-                className="hover:scale-105 transition-transform duration-300 p-2"
-              />
+              <AnimatedSvg svgUrl={drawing.signedUrl} />
             </div>
           ))}
         </div>

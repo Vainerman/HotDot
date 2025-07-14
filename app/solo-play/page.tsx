@@ -2,13 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import DrawableCanvas, { DrawableCanvasRef } from "@/components/drawable-canvas";
-import AnimatedChallengeHeader from "@/components/animated-challenge-header";
+import AnimatedChallengeHeader, { ChallengeHeaderRef } from "@/components/animated-challenge-header";
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { saveDrawing } from "./actions";
 
 export default function SoloPlayPage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);
+  const headerRef = useRef<ChallengeHeaderRef>(null);
   const [gameState, setGameState] = useState<"drawing" | "finished" | "saved">("drawing");
   const [drawingData, setDrawingData] = useState<string | null>(null);
   const [headerKey, setHeaderKey] = useState(0);
@@ -39,6 +41,9 @@ export default function SoloPlayPage() {
   };
 
   const handleDone = () => {
+    if (headerRef.current) {
+      headerRef.current.stopTimer();
+    }
     if (canvasRef.current) {
       const data = canvasRef.current.getDrawingAsSvg();
       setDrawingData(data);
@@ -134,7 +139,6 @@ export default function SoloPlayPage() {
         return (
           <>
             <div className="flex items-center gap-4">
-              <Button variant="outline" className="font-sans">Undo</Button>
               <Button variant="outline" onClick={handleClear} className="font-sans">
                 Clear
               </Button>
@@ -146,9 +150,13 @@ export default function SoloPlayPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="relative flex flex-col h-screen">
+      <Link href="/" className="absolute top-4 left-4 z-10">
+        <Image src="/assets/home.png" alt="Home" width={40} height={40} />
+      </Link>
       <main className="flex-1 flex flex-col items-center justify-center gap-4">
         <AnimatedChallengeHeader
+          ref={headerRef}
           key={headerKey}
           onCountdownStart={() => {}}
           onCountdownFinish={handleDone}

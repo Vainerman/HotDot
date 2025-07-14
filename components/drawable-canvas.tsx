@@ -14,6 +14,7 @@ interface DrawableCanvasProps {
 
 const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isLocked = false }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const drawnPathsRef = useRef<string[]>([]);
   const lastPointRef = useRef<{ x: number, y: number } | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
@@ -23,6 +24,7 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
     clear(redrawTemplate = true) {
       if (context && canvasRef.current) {
         context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        drawnPathsRef.current = []; // Clear drawn paths
         if (template && redrawTemplate) {
           this.animateSvg(template.pathData, template.viewBox, false); // Redraw without animation
         }
@@ -30,11 +32,14 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
     },
     getDrawingAsSvg() {
       if (canvasRef.current) {
-        const pngDataUrl = canvasRef.current.toDataURL();
         const { width, height } = canvasRef.current;
-        // Use the real pixel dimensions for the SVG, not the scaled CSS dimensions
         const pixelRatio = window.devicePixelRatio || 1;
-        const svgString = `<svg width="${width / pixelRatio}" height="${height / pixelRatio}" xmlns="http://www.w3.org/2000/svg"><image href="${pngDataUrl}" width="${width / pixelRatio}" height="${height / pixelRatio}" /></svg>`;
+        
+        const templatePath = template ? `<path d="${template.pathData}" stroke="lightgray" stroke-width="1" fill="none" />` : '';
+
+        const drawingContent = drawnPathsRef.current.join(' ');
+        
+        const svgString = `<svg width="${width / pixelRatio}" height="${height / pixelRatio}" viewBox="0 0 ${width / pixelRatio} ${height / pixelRatio}" xmlns="http://www.w3.org/2000/svg">${templatePath}${drawingContent}</svg>`;
         return svgString;
       }
       return "";
@@ -126,6 +131,8 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
       lastPointRef.current = { x: offsetX, y: offsetY };
       context.beginPath();
       context.moveTo(offsetX, offsetY);
+      // Start a new path string
+      drawnPathsRef.current.push(`M${offsetX},${offsetY}`);
     }
   };
 
@@ -141,6 +148,16 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
     }
     const { offsetX, offsetY } = getCoordinates(event);
     
+    // For SVG path
+    if (drawnPathsRef.current.length > 0) {
+      const lastPath = drawnPathsRef.current[drawnPathsRef.current.length - 1];
+      const midPointX = (lastPointRef.current.x + offsetX) / 2;
+      const midPointY = (lastPointRef.current.y + offsetY) / 2;
+      // Append quadratic curve and line segments to the current path string
+      drawnPathsRef.current[drawnPathsRef.current.length - 1] = `${lastPath} Q${lastPointRef.current.x},${lastPointRef.current.y} ${midPointX},${midPointY} L${offsetX},${offsetY}`;
+    }
+
+    // For canvas rendering
     const midPointX = (lastPointRef.current.x + offsetX) / 2;
     const midPointY = (lastPointRef.current.y + offsetY) / 2;
     
