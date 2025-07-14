@@ -4,13 +4,11 @@ import { Button } from "@/components/ui/button";
 import DrawableCanvas, { DrawableCanvasRef } from "@/components/drawable-canvas";
 import AnimatedChallengeHeader from "@/components/animated-challenge-header";
 import { useRef, useState, useEffect } from "react";
-import SaveChallengeModal from "@/components/ui/save-challenge-modal";
 
 export default function SoloPlayPage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);
-  const [isFinished, setIsFinished] = useState(false);
+  const [gameState, setGameState] = useState<"drawing" | "finished" | "saved">("drawing");
   const [drawingData, setDrawingData] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [headerKey, setHeaderKey] = useState(0);
 
   const fetchNewTemplate = () => {
@@ -43,11 +41,11 @@ export default function SoloPlayPage() {
       const data = canvasRef.current.getSvg();
       setDrawingData(data);
     }
-    setIsFinished(true);
+    setGameState("finished");
   };
 
   const handleNope = () => {
-    setIsFinished(false);
+    setGameState("drawing");
     if (canvasRef.current) {
       canvasRef.current.clear();
     }
@@ -55,17 +53,62 @@ export default function SoloPlayPage() {
   };
 
   const handlePlayAgain = () => {
-    setIsFinished(false);
-    setIsModalOpen(false);
+    setGameState("drawing");
     if (canvasRef.current) {
-      canvasRef.current.clear();
+      canvasRef.current.clear(false);
       fetchNewTemplate();
     }
     setHeaderKey((prevKey) => prevKey + 1);
   };
 
   const handleKeep = () => {
-    setIsModalOpen(true);
+    setGameState("saved");
+  };
+
+  const handleChallengeIt = () => {
+    // We'll add logic to create a challenge later
+    console.log("Challenge it!", drawingData);
+  };
+
+  const renderFooterButtons = () => {
+    switch (gameState) {
+      case "finished":
+        return (
+          <div className="flex w-full justify-around">
+            <Button variant="destructive" onClick={handleNope}>
+              NOPE
+            </Button>
+            <Button onClick={handleKeep}>KEEP</Button>
+          </div>
+        );
+      case "saved":
+        return (
+          <div className="flex w-full justify-around">
+            <Button
+              onClick={handleChallengeIt}
+              className="bg-[#FF6338] text-black hover:bg-[#FF5C38]"
+            >
+              CHALLENGE IT
+            </Button>
+            <Button variant="secondary" onClick={handlePlayAgain}>
+              PLAY AGAIN
+            </Button>
+          </div>
+        );
+      case "drawing":
+      default:
+        return (
+          <>
+            <div className="flex items-center gap-4">
+              <Button variant="outline">Undo</Button>
+              <Button variant="outline" onClick={handleClear}>
+                Clear
+              </Button>
+            </div>
+            <Button onClick={handleDone}>Done</Button>
+          </>
+        );
+    }
   };
 
   return (
@@ -78,41 +121,18 @@ export default function SoloPlayPage() {
         />
         <div
           className=""
-          style={{ 
+          style={{
             width: '346px',
             height: '562px',
             backgroundImage: "url('/assets/Card_1.svg')"
           }}
         >
-          <DrawableCanvas ref={canvasRef} isLocked={isFinished} />
+          <DrawableCanvas ref={canvasRef} isLocked={gameState !== "drawing"} />
         </div>
       </main>
       <footer className="flex items-center justify-between p-4 border-t border-gray-300">
-        {!isFinished ? (
-          <>
-            <div className="flex items-center gap-4">
-              <Button variant="outline">Undo</Button>
-              <Button variant="outline" onClick={handleClear}>
-                Clear
-              </Button>
-            </div>
-            <Button onClick={handleDone}>Done</Button>
-          </>
-        ) : (
-          <div className="flex w-full justify-around">
-            <Button variant="destructive" onClick={handleNope}>
-              NOPE
-            </Button>
-            <Button onClick={handleKeep}>KEEP</Button>
-          </div>
-        )}
+        {renderFooterButtons()}
       </footer>
-      <SaveChallengeModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onPlayAgain={handlePlayAgain}
-        drawingData={drawingData}
-      />
     </div>
   );
 }

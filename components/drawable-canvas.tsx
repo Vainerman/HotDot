@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo } from 'react';
 
 export interface DrawableCanvasRef {
-  clear: () => void;
+  clear: (redrawTemplate?: boolean) => void;
   animateSvg: (pathData: string, viewBox: string | null) => void;
   getSvg: () => string;
 }
@@ -20,10 +20,10 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
   const [template, setTemplate] = useState<{ pathData: string, viewBox: string | null } | null>(null);
 
   useImperativeHandle(ref, () => ({
-    clear() {
+    clear(redrawTemplate = true) {
       if (context && canvasRef.current) {
         context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        if (template) {
+        if (template && redrawTemplate) {
           this.animateSvg(template.pathData, template.viewBox, false); // Redraw without animation
         }
       }
