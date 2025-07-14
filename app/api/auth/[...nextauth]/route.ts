@@ -23,7 +23,7 @@ export const authOptions = {
         const { error } = await supabase.auth.signInWithOtp({
           email,
           options: {
-            emailRedirectTo: url,
+            emailRedirectTo: process.env.NEXT_PUBLIC_SITE_URL || 'https://hotdot.vercel.app/',
           },
         })
 
