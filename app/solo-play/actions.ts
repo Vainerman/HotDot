@@ -11,7 +11,9 @@ export async function saveDrawing(dataUrl: string) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return { error: "You must be logged in to save a drawing." };
+    // If no user is logged in, do nothing and return success
+    // to allow the UI flow to continue.
+    return { success: true, path: null };
   }
 
   // Convert data URL to buffer

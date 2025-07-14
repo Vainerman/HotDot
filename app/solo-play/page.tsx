@@ -51,7 +51,7 @@ export default function SoloPlayPage() {
     if (canvasRef.current) {
       canvasRef.current.clear();
     }
-    setHeaderKey((prevKey) => prevKey + 1);
+    setHeaderKey((prevKey: number) => prevKey + 1);
   };
 
   const handlePlayAgain = () => {
@@ -60,18 +60,20 @@ export default function SoloPlayPage() {
       canvasRef.current.clear(false);
       fetchNewTemplate();
     }
-    setHeaderKey((prevKey) => prevKey + 1);
+    setHeaderKey((prevKey: number) => prevKey + 1);
   };
 
-  const handleKeep = async () => {
+  const handleKeep = () => {
+    // Immediately update the game state to continue the flow.
+    setGameState("saved");
     if (drawingData) {
-      const result = await saveDrawing(drawingData);
-      if (result.error) {
-        // Handle error, maybe show a toast notification
-        console.error(result.error);
-        return;
-      }
-      setGameState("saved");
+      // Call the server action to run in the background.
+      // We are not `await`ing the result, so the UI won't block.
+      saveDrawing(drawingData).then(result => {
+        if (result?.error) {
+          console.error("Background save failed:", result.error);
+        }
+      });
     }
   };
 
