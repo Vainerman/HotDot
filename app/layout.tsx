@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Space_Grotesk } from 'next/font/google'
 import './globals.css'
-import Providers from '@/components/auth/providers'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -23,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${spaceGrotesk.variable} font-sans`}>
       <body className="bg-[#F4F1E9]">
-        <Providers>{children}</Providers>
+        {children}
       </body>
     </html>
   )

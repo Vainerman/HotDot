@@ -1,27 +1,13 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
 export const createClient = async () => {
   const cookieStore = await cookies()
-  const session = await getServerSession(authOptions)
-
-  const supabaseAccessToken = session?.supabaseAccessToken as string
-
-  console.log("Session from getServerSession:", session ? "found" : "not found");
-  console.log("Supabase Access Token:", supabaseAccessToken ? "found" : "not found");
-
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      global: {
-        headers: {
-          Authorization: `Bearer ${supabaseAccessToken}`,
-        },
-      },
       cookies: {
         get(name: string) {
           return cookieStore.get(name)?.value
