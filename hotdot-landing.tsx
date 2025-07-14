@@ -7,10 +7,9 @@ export default function Component() {
     <div className="relative flex flex-col min-h-screen bg-[#F4F1E9] overflow-hidden">
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-10 font-bold text-[#928E82] text-base font-['Helvetica_Neue']">
-        <span>(Hot</span>
+        <span>(Hot--Dot)</span>
         <div className="flex items-center space-x-4">
           <HeaderAuth />
-          <span>Dot)</span>
         </div>
       </header>
 

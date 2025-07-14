@@ -5,6 +5,7 @@ import DrawableCanvas, { DrawableCanvasRef } from "@/components/drawable-canvas"
 import AnimatedChallengeHeader from "@/components/animated-challenge-header";
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
+import { saveDrawing } from "./actions";
 
 export default function SoloPlayPage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);
@@ -62,8 +63,16 @@ export default function SoloPlayPage() {
     setHeaderKey((prevKey) => prevKey + 1);
   };
 
-  const handleKeep = () => {
-    setGameState("saved");
+  const handleKeep = async () => {
+    if (drawingData) {
+      const result = await saveDrawing(drawingData);
+      if (result.error) {
+        // Handle error, maybe show a toast notification
+        console.error(result.error);
+        return;
+      }
+      setGameState("saved");
+    }
   };
 
   const handleChallengeIt = () => {
