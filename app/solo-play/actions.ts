@@ -46,4 +46,4 @@ export async function saveDrawing(dataUrl: string) {
   }
 
   return { success: true, path: filePath };
-} 
+}
