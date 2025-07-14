@@ -11,8 +11,9 @@ export async function saveDrawing(dataUrl: string) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    // If no user is logged in, do nothing and return success
-    // to allow the UI flow to continue.
+    // If no user is logged in, log the attempt and return success
+    // to allow the UI flow to continue without error.
+    console.warn("Save drawing attempt by an unauthenticated user. Discarding.");
     return { success: true, path: null };
   }
 
