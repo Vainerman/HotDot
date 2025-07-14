@@ -46,7 +46,7 @@ export default async function ProfilePage() {
       {drawingsWithUrls.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {drawingsWithUrls.map((drawing) => (
-            <div key={drawing.id} className="aspect-square bg-gray-200 rounded-lg overflow-hidden shadow-lg relative">
+            <div key={drawing.id} className="aspect-square rounded-lg overflow-hidden relative flex items-center justify-center">
               <AnimatedSvg svgUrl={drawing.signedUrl} />
             </div>
           ))}
