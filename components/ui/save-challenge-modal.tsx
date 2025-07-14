@@ -12,19 +12,16 @@ import { Button } from "@/components/ui/button"
 interface SaveChallengeModalProps {
   isOpen: boolean
   onClose: () => void
+  onPlayAgain: () => void
   drawingData: string | null
 }
 
 export default function SaveChallengeModal({
   isOpen,
   onClose,
+  onPlayAgain,
   drawingData,
 }: SaveChallengeModalProps) {
-  const handlePlayAgain = () => {
-    onClose()
-    // We'll need to add logic to restart the game
-  }
-
   const handleChallengeIt = () => {
     // We'll add logic to create a challenge later
   }
@@ -44,7 +41,7 @@ export default function SaveChallengeModal({
           <Button onClick={handleChallengeIt} variant="default">
             CHALLENGE IT
           </Button>
-          <Button onClick={handlePlayAgain} variant="secondary">
+          <Button onClick={onPlayAgain} variant="secondary">
             PLAY AGAIN
           </Button>
         </DialogFooter>

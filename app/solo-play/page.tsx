@@ -11,6 +11,7 @@ export default function SoloPlayPage() {
   const [isFinished, setIsFinished] = useState(false);
   const [drawingData, setDrawingData] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [headerKey, setHeaderKey] = useState(0);
 
   const fetchNewTemplate = () => {
     console.log("Fetching SVG path data...");
@@ -45,6 +46,14 @@ export default function SoloPlayPage() {
     setIsFinished(true);
   };
 
+  const handleNope = () => {
+    setIsFinished(false);
+    if (canvasRef.current) {
+      canvasRef.current.clear();
+    }
+    setHeaderKey((prevKey) => prevKey + 1);
+  };
+
   const handlePlayAgain = () => {
     setIsFinished(false);
     setIsModalOpen(false);
@@ -52,6 +61,7 @@ export default function SoloPlayPage() {
       canvasRef.current.clear();
       fetchNewTemplate();
     }
+    setHeaderKey((prevKey) => prevKey + 1);
   };
 
   const handleKeep = () => {
@@ -61,7 +71,11 @@ export default function SoloPlayPage() {
   return (
     <div className="flex flex-col h-screen">
       <main className="flex-1 flex flex-col items-center justify-center gap-4">
-        <AnimatedChallengeHeader onCountdownStart={() => {}} onCountdownFinish={handleDone} />
+        <AnimatedChallengeHeader
+          key={headerKey}
+          onCountdownStart={() => {}}
+          onCountdownFinish={handleDone}
+        />
         <div
           className=""
           style={{ 
@@ -86,7 +100,7 @@ export default function SoloPlayPage() {
           </>
         ) : (
           <div className="flex w-full justify-around">
-            <Button variant="destructive" onClick={handlePlayAgain}>
+            <Button variant="destructive" onClick={handleNope}>
               NOPE
             </Button>
             <Button onClick={handleKeep}>KEEP</Button>
@@ -96,6 +110,7 @@ export default function SoloPlayPage() {
       <SaveChallengeModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onPlayAgain={handlePlayAgain}
         drawingData={drawingData}
       />
     </div>
