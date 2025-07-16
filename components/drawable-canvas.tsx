@@ -64,50 +64,34 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
 
       setTemplate({ svgContent, viewBox });
 
-      const parser = new DOMParser();
-      const svgDoc = parser.parseFromString(svgContent, "image/svg+xml");
-      const paths = Array.from(svgDoc.querySelectorAll('path, circle, rect, ellipse, line, polyline, polygon'));
+      const img = new Image();
+      const svgBlob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
 
-      if (!paths.length) return;
-
-      const drawAllPaths = () => {
-        if (!context || !canvasRef.current || !viewBox) return;
+      img.onload = () => {
+        if (!context || !canvasRef.current) return;
+        
         const tempViewBox = viewBox.split(' ').map(Number);
         const pathWidth = tempViewBox[2];
         const pathHeight = tempViewBox[3];
-        
+
         const canvasWidth = canvasRef.current.offsetWidth;
         const canvasHeight = canvasRef.current.offsetHeight;
 
         const scale = Math.min(canvasWidth / pathWidth, canvasHeight / pathHeight) * 0.9;
         const offsetX = (canvasWidth - pathWidth * scale) / 2;
         const offsetY = (canvasHeight - pathHeight * scale) / 2;
-
-        transformRef.current = { scale, offsetX, offsetY };
-
-        context.save();
-        context.translate(offsetX, offsetY);
-        context.scale(scale, scale);
         
-        context.strokeStyle = "#FF6338";
-        context.lineWidth = 2 / scale;
-        context.fillStyle = 'none';
-
-        paths.forEach(p => {
-          const pathD = p.getAttribute('d');
-          if(pathD){
-            const path2d = new Path2D(pathD);
-            context.stroke(path2d);
-          } else {
-            // This part needs a proper SVG-to-Canvas path converter for shapes like circles, rects etc.
-            // For now, it will only draw path elements from the template.
-          }
-        });
-
+        // Before drawing, we'll apply a global filter to color the image orange
+        context.save();
+        context.filter = 'opacity(0.5) drop-shadow(0 0 0 #FF6338)';
+        context.drawImage(img, offsetX, offsetY, pathWidth * scale, pathHeight * scale);
         context.restore();
+
+        URL.revokeObjectURL(url);
       };
 
-      drawAllPaths();
+      img.src = url;
     },
   }));
 
