@@ -40,11 +40,22 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
 
       if (!svgNode) return "";
       
+      const { scale } = transformRef.current;
+      const strokeWidth = 2 / scale;
+
       const drawingContent = drawnPathsRef.current.map(pathD => 
-        `<path d="${pathD}" stroke="black" stroke-width="2" fill="none" />`
+        `<path d="${pathD}" stroke="black" stroke-width="${strokeWidth}" fill="none" />`
       ).join('');
 
+      // Add the user's drawing to the template SVG
       svgNode.innerHTML += drawingContent;
+      
+      // Ensure the template's strokes are also correctly sized
+      svgNode.querySelectorAll('*').forEach((el: Element) => {
+        if (el.hasAttribute('stroke')) {
+            el.setAttribute('stroke-width', strokeWidth.toString());
+        }
+      });
       
       return svgNode.outerHTML;
     },
