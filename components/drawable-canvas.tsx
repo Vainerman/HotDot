@@ -84,7 +84,7 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
         
         transformRef.current = { scale, offsetX, offsetY };
         
-        // Before drawing, we'll apply a global filter to color the image orange
+        // Before drawing, we'll apply a global filter to color the image orange.
         context.save();
         context.filter = 'opacity(0.5) drop-shadow(0 0 0 #FF6338)';
         context.drawImage(img, offsetX, offsetY, pathWidth * scale, pathHeight * scale);
