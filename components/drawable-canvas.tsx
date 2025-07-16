@@ -51,19 +51,16 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
               const scale = Math.min(canvasWidth / pathWidth, canvasHeight / pathHeight) * 0.9;
               const offsetX = (canvasWidth - pathWidth * scale) / 2;
               const offsetY = (canvasHeight - pathHeight * scale) / 2;
+              const strokeWidth = 2 / scale;
               
-              svgNode.setAttribute('transform', `translate(${offsetX} ${offsetY}) scale(${scale})`);
-              
-              // Ensure all strokes are the correct color and width
-              svgNode.querySelectorAll('*').forEach((el: Element) => {
-                if (el.hasAttribute('stroke')) {
-                    el.setAttribute('stroke', '#FF6338');
-                    el.setAttribute('stroke-width', (2 / scale).toString());
-                    el.setAttribute('fill', 'none');
-                }
-              });
+              const innerContent = Array.from(svgNode.children).map((child: Element) => {
+                child.setAttribute('stroke', '#FF6338');
+                child.setAttribute('stroke-width', strokeWidth.toString());
+                child.setAttribute('fill', 'none');
+                return child.outerHTML;
+              }).join('');
 
-              templateElement = svgNode.outerHTML;
+              templateElement = `<g transform="translate(${offsetX} ${offsetY}) scale(${scale})">${innerContent}</g>`;
             }
         }
 
