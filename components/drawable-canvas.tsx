@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo } from 'react';
-import { JSDOM } from 'jsdom';
 
 export interface DrawableCanvasRef {
   clear: (redrawTemplate?: boolean) => void;
@@ -40,8 +39,9 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
 
         let templateElement = '';
         if (template && template.svgContent && template.viewBox) {
-            const dom = new JSDOM(template.svgContent);
-            const svgNode = dom.window.document.querySelector('svg');
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(template.svgContent, 'image/svg+xml');
+            const svgNode = svgDoc.querySelector('svg');
 
             if (svgNode) {
               const tempViewBox = template.viewBox.split(' ').map(Number);
@@ -78,8 +78,9 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
 
       setTemplate({ svgContent, viewBox });
 
-      const dom = new JSDOM(svgContent);
-      const paths = Array.from(dom.window.document.querySelectorAll('path, circle, rect, ellipse, line, polyline, polygon'));
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
+      const paths = Array.from(svgDoc.querySelectorAll('path, circle, rect, ellipse, line, polyline, polygon'));
 
       if (!paths.length) return;
 
