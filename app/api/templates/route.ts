@@ -26,15 +26,12 @@ export async function GET() {
     const filePath = path.join(templatesDirectory, randomSvgFile);
     const fileContents = fs.readFileSync(filePath, 'utf8');
 
-    // Parse the SVG and extract the path data
+    // Parse the SVG and extract the viewBox
     const dom = new JSDOM(fileContents);
     const svgElement = dom.window.document.querySelector("svg");
-    const svgPath = dom.window.document.querySelector("path");
-    
-    const pathData = svgPath ? svgPath.getAttribute('d') : null;
     const viewBox = svgElement ? svgElement.getAttribute('viewBox') : null;
 
-    return NextResponse.json({ pathData, viewBox });
+    return NextResponse.json({ svgContent: fileContents, viewBox });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Failed to read or parse template file' }, { status: 500 });

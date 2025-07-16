@@ -1,11 +1,12 @@
 "use client";
 
 import { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo } from 'react';
+import { JSDOM } from 'jsdom';
 
 export interface DrawableCanvasRef {
   clear: (redrawTemplate?: boolean) => void;
   getDrawingAsSvg: () => string;
-  animateSvg: (pathData: string, viewBox: string | null, animated?: boolean) => void;
+  animateSvg: (svgContent: string, viewBox: string | null, animated?: boolean) => void;
 }
 
 interface DrawableCanvasProps {
@@ -18,7 +19,7 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
   const lastPointRef = useRef<{ x: number, y: number } | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
-  const [template, setTemplate] = useState<{ pathData: string, viewBox: string | null } | null>(null);
+  const [template, setTemplate] = useState<{ svgContent: string, viewBox: string | null } | null>(null);
 
   useImperativeHandle(ref, () => ({
     clear(redrawTemplate = true) {
@@ -26,7 +27,7 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
         context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         drawnPathsRef.current = []; // Clear drawn paths
         if (template && redrawTemplate) {
-          this.animateSvg(template.pathData, template.viewBox, false); // Redraw without animation
+          this.animateSvg(template.svgContent, template.viewBox, false); // Redraw without animation
         }
       }
     },
@@ -38,20 +39,32 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
         const canvasHeight = height / pixelRatio;
 
         let templateElement = '';
-        if (template && template.pathData && template.viewBox) {
-            const tempViewBox = template.viewBox.split(' ').map(Number);
-            const pathWidth = tempViewBox[2];
-            const pathHeight = tempViewBox[3];
+        if (template && template.svgContent && template.viewBox) {
+            const dom = new JSDOM(template.svgContent);
+            const svgNode = dom.window.document.querySelector('svg');
 
-            const scale = Math.min(canvasWidth / pathWidth, canvasHeight / pathHeight) * 0.9;
-            const offsetX = (canvasWidth - pathWidth * scale) / 2;
-            const offsetY = (canvasHeight - pathHeight * scale) / 2;
-            
-            const strokeWidth = 2 / scale;
+            if (svgNode) {
+              const tempViewBox = template.viewBox.split(' ').map(Number);
+              const pathWidth = tempViewBox[2];
+              const pathHeight = tempViewBox[3];
 
-            templateElement = `<g transform="translate(${offsetX} ${offsetY}) scale(${scale})">
-              <path d="${template.pathData}" stroke="#FF6338" stroke-width="${strokeWidth}" fill="none" />
-            </g>`;
+              const scale = Math.min(canvasWidth / pathWidth, canvasHeight / pathHeight) * 0.9;
+              const offsetX = (canvasWidth - pathWidth * scale) / 2;
+              const offsetY = (canvasHeight - pathHeight * scale) / 2;
+              
+              svgNode.setAttribute('transform', `translate(${offsetX} ${offsetY}) scale(${scale})`);
+              
+              // Ensure all strokes are the correct color and width
+              svgNode.querySelectorAll('*').forEach((el: Element) => {
+                if (el.hasAttribute('stroke')) {
+                    el.setAttribute('stroke', '#FF6338');
+                    el.setAttribute('stroke-width', (2 / scale).toString());
+                    el.setAttribute('fill', 'none');
+                }
+              });
+
+              templateElement = svgNode.outerHTML;
+            }
         }
 
         const drawingContent = drawnPathsRef.current.map(pathD => 
@@ -63,55 +76,49 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
       }
       return "";
     },
-    animateSvg(pathData: string, viewBox: string | null, animated = true) {
+    animateSvg(svgContent: string, viewBox: string | null, animated = true) {
       if (!context || !canvasRef.current) return;
 
-      setTemplate({ pathData, viewBox });
+      setTemplate({ svgContent, viewBox });
 
-      const path = new Path2D(pathData);
-      
-      const viewboxParts = viewBox.split(' ').map(parseFloat);
-      const [,, vbWidth, vbHeight] = viewboxParts;
+      const dom = new JSDOM(svgContent);
+      const paths = Array.from(dom.window.document.querySelectorAll('path, circle, rect, ellipse, line, polyline, polygon'));
 
-      const canvasWidth = canvasRef.current.offsetWidth;
-      const canvasHeight = canvasRef.current.offsetHeight;
-      
-      const scale = Math.min(canvasWidth / vbWidth, canvasHeight / vbHeight) * 0.5;
-      const offsetX = (canvasWidth - (vbWidth * scale)) / 2;
-      const offsetY = (canvasHeight - (vbHeight * scale)) / 4;
+      if (!paths.length) return;
 
-      const drawPath = (dashOffset: number = 0) => {
+      const drawAllPaths = () => {
+        if (!context || !canvasRef.current || !viewBox) return;
+        const tempViewBox = viewBox.split(' ').map(Number);
+        const pathWidth = tempViewBox[2];
+        const pathHeight = tempViewBox[3];
+
+        const scale = Math.min(canvasRef.current.offsetWidth / pathWidth, canvasRef.current.offsetHeight / pathHeight) * 0.9;
+        const offsetX = (canvasRef.current.offsetWidth - pathWidth * scale) / 2;
+        const offsetY = (canvasRef.current.offsetHeight - pathHeight * scale) / 2;
+
         context.save();
-        context.strokeStyle = '#FF5C38';
-        context.lineWidth = 3;
-        if(dashOffset > 0) context.setLineDash([dashOffset, 2000]);
         context.translate(offsetX, offsetY);
         context.scale(scale, scale);
-        context.stroke(path);
+        
+        context.strokeStyle = "#FF6338";
+        context.lineWidth = 2 / scale;
+        context.fillStyle = 'none';
+
+        paths.forEach(p => {
+            const path2d = new Path2D(p.getAttribute('d') || '');
+            context.stroke(path2d);
+        });
+
         context.restore();
-      }
+      };
 
       if (!animated) {
-        drawPath();
+        drawAllPaths();
         return;
       }
 
-      let currentStep = 0;
-      const stepSize = 10;
-      const pathLength = 2000;
-
-      const animate = () => {
-        if (currentStep > pathLength) {
-          context.setLineDash([]);
-          return;
-        }
-        
-        drawPath(currentStep)
-        currentStep += stepSize;
-        requestAnimationFrame(animate);
-      };
-      
-      requestAnimationFrame(animate);
+      // Animation logic can be added here if needed in the future
+      drawAllPaths();
     },
   }));
 

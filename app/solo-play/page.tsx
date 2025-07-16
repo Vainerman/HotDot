@@ -21,10 +21,10 @@ export default function SoloPlayPage() {
       .then(res => res.json())
       .then(data => {
         console.log("Path data fetched:", data);
-        if (data.pathData) {
-          console.log("Path data available. Animating on canvas...");
+        if (data.svgContent) {
+          console.log("SVG content available. Animating on canvas...");
           if (canvasRef.current) {
-            canvasRef.current.animateSvg(data.pathData, data.viewBox);
+            canvasRef.current.animateSvg(data.svgContent, data.viewBox);
           }
         }
       });
