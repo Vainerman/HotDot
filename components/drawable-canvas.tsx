@@ -78,9 +78,11 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
         const canvasWidth = canvasRef.current.offsetWidth;
         const canvasHeight = canvasRef.current.offsetHeight;
 
-        const scale = Math.min(canvasWidth / pathWidth, canvasHeight / pathHeight) * 0.9;
+        const scale = Math.min(canvasWidth / pathWidth, canvasHeight / pathHeight) * 0.45;
         const offsetX = (canvasWidth - pathWidth * scale) / 2;
         const offsetY = (canvasHeight - pathHeight * scale) / 2;
+        
+        transformRef.current = { scale, offsetX, offsetY };
         
         // Before drawing, we'll apply a global filter to color the image orange
         context.save();
