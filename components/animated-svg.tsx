@@ -56,8 +56,8 @@ const AnimatedSvg = ({ svgUrl }: AnimatedSvgProps) => {
             child.querySelectorAll('path').forEach(p => {
               group.paths.push({
                 d: p.getAttribute('d') || '',
-                stroke: p.getAttribute('stroke') || 'black',
-                strokeWidth: p.getAttribute('stroke-width') || '2',
+                stroke: p.getAttribute('stroke') || 'none',
+                strokeWidth: p.getAttribute('stroke-width') || '1',
               });
             });
             parsedElements.push(group);
@@ -118,21 +118,17 @@ const AnimatedSvg = ({ svgUrl }: AnimatedSvgProps) => {
       {elements.map((el, i) => {
         if (el.type === 'g') {
           return (
-            <motion.g key={`g-${i}`} transform={el.transform || undefined}>
+            <g key={`g-${i}`} transform={el.transform || undefined}>
               {el.paths.map((path, j) => (
-                <motion.path
+                <path
                   key={`p-${i}-${j}`}
                   d={path.d}
                   stroke={path.stroke}
                   strokeWidth={path.strokeWidth}
                   fill="none"
-                  custom={pathCounter++}
-                  initial="visible"
-                  animate={controls}
-                  variants={variants}
                 />
               ))}
-            </motion.g>
+            </g>
           );
         } else { // path
           return (

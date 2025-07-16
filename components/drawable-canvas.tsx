@@ -32,49 +32,30 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
       }
     },
     getDrawingAsSvg() {
-      if (!template || !template.svgContent || !canvasRef.current) return "";
-      
-      const parser = new DOMParser();
-      const svgDoc = parser.parseFromString(template.svgContent, 'image/svg+xml');
-      const svgNode = svgDoc.querySelector('svg');
+      if (!canvasRef.current) return "";
 
-      if (!svgNode) return "";
-      
-      const { scale } = transformRef.current;
-      const strokeWidth = 2 / scale;
+      const pixelRatio = window.devicePixelRatio || 1;
+      const canvasWidth = canvasRef.current.width / pixelRatio;
+      const canvasHeight = canvasRef.current.height / pixelRatio;
 
-      const drawingContent = drawnPathsRef.current.map(pathD => 
-        `<path d="${pathD}" stroke="black" stroke-width="${strokeWidth}" fill="none" />`
+      let templateGroup = '';
+      if (template && template.svgContent) {
+          const { scale, offsetX, offsetY } = transformRef.current;
+          const parser = new DOMParser();
+          const svgDoc = parser.parseFromString(template.svgContent, 'image/svg+xml');
+          const templateNode = svgDoc.querySelector('svg');
+
+          if(templateNode) {
+              const innerContent = templateNode.innerHTML;
+              templateGroup = `<g transform="translate(${offsetX} ${offsetY}) scale(${scale})">${innerContent}</g>`;
+          }
+      }
+
+      const userDrawingContent = drawnPathsRef.current.map(pathD => 
+          `<path d="${pathD}" stroke="black" stroke-width="2" fill="none" />`
       ).join('');
-      
-      svgNode.innerHTML += drawingContent;
-      
-      const userPaths = svgDoc.querySelectorAll('path[stroke="black"]');
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
-      const getPathBBox = (pathD: string) => {
-        // This is a simplified estimation. For accurate BBox, a library would be better.
-        const points = pathD.replace(/[a-zA-Z]/g, ' ').trim().split(/\s+/).map(Number);
-        for (let i = 0; i < points.length; i += 2) {
-          minX = Math.min(minX, points[i]);
-          minY = Math.min(minY, points[i + 1]);
-          maxX = Math.max(maxX, points[i]);
-          maxY = Math.max(maxY, points[i + 1]);
-        }
-      };
-
-      userPaths.forEach(path => getPathBBox(path.getAttribute('d') || ''));
-
-      const templateBBox = svgNode.getBBox();
-      minX = Math.min(minX, templateBBox.x);
-      minY = Math.min(minY, templateBBox.y);
-      maxX = Math.max(maxX, templateBBox.x + templateBBox.width);
-      maxY = Math.max(maxY, templateBBox.y + templateBBox.height);
-
-      const padding = strokeWidth * 2;
-      svgNode.setAttribute('viewBox', `${minX - padding} ${minY - padding} ${maxX - minX + padding*2} ${maxY - minY + padding*2}`);
-
-      return svgNode.outerHTML;
+      return `<svg width="${canvasWidth}" height="${canvasHeight}" viewBox="0 0 ${canvasWidth} ${canvasHeight}" xmlns="http://www.w3.org/2000/svg">${templateGroup}${userDrawingContent}</svg>`;
     },
     animateSvg(svgContent: string, viewBox: string | null, animated = true) {
       if (!context || !canvasRef.current || !viewBox) return;
@@ -132,70 +113,66 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
     }
   }, []);
 
-  const getTransformedCoordinates = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    const { scale, offsetX, offsetY } = transformRef.current;
-    
+  const getCoordinates = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const rect = (event.target as HTMLCanvasElement).getBoundingClientRect();
     let clientX, clientY;
+
     if ('touches' in event.nativeEvent) {
+      event.preventDefault();
       clientX = event.nativeEvent.touches[0].clientX;
       clientY = event.nativeEvent.touches[0].clientY;
     } else {
       clientX = event.nativeEvent.clientX;
       clientY = event.nativeEvent.clientY;
     }
-    
-    const rect = (event.target as HTMLCanvasElement).getBoundingClientRect();
-    const canvasX = clientX - rect.left;
-    const canvasY = clientY - rect.top;
 
-    const transformedX = (canvasX - offsetX) / scale;
-    const transformedY = (canvasY - offsetY) / scale;
-    
-    return { x: transformedX, y: transformedY, rawX: canvasX, rawY: canvasY };
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
   };
 
   const startDrawing = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    const { x, y, rawX, rawY } = getTransformedCoordinates(event);
+    const { x, y } = getCoordinates(event);
     if (context) {
       setIsDrawing(true);
-      lastPointRef.current = { x: rawX, y: rawY };
+      lastPointRef.current = { x, y };
       context.beginPath();
-      context.moveTo(rawX, rawY);
-      drawnPathsRef.current.push(`M${x},${y}`);
+      context.moveTo(x, y);
+      drawnPathsRef.current.push(`M${x.toFixed(2)},${y.toFixed(2)}`);
     }
   };
 
   const finishDrawing = () => {
+    if (isDrawing && context && lastPointRef.current) {
+        context.lineTo(lastPointRef.current.x, lastPointRef.current.y);
+        context.stroke();
+        if (drawnPathsRef.current.length > 0) {
+            const lastPath = drawnPathsRef.current[drawnPathsRef.current.length - 1];
+            drawnPathsRef.current[drawnPathsRef.current.length - 1] = `${lastPath} L${lastPointRef.current.x.toFixed(2)},${lastPointRef.current.y.toFixed(2)}`;
+        }
+    }
     setIsDrawing(false);
     lastPointRef.current = null;
     if(context) context.closePath();
   };
 
   const draw = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || !context || !lastPointRef.current || isLocked) {
-      return;
-    }
-    const { x, y, rawX, rawY } = getTransformedCoordinates(event);
+    if (!isDrawing || !context || !lastPointRef.current) return;
+    
+    const { x, y } = getCoordinates(event);
+    const midPointX = (lastPointRef.current.x + x) / 2;
+    const midPointY = (lastPointRef.current.y + y) / 2;
+
+    context.quadraticCurveTo(lastPointRef.current.x, lastPointRef.current.y, midPointX, midPointY);
+    context.stroke();
     
     if (drawnPathsRef.current.length > 0) {
-      const lastPath = drawnPathsRef.current[drawnPathsRef.current.length - 1];
-      const { x: lastTransformedX, y: lastTransformedY } = { 
-        x: (lastPointRef.current.x - transformRef.current.offsetX) / transformRef.current.scale,
-        y: (lastPointRef.current.y - transformRef.current.offsetY) / transformRef.current.scale
-      };
-      const midX = (lastTransformedX + x) / 2;
-      const midY = (lastTransformedY + y) / 2;
-      drawnPathsRef.current[drawnPathsRef.current.length - 1] = `${lastPath} Q${lastTransformedX},${lastTransformedY} ${midX},${midY} L${x},${y}`;
+        const lastPath = drawnPathsRef.current[drawnPathsRef.current.length - 1];
+        drawnPathsRef.current[drawnPathsRef.current.length - 1] = `${lastPath} Q${lastPointRef.current.x.toFixed(2)},${lastPointRef.current.y.toFixed(2)} ${midPointX.toFixed(2)},${midPointY.toFixed(2)}`;
     }
 
-    const midRawX = (lastPointRef.current.x + rawX) / 2;
-    const midRawY = (lastPointRef.current.y + rawY) / 2;
-    
-    context.quadraticCurveTo(lastPointRef.current.x, lastPointRef.current.y, midRawX, midRawY);
-    context.lineTo(rawX, rawY);
-    context.stroke();
-
-    lastPointRef.current = { x: rawX, y: rawY };
+    lastPointRef.current = { x, y };
   };
 
   return (
