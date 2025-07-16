@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -10,6 +10,20 @@ export default function SignInPage() {
   const [error, setError] = useState('')
   const router = useRouter()
   const supabase = createClient()
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        router.push('/')
+      }
+    })
+
+    return () => {
+      subscription?.unsubscribe()
+    }
+  }, [router, supabase.auth])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -24,7 +38,7 @@ export default function SignInPage() {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       })
 
@@ -43,7 +57,7 @@ export default function SignInPage() {
       <div className="flex flex-col items-center justify-center min-h-screen bg-[#F4F1E9] text-center p-4 font-sans">
         <h1 className="text-2xl font-bold mb-4">Check your email</h1>
         <p className="mb-4">We've sent a magic link to <strong>{email}</strong>.</p>
-        <p>Click the link to sign in.</p>
+        <p>Click the link in that email to sign in.</p>
       </div>
     )
   }
