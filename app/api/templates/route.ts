@@ -19,6 +19,7 @@ export async function GET() {
     }
     
     const randomSvgFile = svgFiles[Math.floor(Math.random() * svgFiles.length)];
+    console.log(`Chose template: ${randomSvgFile}`);
     const filePath = path.join(templatesDirectory, randomSvgFile);
     const fileContents = fs.readFileSync(filePath, 'utf8');
 
