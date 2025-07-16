@@ -12,10 +12,43 @@ export const createClient = () =>
           return cookie ? cookie.split('=')[1] : undefined;
         },
         set(name: string, value: string, options: CookieOptions) {
-          document.cookie = `${name}=${value}; path=/;`;
+          let cookieString = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+      
+          if (options.maxAge) {
+            cookieString += `; max-age=${options.maxAge}`;
+          }
+          if (options.path) {
+            cookieString += `; path=${options.path}`;
+          }
+          if (options.domain) {
+            cookieString += `; domain=${options.domain}`;
+          }
+          if (options.sameSite) {
+            cookieString += `; samesite=${options.sameSite}`;
+          }
+          if (options.secure) {
+            cookieString += `; secure`;
+          }
+      
+          document.cookie = cookieString;
         },
         remove(name: string, options: CookieOptions) {
-          document.cookie = `${name}=; path=/; max-age=0;`;
+          let cookieString = `${encodeURIComponent(name)}=; max-age=0`;
+
+          if (options.path) {
+            cookieString += `; path=${options.path}`;
+          }
+          if (options.domain) {
+            cookieString += `; domain=${options.domain}`;
+          }
+          if (options.sameSite) {
+            cookieString += `; samesite=${options.sameSite}`;
+          }
+          if (options.secure) {
+            cookieString += `; secure`;
+          }
+      
+          document.cookie = cookieString;
         },
       },
     }
