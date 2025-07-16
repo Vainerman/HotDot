@@ -32,7 +32,7 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
       }
     },
     getDrawingAsSvg() {
-      if (!template || !template.svgContent) return "";
+      if (!template || !template.svgContent || !canvasRef.current) return "";
       
       const parser = new DOMParser();
       const svgDoc = parser.parseFromString(template.svgContent, 'image/svg+xml');
@@ -46,17 +46,34 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
       const drawingContent = drawnPathsRef.current.map(pathD => 
         `<path d="${pathD}" stroke="black" stroke-width="${strokeWidth}" fill="none" />`
       ).join('');
-
-      // Add the user's drawing to the template SVG
+      
       svgNode.innerHTML += drawingContent;
       
-      // Ensure the template's strokes are also correctly sized
-      svgNode.querySelectorAll('*').forEach((el: Element) => {
-        if (el.hasAttribute('stroke')) {
-            el.setAttribute('stroke-width', strokeWidth.toString());
+      const userPaths = svgDoc.querySelectorAll('path[stroke="black"]');
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+      const getPathBBox = (pathD: string) => {
+        // This is a simplified estimation. For accurate BBox, a library would be better.
+        const points = pathD.replace(/[a-zA-Z]/g, ' ').trim().split(/\s+/).map(Number);
+        for (let i = 0; i < points.length; i += 2) {
+          minX = Math.min(minX, points[i]);
+          minY = Math.min(minY, points[i + 1]);
+          maxX = Math.max(maxX, points[i]);
+          maxY = Math.max(maxY, points[i + 1]);
         }
-      });
-      
+      };
+
+      userPaths.forEach(path => getPathBBox(path.getAttribute('d') || ''));
+
+      const templateBBox = svgNode.getBBox();
+      minX = Math.min(minX, templateBBox.x);
+      minY = Math.min(minY, templateBBox.y);
+      maxX = Math.max(maxX, templateBBox.x + templateBBox.width);
+      maxY = Math.max(maxY, templateBBox.y + templateBBox.height);
+
+      const padding = strokeWidth * 2;
+      svgNode.setAttribute('viewBox', `${minX - padding} ${minY - padding} ${maxX - minX + padding*2} ${maxY - minY + padding*2}`);
+
       return svgNode.outerHTML;
     },
     animateSvg(svgContent: string, viewBox: string | null, animated = true) {
