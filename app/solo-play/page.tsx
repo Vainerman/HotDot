@@ -150,11 +150,11 @@ export default function SoloPlayPage() {
   };
 
   return (
-    <div className="relative flex flex-col h-screen">
+    <div className="relative flex flex-col h-screen-dynamic">
       <Link href="/" className="absolute top-4 left-4 z-10">
         <Image src="/assets/home.png" alt="Home" width={40} height={40} />
       </Link>
-      <main className="flex flex-col items-center justify-center gap-4 py-4">
+      <main className="flex-grow flex flex-col items-center justify-center gap-4 py-4">
         <AnimatedChallengeHeader
           ref={headerRef}
           key={headerKey}

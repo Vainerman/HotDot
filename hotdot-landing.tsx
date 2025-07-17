@@ -4,7 +4,7 @@ import HeaderAuth from "@/components/auth/header-auth";
 
 export default function Component() {
   return (
-    <div className="relative flex flex-col h-screen bg-[#F4F1E9] overflow-hidden">
+    <div className="relative flex flex-col h-screen-dynamic bg-[#F4F1E9] overflow-hidden">
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-10 font-bold text-[#928E82] text-base font-['Helvetica_Neue']">
         <span>(Hot--Dot)</span>
@@ -14,8 +14,8 @@ export default function Component() {
       </header>
 
       {/* Main Doodle Graphic */}
-      <main className="flex-grow flex items-center justify-center">
-        <div className="relative w-[373px] h-[341px]">
+      <main className="flex-grow flex items-center justify-center px-4">
+        <div className="relative w-full max-w-[373px] aspect-[373/341]">
           <Image src="/images/home-doodle/vector-271.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '-0.55px', left: '28.67px', width: '344.13px', height: '333.5px' }} />
           <Image src="/images/home-doodle/vector-272.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '29.37px', left: '29.68px', width: '260.63px', height: '37.6px' }} />
           <Image src="/images/home-doodle/vector-273.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '95px', left: '0px', width: '105px', height: '237.39px' }} />
@@ -34,7 +34,7 @@ export default function Component() {
 
       {/* Footer Navigation */}
       <footer className="absolute bottom-8 left-6 z-10">
-        <nav className="flex flex-col items-start gap-2 text-[#1A1A1A] text-[52px] font-medium leading-tight tracking-[-2%]">
+        <nav className="flex flex-col items-start gap-2 text-[#1A1A1A] text-4xl md:text-[52px] font-medium leading-tight tracking-[-2%]">
           <Link href="/solo-play" className="hover:text-[#FF5C38] transition-colors">SOLO-PLAY</Link>
           <Link href="#" className="hover:text-[#FF5C38] transition-colors">CHALLENGE</Link>
           <Link href="#" className="hover:text-[#FF5C38] transition-colors">GUESS-IT</Link>

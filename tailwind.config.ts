@@ -10,6 +10,9 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+      height: {
+        'screen-dynamic': 'calc(var(--vh, 1vh) * 100)',
+      },
   		fontFamily: {
   			sans: ["var(--font-space-grotesk)"],
   		},
