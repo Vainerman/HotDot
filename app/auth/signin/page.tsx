@@ -60,6 +60,7 @@ export default function SignInPage() {
               id="email"
               name="email"
               type="email"
+              inputMode="email"
               autoComplete="email"
               required
               value={email}
