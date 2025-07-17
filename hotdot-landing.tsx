@@ -14,7 +14,7 @@ export default function Component() {
       </header>
 
       {/* Main Doodle Graphic */}
-      <main className="flex-grow flex items-center justify-center px-4">
+      <main className="flex-grow flex items-center justify-center px-4 pb-16">
         <div className="relative w-full max-w-[373px] aspect-[373/341]">
           <Image src="/images/home-doodle/vector-271.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '-0.55px', left: '28.67px', width: '344.13px', height: '333.5px' }} />
           <Image src="/images/home-doodle/vector-272.svg" alt="Doodle part" layout="fill" objectFit="contain" className="absolute" style={{ top: '29.37px', left: '29.68px', width: '260.63px', height: '37.6px' }} />
@@ -34,7 +34,7 @@ export default function Component() {
 
       {/* Footer Navigation */}
       <footer className="absolute bottom-8 left-6 z-10">
-        <nav className="flex flex-col items-start gap-2 text-[#1A1A1A] text-4xl md:text-[52px] font-medium leading-tight tracking-[-2%]">
+        <nav className="flex flex-col items-start gap-2 text-[#1A1A1A] text-[44px] md:text-[52px] font-medium leading-tight tracking-[-2%]">
           <Link href="/solo-play" className="hover:text-[#FF5C38] transition-colors">SOLO-PLAY</Link>
           <Link href="#" className="hover:text-[#FF5C38] transition-colors">CHALLENGE</Link>
           <Link href="#" className="hover:text-[#FF5C38] transition-colors">GUESS-IT</Link>
