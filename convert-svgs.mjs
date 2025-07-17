@@ -17,39 +17,14 @@ const svgoConfig = {
   multipass: true,
   plugins: [
     {
-      name: 'convertShapeToPath',
+      name: 'preset-default',
       params: {
-        convertArcs: true,
-      },
-    },
-    {
-      name: 'convertPathData',
-      params: {
-          // Using default params which are safe
+        overrides: {
+          convertShapeToPath: true,
+        }
       }
-    },
-    {
-      name: 'mergePaths'
-    },
-    {
-      name: 'collapseGroups'
-    },
-    {
-      name: 'removeComments'
-    },
-    {
-      name: 'removeMetadata'
-    },
-    {
-      name: 'removeTitle'
-    },
-    {
-      name: 'removeDesc'
-    },
-    {
-      name: 'removeUselessDefs'
-    },
-  ],
+    }
+  ]
 };
 
 (async () => {
