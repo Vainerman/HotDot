@@ -34,7 +34,7 @@ export default function Component() {
 
       {/* Footer Navigation */}
       <footer className="absolute bottom-8 left-6 z-10">
-        <nav className="flex flex-col items-start gap-2 text-[#1A1A1A] text-[44px] md:text-[52px] font-medium leading-tight tracking-[-2%]">
+        <nav className="flex flex-col items-start gap-2 text-[#1A1A1A] text-[48px] md:text-[52px] font-medium leading-tight tracking-[-2%]">
           <Link href="/solo-play" className="hover:text-[#FF5C38] transition-colors">SOLO-PLAY</Link>
           <Link href="#" className="hover:text-[#FF5C38] transition-colors">CHALLENGE</Link>
           <Link href="#" className="hover:text-[#FF5C38] transition-colors">GUESS-IT</Link>
