@@ -154,7 +154,7 @@ export default function SoloPlayPage() {
       <Link href="/" className="absolute top-4 left-4 z-10">
         <Image src="/assets/home.png" alt="Home" width={40} height={40} />
       </Link>
-      <main className="flex-1 flex flex-col items-center justify-center gap-4">
+      <main className="flex flex-col items-center justify-center gap-4 py-4">
         <AnimatedChallengeHeader
           ref={headerRef}
           key={headerKey}
@@ -162,14 +162,18 @@ export default function SoloPlayPage() {
           onCountdownFinish={handleDone}
         />
         <div
-          className=""
+          className="relative w-full max-w-sm mx-auto"
           style={{
-            width: '346px',
-            height: '562px',
-            backgroundImage: "url('/assets/Card_1.svg')"
+            aspectRatio: '346 / 562',
           }}
         >
-          <DrawableCanvas ref={canvasRef} isLocked={gameState !== "drawing"} />
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: "url('/assets/Card_1.svg')" }}
+          ></div>
+          <div className="absolute inset-0">
+            <DrawableCanvas ref={canvasRef} isLocked={gameState !== "drawing"} />
+          </div>
         </div>
       </main>
       <footer className="flex items-center justify-between p-4 border-t border-gray-300">

@@ -4,7 +4,7 @@ import HeaderAuth from "@/components/auth/header-auth";
 
 export default function Component() {
   return (
-    <div className="relative flex flex-col min-h-screen bg-[#F4F1E9] overflow-hidden">
+    <div className="relative flex flex-col h-screen bg-[#F4F1E9] overflow-hidden">
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-10 font-bold text-[#928E82] text-base font-['Helvetica_Neue']">
         <span>(Hot--Dot)</span>
