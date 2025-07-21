@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { createClient } from '@/utils/supabase/client';
 import DrawableCanvas, { DrawableCanvasRef, DrawEvent } from '@/components/drawable-canvas';
@@ -14,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface RoundDrawing {
+    id: number;
     round: number;
     drawing: string;
 }
@@ -170,7 +172,7 @@ export default function LiveMatchPage() {
       clockRef.current.stopTimer();
     }
     const drawing = canvasRef.current?.getDrawingAsSvg();
-    const roundDrawing = drawing ? { round, drawing } : null;
+    const roundDrawing = drawing ? { id: Math.random(), round, drawing } : null;
     
     if (roundDrawing) {
         setRoundDrawings(prev => [...prev, roundDrawing]);
@@ -230,37 +232,48 @@ export default function LiveMatchPage() {
 
   if (matchState === 'results') {
     return (
-      <div className="flex flex-col h-screen-dynamic items-center justify-center p-4">
-        <h1 className="text-3xl font-bold mb-8">Results</h1>
-        <div className="flex flex-row gap-4 w-full max-w-4xl">
-          <div className="flex-1 flex flex-col items-center">
+      <div className="relative flex flex-col h-screen-dynamic items-center justify-center p-4">
+        <Link href="/" className="absolute top-4 left-4 z-20">
+            <Image
+                src="/assets/Exit_Button.svg"
+                alt="Exit to Home"
+                width={41}
+                height={41}
+                className="transition-transform hover:scale-110"
+            />
+        </Link>
+        <h1 className="text-3xl font-bold mb-4">Results</h1>
+        <div className="flex flex-col gap-4 w-full max-w-md">
+          <div className="flex flex-col items-center">
             <h2 className="text-xl font-semibold mb-2">Creator's Drawing</h2>
             <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
               {creatorDrawing && <AnimatedSvg svgContent={creatorDrawing.svg} />}
             </div>
           </div>
-          <div className="flex-1 flex flex-col items-center">
+          <div className="flex flex-col items-center">
             <h2 className="text-xl font-semibold mb-2">Guesser's Drawing</h2>
             <div className="relative w-full aspect-square flex items-center justify-center">
                 <AnimatePresence>
                     {cards.map((card, index) => (
                         <motion.div
-                            key={card.round + '-' + Math.random()} // Ensure key is unique on re-render
+                            key={card.id}
                             className="absolute w-full h-full"
                             style={{
                                 zIndex: cards.length - index,
                             }}
-                            initial={{ scale: 0.8, y: -20, opacity: 0 }}
+                            initial={{ scale: 0.8, y: -20, x: 20, opacity: 0 }}
                             animate={{ 
                                 scale: 1 - (cards.length - 1 - index) * 0.05, 
+                                x: (cards.length - 1 - index) * 10,
                                 y: (cards.length - 1 - index) * -10,
                                 opacity: 1,
                             }}
-                            exit={{ x: 300, opacity: 0, scale: 0.5 }}
-                            drag="x"
-                            dragConstraints={{ left: 0, right: 0 }}
+                            exit={{ scale: 0.5, opacity: 0 }}
+                            drag
+                            dragSnapToOrigin
                             onDragEnd={(event, info) => {
-                                if (info.offset.x > 100) {
+                                const swipeThreshold = 100;
+                                if (Math.sqrt(info.offset.x ** 2 + info.offset.y ** 2) > swipeThreshold) {
                                     handleSwipe(card);
                                 }
                             }}
@@ -285,7 +298,16 @@ export default function LiveMatchPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen-dynamic">
+    <div className="relative flex flex-col h-screen-dynamic">
+      <Link href="/" className="absolute top-4 left-4 z-20">
+          <Image
+              src="/assets/Exit_Button.svg"
+              alt="Exit to Home"
+              width={41}
+              height={41}
+              className="transition-transform hover:scale-110"
+          />
+      </Link>
       <header className="p-4 flex flex-col items-center">
         <Clock
           ref={clockRef}
