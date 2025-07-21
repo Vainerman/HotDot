@@ -6,7 +6,8 @@ import AnimatedChallengeHeader, { ChallengeHeaderRef } from "@/components/animat
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { saveDrawing } from "./actions";
+import { useRouter } from "next/navigation";
+import { saveDrawing, createChallenge } from "./actions";
 
 export default function SoloPlayPage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);
@@ -14,6 +15,8 @@ export default function SoloPlayPage() {
   const [gameState, setGameState] = useState<"drawing" | "finished" | "saved">("drawing");
   const [drawingData, setDrawingData] = useState<string | null>(null);
   const [headerKey, setHeaderKey] = useState(0);
+  const [template, setTemplate] = useState<{ svgContent: string; viewBox: string } | null>(null);
+  const router = useRouter();
 
   const fetchNewTemplate = () => {
     console.log("Fetching SVG path data...");
@@ -26,6 +29,7 @@ export default function SoloPlayPage() {
           if (canvasRef.current) {
             canvasRef.current.animateSvg(data.svgContent, data.viewBox);
           }
+          setTemplate({ svgContent: data.svgContent, viewBox: data.viewBox });
         }
       });
   };
@@ -85,8 +89,14 @@ export default function SoloPlayPage() {
   };
 
   const handleChallengeIt = () => {
-    // We'll add logic to create a challenge later
-    console.log("Challenge it!", drawingData);
+    if (!template) return;
+    createChallenge(template.svgContent, template.viewBox).then((res) => {
+      if (res?.success && res.id) {
+        router.push(`/challenge/${res.id}/share`);
+      } else {
+        console.error(res?.error || "Failed to create challenge");
+      }
+    });
   };
 
   const renderFooterButtons = () => {
