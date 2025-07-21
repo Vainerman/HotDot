@@ -1,1 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="80" height="135" fill="none" viewBox="0 0 80 135"><mask id="a" width="91.956" height="91.956" x="-6.658" y="-6.159" fill="#000" maskUnits="userSpaceOnUse"><path fill="#fff" d="M-6.658-6.159h91.956v91.957H-6.658z"/><path d="M19.91 19.91a28.156 28.156 0 1 0 39.82 0L39.82 39.82z"/></mask><path stroke="#ff6338" stroke-width="8" d="M19.91 19.91a28.156 28.156 0 1 0 39.82 0L39.82 39.82z" mask="url(#a)"/><path stroke="#ff6338" stroke-width="4" d="M40.82 72.685a30.157 30.157 0 1 0 0 60.314 30.157 30.157 0 1 0 0-60.314z"/></svg>
+<?xml version='1.0' encoding='UTF-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="135" fill="none" viewBox="0 0 80 135">
+  <mask id="a" width="91.956" height="91.956" x="-6.658" y="-6.159" fill="#000" maskUnits="userSpaceOnUse">
+    <path fill="#fff" d="M-6.658-6.159h91.956v91.957H-6.658z"/>
+    <path d="M19.91 19.91a28.156 28.156 0 1 0 39.82 0L39.82 39.82z"/>
+  </mask>
+  <path stroke="#ff6338" stroke-width="8" d="M19.91 19.91a28.156 28.156 0 1 0 39.82 0L39.82 39.82z" mask="url(#a)"/>
+  <path stroke="#ff6338" stroke-width="4" d="M40.82 72.685a30.157 30.157 0 1 0 0 60.314 30.157 30.157 0 1 0 0-60.314z"/>
+</svg>
