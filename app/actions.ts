@@ -78,3 +78,25 @@ export async function createChallenge(creatorDrawingSvg: string, templateSvg: st
 
   return { success: true, id: data.id as string };
 } 
+
+export async function getTodaysDrawingsCount() {
+  const supabase = await createClient();
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const { count, error } = await supabase
+    .from('drawings')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', today.toISOString())
+    .lt('created_at', tomorrow.toISOString());
+
+  if (error) {
+    console.error('Error fetching todays drawings count:', error);
+    return 0;
+  }
+
+  return count || 0;
+} 

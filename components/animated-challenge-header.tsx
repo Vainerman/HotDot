@@ -11,10 +11,11 @@ export interface ChallengeHeaderRef {
 interface AnimatedChallengeHeaderProps {
   onCountdownStart: () => void;
   onCountdownFinish: () => void;
+  todaysDrawings: number;
 }
 
 const AnimatedChallengeHeader = forwardRef<ChallengeHeaderRef, AnimatedChallengeHeaderProps>(
-  ({ onCountdownStart, onCountdownFinish }, ref) => {
+  ({ onCountdownStart, onCountdownFinish, todaysDrawings }, ref) => {
     const [step, setStep] = useState(0);
     const [timeLeft, setTimeLeft] = useState(30);
     const [isFinished, setIsFinished] = useState(false);
@@ -31,7 +32,7 @@ const AnimatedChallengeHeader = forwardRef<ChallengeHeaderRef, AnimatedChallenge
 
     const slides = [
       { id: 0, text: 'SHAPE OF THE DAY', icon: '/assets/rightVector.svg', iconWidth: 28, iconHeight: 29 },
-      { id: 1, text: '1,457 DRAWINGS TODAY', icon: '/assets/rightVector.svg', iconWidth: 28, iconHeight: 29 },
+      { id: 1, text: `${todaysDrawings.toLocaleString()} DRAWINGS TODAY`, icon: '/assets/rightVector.svg', iconWidth: 28, iconHeight: 29 },
       { id: 2, text: `00:${timeLeft < 10 ? '0' : ''}${timeLeft}`, icon: '/assets/clock.svg', iconWidth: 25, iconHeight: 39 },
     ];
 

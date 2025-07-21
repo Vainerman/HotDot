@@ -7,7 +7,7 @@ import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { saveDrawing, createChallenge } from "@/app/actions";
+import { saveDrawing, createChallenge, getTodaysDrawingsCount } from "@/app/actions";
 
 export default function SoloPlayPage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);
@@ -17,6 +17,7 @@ export default function SoloPlayPage() {
   const [headerKey, setHeaderKey] = useState(0);
   const [template, setTemplate] = useState<{ svgContent: string; viewBox: string } | null>(null);
   const [isChallengeButtonDisabled, setIsChallengeButtonDisabled] = useState(false);
+  const [todaysDrawings, setTodaysDrawings] = useState(0);
   const router = useRouter();
 
   const fetchNewTemplate = () => {
@@ -35,6 +36,7 @@ export default function SoloPlayPage() {
 
   useEffect(() => {
     fetchNewTemplate();
+    getTodaysDrawingsCount().then(setTodaysDrawings);
   }, []);
 
   const handleClear = () => {
@@ -202,6 +204,7 @@ export default function SoloPlayPage() {
         <AnimatedChallengeHeader
           ref={headerRef}
           key={headerKey}
+          todaysDrawings={todaysDrawings}
           onCountdownStart={() => {}}
           onCountdownFinish={handleDone}
         />
