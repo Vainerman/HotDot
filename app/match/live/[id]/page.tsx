@@ -41,6 +41,7 @@ export default function LiveMatchPage() {
   const [isHintInputVisible, setIsHintInputVisible] = useState(false);
   const [roundDrawings, setRoundDrawings] = useState<RoundDrawing[]>([]);
   const [cards, setCards] = useState<RoundDrawing[]>([]);
+  const [isChallengeButtonDisabled, setIsChallengeButtonDisabled] = useState(false);
   const isMobile = useIsMobile();
   const hintInputRef = useRef<HTMLInputElement>(null);
 
@@ -219,6 +220,7 @@ export default function LiveMatchPage() {
 
   const handleChallengeIt = async () => {
     if (!cards.length || !creatorDrawing) return;
+    setIsChallengeButtonDisabled(true);
 
     const topCard = cards[0];
 
@@ -398,6 +400,7 @@ export default function LiveMatchPage() {
             <Button 
                 onClick={handleChallengeIt}
                 className="bg-[#FF6338] text-[#1A1A1A] hover:bg-[#FF6338]/90 text-[35px] font-bold uppercase rounded-xl h-auto px-8 py-2 font-sans w-[326px]"
+                disabled={isChallengeButtonDisabled}
             >
                 CHALLENGE IT
             </Button>

@@ -16,6 +16,7 @@ export default function SoloPlayPage() {
   const [drawingData, setDrawingData] = useState<string | null>(null);
   const [headerKey, setHeaderKey] = useState(0);
   const [template, setTemplate] = useState<{ svgContent: string; viewBox: string } | null>(null);
+  const [isChallengeButtonDisabled, setIsChallengeButtonDisabled] = useState(false);
   const router = useRouter();
 
   const fetchNewTemplate = () => {
@@ -70,6 +71,7 @@ export default function SoloPlayPage() {
       fetchNewTemplate();
     }
     setHeaderKey((prevKey: number) => prevKey + 1);
+    setIsChallengeButtonDisabled(false);
   };
 
   const handleKeep = () => {
@@ -90,6 +92,7 @@ export default function SoloPlayPage() {
 
   const handleChallengeIt = async () => {
     if (!drawingData || !template) return;
+    setIsChallengeButtonDisabled(true);
 
     // 1. Create a match to get an ID
     const matchResponse = await fetch('/api/match/create', { method: 'POST' });
@@ -168,6 +171,7 @@ export default function SoloPlayPage() {
             <Button
               onClick={handleChallengeIt}
               className="bg-[#FF6338] text-black hover:bg-[#FF5C38] font-sans"
+              disabled={isChallengeButtonDisabled}
             >
               CHALLENGE IT
             </Button>
