@@ -34,4 +34,4 @@ next-env.d.ts
 /yarn-error.log*
 /lerna-debug.log*
 /.pnpm-store
-.venv/
+.venv

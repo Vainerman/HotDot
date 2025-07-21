@@ -46,7 +46,9 @@ export default function ChallengePage() {
   };
 
   useEffect(() => {
-    fetchChallengeTemplate();
+    if (challengeId) {
+      fetchChallengeTemplate();
+    }
   }, [challengeId]);
 
   const handleClear = () => {
