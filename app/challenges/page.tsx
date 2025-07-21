@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import AnimatedSvg from '@/components/animated-svg'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+import { createChallenge } from '@/app/actions'
 
 interface Drawing {
   id: string
@@ -76,44 +77,78 @@ export default function ChallengesPage() {
   }, [supabase])
 
   const handleCreateChallenge = async (drawingId: string) => {
+    if (!user) return;
     setIsCreating(true);
-    // First, check if a challenge already exists for this drawing
-    const { data: existingChallenge, error: checkError } = await supabase
-      .from('challenges')
-      .select('id')
-      .eq('drawing_id', drawingId)
-      .single();
 
-    if (checkError && checkError.code !== 'PGRST116') { // Ignore 'not found' error
-        console.error('Error checking for existing challenge:', checkError);
-        alert('Could not create challenge. Please try again.');
-        setIsCreating(false);
-        return;
+    // 1. Create a match to get an ID
+    const matchResponse = await fetch('/api/match/create', { method: 'POST' });
+    const { id: matchId, error: matchError } = await matchResponse.json();
+
+    if (matchError) {
+      console.error('Failed to create match:', matchError);
+      alert('Could not create challenge. Please try again.');
+      setIsCreating(false);
+      return;
     }
 
-    if (existingChallenge) {
-        // If challenge exists, navigate to it
-        router.push(`/challenge/${existingChallenge.id}/share`);
-        return;
-    }
-    
-    // If no challenge exists, create a new one
-    const { data: newChallenge, error: createError } = await supabase
-        .from('challenges')
-        .insert({ drawing_id: drawingId, user_id: user?.id })
-        .select('id')
-        .single();
+    // 2. Navigate immediately
+    router.push(`/match/waiting/${matchId}`);
 
-    if (createError) {
-        console.error('Error creating challenge:', createError);
-        alert('Failed to create challenge.');
-        setIsCreating(false);
-        return;
-    }
+    // 3. Create challenge and update match in the background
+    (async () => {
+        // First, check if a challenge already exists for this drawing
+        const { data: existingChallenge, error: checkError } = await supabase
+            .from('challenges')
+            .select('id')
+            .eq('drawing_id', drawingId)
+            .single();
 
-    if (newChallenge) {
-        router.push(`/challenge/${newChallenge.id}/share`);
-    }
+        if (checkError && checkError.code !== 'PGRST116') { // Ignore 'not found' error
+            console.error('Error checking for existing challenge:', checkError);
+            // If checking fails, maybe update match status to 'failed'
+            await fetch(`/api/match/${matchId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'failed' }),
+            });
+            return;
+        }
+
+        let challengeId = existingChallenge?.id;
+
+        if (!challengeId) {
+            // If no challenge exists, create a new one
+            const { data: newChallenge, error: createError } = await supabase
+                .from('challenges')
+                .insert({ drawing_id: drawingId, user_id: user.id })
+                .select('id')
+                .single();
+
+            if (createError) {
+                console.error('Error creating challenge:', createError);
+                 await fetch(`/api/match/${matchId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'failed' }),
+                });
+                return;
+            }
+            challengeId = newChallenge.id;
+        }
+        
+        if (challengeId) {
+            const updateResponse = await fetch(`/api/match/${matchId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ challenge_id: challengeId, status: 'waiting' }),
+            });
+
+            if (!updateResponse.ok) {
+                const { error } = await updateResponse.json();
+                console.error('Failed to update match:', error);
+            }
+        }
+    })();
   };
 
   if (loading) {
