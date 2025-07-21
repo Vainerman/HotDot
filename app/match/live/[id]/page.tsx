@@ -7,7 +7,7 @@ import DrawableCanvas, { DrawableCanvasRef, DrawEvent } from '@/components/drawa
 import { Button } from '@/components/ui/button';
 import Clock, { ClockRef } from '@/components/clock';
 import AnimatedSvg from '@/components/animated-svg';
-import { Slider } from '@/components/ui/slider';
+import HotColdSlider from '@/components/hot-cold-slider';
 
 export default function LiveMatchPage() {
   const router = useRouter();
@@ -99,8 +99,7 @@ export default function LiveMatchPage() {
     }
   };
 
-  const handleSliderChange = (value: number[]) => {
-    const newValue = value[0];
+  const handleSliderChange = (newValue: number) => {
     setSliderValue(newValue);
     if (role === 'creator' && channel) {
       channel.send({
@@ -182,11 +181,10 @@ export default function LiveMatchPage() {
         </div>
       </main>
       <footer className="p-4 flex flex-col items-center gap-4">
-        <Slider
-          value={[sliderValue]}
+        <HotColdSlider
+          value={sliderValue}
           onValueChange={handleSliderChange}
           disabled={role !== 'creator'}
-          className="w-full max-w-sm"
         />
         {role === 'guesser' && (
           <Button
