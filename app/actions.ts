@@ -1,10 +1,11 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createClient as createServerClient } from "@/utils/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from 'uuid';
 
 export async function saveDrawing(svgString: string) {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
 
   const {
     data: { user },
@@ -49,7 +50,7 @@ export async function saveDrawing(svgString: string) {
 }
 
 export async function createChallenge(creatorDrawingSvg: string, templateSvg: string, viewBox: string) {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
 
   const {
     data: { user },
@@ -80,7 +81,10 @@ export async function createChallenge(creatorDrawingSvg: string, templateSvg: st
 } 
 
 export async function getTodaysDrawingsCount() {
-  const supabase = await createClient();
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
