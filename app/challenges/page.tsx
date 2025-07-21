@@ -96,45 +96,24 @@ export default function ChallengesPage() {
 
     // 3. Create challenge and update match in the background
     (async () => {
-        // First, check if a challenge already exists for this drawing
-        const { data: existingChallenge, error: checkError } = await supabase
+        // If no challenge exists, create a new one
+        const { data: newChallenge, error: createError } = await supabase
             .from('challenges')
+            .insert({ drawing_id: drawingId, user_id: user.id })
             .select('id')
-            .eq('drawing_id', drawingId)
             .single();
 
-        if (checkError && checkError.code !== 'PGRST116') { // Ignore 'not found' error
-            console.error('Error checking for existing challenge:', checkError);
-            // If checking fails, maybe update match status to 'failed'
-            await fetch(`/api/match/${matchId}`, {
+        if (createError) {
+            console.error('Error creating challenge:', createError);
+              await fetch(`/api/match/${matchId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: 'failed' }),
             });
             return;
         }
-
-        let challengeId = existingChallenge?.id;
-
-        if (!challengeId) {
-            // If no challenge exists, create a new one
-            const { data: newChallenge, error: createError } = await supabase
-                .from('challenges')
-                .insert({ drawing_id: drawingId, user_id: user.id })
-                .select('id')
-                .single();
-
-            if (createError) {
-                console.error('Error creating challenge:', createError);
-                 await fetch(`/api/match/${matchId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: 'failed' }),
-                });
-                return;
-            }
-            challengeId = newChallenge.id;
-        }
+        
+        const challengeId = newChallenge.id;
         
         if (challengeId) {
             const updateResponse = await fetch(`/api/match/${matchId}`, {
