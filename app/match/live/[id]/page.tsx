@@ -242,15 +242,15 @@ export default function LiveMatchPage() {
                 className="transition-transform hover:scale-110"
             />
         </Link>
-        <h1 className="text-3xl font-bold mb-4">Results</h1>
-        <div className="flex flex-col gap-4 w-full max-w-md">
-          <div className="flex flex-col items-center">
+        <h1 className="text-3xl font-bold mb-8">Results</h1>
+        <div className="flex flex-row gap-4 w-full max-w-4xl">
+          <div className="flex-1 flex flex-col items-center">
             <h2 className="text-xl font-semibold mb-2">Creator's Drawing</h2>
             <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
               {creatorDrawing && <AnimatedSvg svgContent={creatorDrawing.svg} />}
             </div>
           </div>
-          <div className="flex flex-col items-center">
+          <div className="flex-1 flex flex-col items-center">
             <h2 className="text-xl font-semibold mb-2">Guesser's Drawing</h2>
             <div className="relative w-full aspect-square flex items-center justify-center">
                 <AnimatePresence>
@@ -261,11 +261,11 @@ export default function LiveMatchPage() {
                             style={{
                                 zIndex: cards.length - index,
                             }}
-                            initial={{ scale: 0.8, y: -20, x: 20, opacity: 0 }}
+                            initial={{ scale: 1, y: 20, x: -20, opacity: 0 }}
                             animate={{ 
-                                scale: 1 - (cards.length - 1 - index) * 0.05, 
-                                x: (cards.length - 1 - index) * 10,
-                                y: (cards.length - 1 - index) * -10,
+                                scale: 1, 
+                                x: (cards.length - 1 - index) * -10,
+                                y: (cards.length - 1 - index) * 10,
                                 opacity: 1,
                             }}
                             exit={{ scale: 0.5, opacity: 0 }}
