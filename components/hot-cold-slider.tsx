@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Slider } from '@/components/ui/slider';
+import { cn } from '@/lib/utils';
 
 interface HotColdSliderProps {
   value: number;
@@ -9,12 +10,16 @@ interface HotColdSliderProps {
   disabled?: boolean;
 }
 
+const words = ['FREZZING', 'COLD', 'WARM', 'HOT'];
+
 export default function HotColdSlider({ value, onValueChange, disabled }: HotColdSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
+  const wordRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    if (containerRef.current && textRef.current) {
+    if (containerRef.current && textRef.current && wordRefs.current.every(ref => ref)) {
       const containerWidth = containerRef.current.offsetWidth;
       const textWidth = textRef.current.offsetWidth;
       
@@ -24,8 +29,29 @@ export default function HotColdSlider({ value, onValueChange, disabled }: HotCol
       const textOffset = sliderPercentage * maxTextOffset;
 
       textRef.current.style.transform = `translateX(-${textOffset}px)`;
+
+      const containerCenter = containerWidth / 2;
+      let minDistance = Infinity;
+      let newActiveIndex = 0;
+
+      wordRefs.current.forEach((wordEl, index) => {
+        if (wordEl) {
+          const wordCenter = wordEl.offsetLeft + wordEl.offsetWidth / 2;
+          const apparentCenter = wordCenter - textOffset;
+          const distance = Math.abs(apparentCenter - containerCenter);
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            newActiveIndex = index;
+          }
+        }
+      });
+
+      if (activeIndex !== newActiveIndex) {
+        setActiveIndex(newActiveIndex);
+      }
     }
-  }, [value]);
+  }, [value, activeIndex]);
 
   const handleSliderChange = (sliderValue: number[]) => {
     onValueChange(sliderValue[0]);
@@ -38,10 +64,22 @@ export default function HotColdSlider({ value, onValueChange, disabled }: HotCol
         className="flex items-center transition-transform duration-100 ease-linear"
         style={{ width: 'max-content' }}
       >
-        <span className="text-5xl font-space-grotesk text-[#979797] pr-6">FREZZING</span>
-        <span className="text-5xl font-space-grotesk text-[#1A1A1A] pr-6">COLD</span>
-        <span className="text-5xl font-space-grotesk text-[#979797] pr-6">WARM</span>
-        <span className="text-5xl font-space-grotesk text-[#1A1A1A]">HOT</span>
+        {words.map((word, index) => (
+          <span
+            key={word}
+            ref={el => { wordRefs.current[index] = el; }}
+            className={cn(
+              'text-5xl font-space-grotesk transition-colors',
+              {
+                'text-[#1A1A1A]': activeIndex === index,
+                'text-[#979797]': activeIndex !== index,
+                'pr-6': index < words.length - 1,
+              }
+            )}
+          >
+            {word}
+          </span>
+        ))}
       </div>
       <div className="absolute inset-0">
         <Slider
