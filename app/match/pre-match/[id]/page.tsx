@@ -85,18 +85,18 @@ export default function PreMatchPage() {
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-[#1A1A1A] text-white">
+    <div className="flex flex-col items-center justify-start h-screen pt-20 bg-[#1A1A1A] text-white">
       <div className="z-10 text-center">
-        <div className="flex justify-center items-center space-x-4 mb-8">
-            <Image src="/assets/waiting-page-icons/profile.svg" alt="Player 1" width={140} height={140} className="-rotate-6" />
+        <div className="flex justify-center items-center space-x-4 mb-4">
+            <Image src="/assets/waiting-page-icons/profile.svg" alt="Player 1" width={100} height={100} className="-rotate-6" />
         </div>
-        <h1 className="text-4xl font-bold uppercase" style={{ fontFamily: 'Space Grotesk' }}>it’s a match</h1>
-        <p className="text-lg" style={{ fontFamily: 'Space Grotesk' }}>
+        <h1 className="text-3xl font-bold uppercase" style={{ fontFamily: 'Space Grotesk' }}>it’s a match</h1>
+        <p className="text-md" style={{ fontFamily: 'Space Grotesk' }}>
           {role === 'creator' ? `It’s a match, ${opponentEmail} will guess` : `It's a match, you will guess`}
         </p>
       </div>
       <div className="absolute bottom-8 z-10">
-        <Button onClick={handleStart} disabled={userReady} className="w-80 h-14 bg-[#FF6338] hover:bg-[#C9330A] text-black text-4xl font-bold uppercase rounded-[11.55px]" style={{ fontFamily: 'Space Grotesk' }}>
+        <Button onClick={handleStart} disabled={userReady} className="w-80 h-14 bg-[#FF6338] hover:bg-[#C9330A] text-black text-3xl font-bold uppercase rounded-[11.55px]" style={{ fontFamily: 'Space Grotesk' }}>
           {userReady ? "Waiting..." : "Start now"}
         </Button>
       </div>

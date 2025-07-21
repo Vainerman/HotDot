@@ -24,7 +24,7 @@ export default function CreatorMatchingPage() {
   }, [router])
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
+    <div className="h-screen bg-[#f5f5f5] flex flex-col">
       {/* Header */}
       <div className="bg-[#e8e8e8] px-4 py-4 flex items-center justify-between border-b border-gray-300">
         <div className="flex items-center gap-3">
@@ -41,8 +41,8 @@ export default function CreatorMatchingPage() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6">
-        <div className="text-center space-y-6">
+      <div className="flex flex-col items-center justify-start pt-20 px-6">
+        <div className="text-center space-y-3">
           <div className="w-16 h-16 bg-[#ff5c38] rounded-full mx-auto flex items-center justify-center">
             <div className="w-8 h-8 border-2 border-white rounded-full animate-spin border-t-transparent"></div>
           </div>
