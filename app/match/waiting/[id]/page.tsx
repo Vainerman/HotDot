@@ -38,9 +38,6 @@ export default function WaitingForGuesserPage() {
         <div className="absolute top-6 left-6">
             <Image src="/assets/waiting-page-icons/search-icon.svg" alt="Search Icon" width={41} height={41} />
         </div>
-        <div className="absolute top-6 right-6">
-            <Image src="/assets/waiting-page-icons/profile.svg" alt="Profile Icon" width={41} height={41} />
-        </div>
       <div className="text-center">
         <h1 className="text-4xl font-bold uppercase" style={{ fontFamily: 'Space Grotesk' }}>searching...</h1>
         <p className="text-lg" style={{ fontFamily: 'Space Grotesk' }}>Looking for another player</p>

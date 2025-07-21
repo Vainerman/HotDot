@@ -86,10 +86,10 @@ export default function PreMatchPage() {
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-[#1A1A1A] text-white">
-      <div className="absolute inset-0">
-        <Image src="/assets/match-code-icons/match-background.png" alt="background" layout="fill" objectFit="cover" />
-      </div>
       <div className="z-10 text-center">
+        <div className="flex justify-center items-center space-x-4 mb-8">
+            <Image src="/assets/waiting-page-icons/profile.svg" alt="Player 1" width={140} height={140} className="-rotate-6" />
+        </div>
         <h1 className="text-4xl font-bold uppercase" style={{ fontFamily: 'Space Grotesk' }}>it’s a match</h1>
         <p className="text-lg" style={{ fontFamily: 'Space Grotesk' }}>
           {role === 'creator' ? `It’s a match, ${opponentEmail} will guess` : `It's a match, you will guess`}

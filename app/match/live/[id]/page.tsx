@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
-import DrawableCanvas, { DrawableCanvasRef, Point } from '@/components/drawable-canvas';
+import DrawableCanvas, { DrawableCanvasRef, DrawEvent } from '@/components/drawable-canvas';
 import { Button } from '@/components/ui/button';
 
 export default function LiveMatchPage() {
@@ -51,9 +51,9 @@ export default function LiveMatchPage() {
     
     const newChannel = supabase.channel(`match-${matchId}`);
     newChannel
-      .on('broadcast', { event: 'draw' }, (payload) => {
+      .on('broadcast', { event: 'draw-event' }, (payload) => {
         if (role === 'creator' && canvasRef.current) {
-          canvasRef.current.drawRemote(payload.payload.points);
+          canvasRef.current.applyRemoteEvent(payload.payload.event);
         }
       })
       .subscribe();
@@ -65,12 +65,12 @@ export default function LiveMatchPage() {
     };
   }, [matchId, role, supabase]);
 
-  const handleDraw = (points: Point[]) => {
+  const handleDrawEvent = (event: DrawEvent) => {
     if (role === 'guesser' && channel) {
       channel.send({
         type: 'broadcast',
-        event: 'draw',
-        payload: { points },
+        event: 'draw-event',
+        payload: { event },
       });
     }
   };
@@ -92,7 +92,7 @@ export default function LiveMatchPage() {
             <DrawableCanvas
               ref={canvasRef}
               isLocked={role !== 'guesser'}
-              onDraw={handleDraw}
+              onDrawEvent={handleDrawEvent}
             />
           </div>
         </div>
