@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
         .from('matches')
         .select('id, creator_id')
         .eq('status', 'waiting')
+        .neq('creator_id', user.id)
         .order('created_at', { ascending: true })
         .limit(1)
         .single();
