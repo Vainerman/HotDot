@@ -84,14 +84,15 @@ export default function LiveMatchPage() {
         }
       })
       .on('broadcast', { event: 'hint-sent' }, (payload) => {
-        setHints((prev) => [...prev, payload.payload.hint]);
-        setTimeout(() => {
-            setMatchState('live');
-            setRound((r) => r + 1);
+        advanceToNextRound(payload.payload.hint);
+      })
+      .on('broadcast', { event: 'round-finished' }, () => {
+        if (role === 'creator') {
             if (clockRef.current) {
-                clockRef.current.startTimer();
+                clockRef.current.stopTimer();
             }
-        }, 3000);
+            setMatchState('between-rounds');
+        }
       })
       .subscribe();
     
@@ -112,6 +113,17 @@ export default function LiveMatchPage() {
     }
   };
 
+  const advanceToNextRound = (hint: string) => {
+    setHints((prevHints) => [...prevHints, hint]);
+    setTimeout(() => {
+        setMatchState('live');
+        setRound((prevRound) => prevRound + 1);
+        if (clockRef.current) {
+            clockRef.current.startTimer();
+        }
+    }, 3000);
+  };
+
   const handleSliderChange = (newValue: number) => {
     setSliderValue(newValue);
     if (role === 'creator' && channel) {
@@ -130,6 +142,13 @@ export default function LiveMatchPage() {
     
     if (round < 3) {
         setMatchState('between-rounds');
+        if (role === 'guesser' && channel) {
+            channel.send({
+                type: 'broadcast',
+                event: 'round-finished',
+                payload: {},
+            });
+        }
     } else {
         setMatchState('results');
         if (role === 'guesser' && channel) {
@@ -148,12 +167,14 @@ export default function LiveMatchPage() {
 
   const handleSendHint = () => {
     if (role === 'creator' && channel && hintInput.trim()) {
+        const hint = hintInput.trim();
         channel.send({
             type: 'broadcast',
             event: 'hint-sent',
-            payload: { hint: hintInput.trim() },
+            payload: { hint },
         });
         setHintInput('');
+        advanceToNextRound(hint);
     }
   };
 
