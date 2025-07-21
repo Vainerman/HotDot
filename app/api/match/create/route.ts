@@ -8,10 +8,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
   }
 
-  const { challengeId } = await req.json();
   const { data, error } = await supabase
     .from('matches')
-    .insert({ creator_id: user.id, challenge_id: challengeId, status: 'waiting' })
+    .insert({ creator_id: user.id, status: 'creating' })
     .select('id')
     .single();
 

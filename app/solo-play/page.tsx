@@ -88,28 +88,47 @@ export default function SoloPlayPage() {
     }
   };
 
-  const handleChallengeIt = () => {
-    if (!template) return;
-    createChallenge(template.svgContent, template.viewBox).then((res) => {
-      if (res?.success && res.id) {
-        // Create a match and redirect to the waiting page
-        fetch('/api/match', {
+  const handleChallengeIt = async () => {
+    if (!drawingData || !template) return;
+
+    // 1. Create a match to get an ID
+    const matchResponse = await fetch('/api/match/create', { method: 'POST' });
+    const { id: matchId, error: matchError } = await matchResponse.json();
+
+    if (matchError) {
+      console.error('Failed to create match:', matchError);
+      // Handle error appropriately, maybe show a toast notification
+      return;
+    }
+
+    // 2. Navigate immediately
+    router.push(`/match/waiting/${matchId}`);
+
+    // 3. Create challenge and update match in the background
+    (async () => {
+      const challengeRes = await createChallenge(drawingData, template.svgContent, template.viewBox);
+      
+      if (challengeRes?.success && challengeRes.id) {
+        const updateResponse = await fetch(`/api/match/${matchId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'create', challengeId: res.id }),
-        })
-        .then(matchRes => matchRes.json())
-        .then(matchData => {
-          if (matchData.matchId) {
-            router.push(`/match/waiting/${matchData.matchId}`);
-          } else {
-            console.error(matchData.error || "Failed to create match");
-          }
+          body: JSON.stringify({ challenge_id: challengeRes.id, status: 'waiting' }),
         });
+
+        if (!updateResponse.ok) {
+          const { error } = await updateResponse.json();
+          console.error('Failed to update match:', error);
+        }
       } else {
-        console.error(res?.error || "Failed to create challenge");
+        console.error(challengeRes?.error || "Failed to create challenge");
+        // If challenge creation fails, we should probably update the match status to 'failed'
+        await fetch(`/api/match/${matchId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'failed' }),
+        });
       }
-    });
+    })();
   };
 
   const renderFooterButtons = () => {

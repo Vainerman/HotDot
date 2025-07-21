@@ -48,7 +48,7 @@ export async function saveDrawing(svgString: string) {
   return { success: true, path: filePath };
 }
 
-export async function createChallenge(templateSvg: string, viewBox: string) {
+export async function createChallenge(creatorDrawingSvg: string, templateSvg: string, viewBox: string) {
   const supabase = await createClient();
 
   const {
@@ -64,6 +64,7 @@ export async function createChallenge(templateSvg: string, viewBox: string) {
     .from("challenges")
     .insert({
       user_id: user.id,
+      creator_drawing_svg: creatorDrawingSvg,
       template_svg: templateSvg,
       template_viewbox: viewBox,
     })
