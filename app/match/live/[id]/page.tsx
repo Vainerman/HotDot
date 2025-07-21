@@ -10,7 +10,13 @@ import { Button } from '@/components/ui/button';
 import Clock, { ClockRef } from '@/components/clock';
 import AnimatedSvg from '@/components/animated-svg';
 import HotColdSlider from '@/components/hot-cold-slider';
+import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+interface RoundDrawing {
+    round: number;
+    drawing: string;
+}
 
 export default function LiveMatchPage() {
   const router = useRouter();
@@ -24,13 +30,14 @@ export default function LiveMatchPage() {
   const [channel, setChannel] = useState<any>(null);
   const [matchState, setMatchState] = useState<'live' | 'between-rounds' | 'results'>('live');
   const [creatorDrawing, setCreatorDrawing] = useState<{ svg: string; viewBox: string } | null>(null);
-  const [guesserDrawing, setGuesserDrawing] = useState<string | null>(null);
+  const [guesserDrawing, setGuesserDrawing] = useState<string | null>(null); // This will hold the final drawing for the results
   const [sliderValue, setSliderValue] = useState(50);
   const [round, setRound] = useState(1);
   const [hints, setHints] = useState<string[]>([]);
   const [hintInput, setHintInput] = useState('');
   const [isHintInputVisible, setIsHintInputVisible] = useState(false);
-  const [roundDrawings, setRoundDrawings] = useState<string[]>([]);
+  const [roundDrawings, setRoundDrawings] = useState<RoundDrawing[]>([]);
+  const [cards, setCards] = useState<RoundDrawing[]>([]);
   const isMobile = useIsMobile();
   const hintInputRef = useRef<HTMLInputElement>(null);
 
@@ -88,10 +95,8 @@ export default function LiveMatchPage() {
       .on('broadcast', { event: 'match-finished' }, (payload) => {
         if (role === 'creator') {
           const finalDrawing = payload.payload.drawing;
-          setGuesserDrawing(finalDrawing);
-          if(finalDrawing) {
-            setRoundDrawings(prev => [...prev, finalDrawing]);
-          }
+          setGuesserDrawing(finalDrawing.drawing);
+          setRoundDrawings(prev => [...prev, finalDrawing]);
           setMatchState('results');
         }
       })
@@ -165,9 +170,10 @@ export default function LiveMatchPage() {
       clockRef.current.stopTimer();
     }
     const drawing = canvasRef.current?.getDrawingAsSvg();
+    const roundDrawing = drawing ? { round, drawing } : null;
     
-    if (drawing) {
-        setRoundDrawings(prev => [...prev, drawing]);
+    if (roundDrawing) {
+        setRoundDrawings(prev => [...prev, roundDrawing]);
     }
     
     if (round < 3) {
@@ -176,18 +182,18 @@ export default function LiveMatchPage() {
             channel.send({
                 type: 'broadcast',
                 event: 'round-finished',
-                payload: { drawing },
+                payload: { drawing: roundDrawing },
             });
         }
     } else {
         setMatchState('results');
         if (role === 'guesser' && channel) {
-            if (drawing) {
-                setGuesserDrawing(drawing);
+            if (roundDrawing) {
+                setGuesserDrawing(roundDrawing.drawing);
                 channel.send({
                 type: 'broadcast',
                 event: 'match-finished',
-                payload: { drawing },
+                payload: { drawing: roundDrawing },
                 });
             }
         }
@@ -207,6 +213,20 @@ export default function LiveMatchPage() {
         setIsHintInputVisible(false);
     }
   };
+  
+  useEffect(() => {
+    if (matchState === 'results') {
+        const sortedDrawings = [...roundDrawings].sort((a, b) => b.round - a.round);
+        setCards(sortedDrawings);
+    }
+  }, [matchState, roundDrawings]);
+
+  const handleSwipe = (swipedCard: RoundDrawing) => {
+    setCards(prevCards => {
+        const newCards = prevCards.filter(card => card !== swipedCard);
+        return [...newCards, swipedCard]; // Add swiped card to the end
+    });
+  };
 
   if (matchState === 'results') {
     return (
@@ -221,28 +241,40 @@ export default function LiveMatchPage() {
           </div>
           <div className="flex-1 flex flex-col items-center">
             <h2 className="text-xl font-semibold mb-2">Guesser's Drawing</h2>
-            <Tabs defaultValue={`round-${roundDrawings.length > 0 ? roundDrawings.length : 1}`} className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="round-1" disabled={!roundDrawings[0]} className="font-sans">Round 1</TabsTrigger>
-                    <TabsTrigger value="round-2" disabled={!roundDrawings[1]} className="font-sans">Round 2</TabsTrigger>
-                    <TabsTrigger value="round-3" disabled={!roundDrawings[2]} className="font-sans">Round 3</TabsTrigger>
-                </TabsList>
-                <TabsContent value="round-1">
-                    <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
-                        {roundDrawings[0] && <AnimatedSvg svgContent={roundDrawings[0]} />}
-                    </div>
-                </TabsContent>
-                <TabsContent value="round-2">
-                    <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
-                        {roundDrawings[1] && <AnimatedSvg svgContent={roundDrawings[1]} />}
-                    </div>
-                </TabsContent>
-                <TabsContent value="round-3">
-                    <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
-                        {guesserDrawing && <AnimatedSvg svgContent={guesserDrawing} />}
-                    </div>
-                </TabsContent>
-            </Tabs>
+            <div className="relative w-full aspect-square flex items-center justify-center">
+                <AnimatePresence>
+                    {cards.map((card, index) => (
+                        <motion.div
+                            key={card.round + '-' + Math.random()} // Ensure key is unique on re-render
+                            className="absolute w-full h-full"
+                            style={{
+                                zIndex: cards.length - index,
+                            }}
+                            initial={{ scale: 0.8, y: -20, opacity: 0 }}
+                            animate={{ 
+                                scale: 1 - (cards.length - 1 - index) * 0.05, 
+                                y: (cards.length - 1 - index) * -10,
+                                opacity: 1,
+                            }}
+                            exit={{ x: 300, opacity: 0, scale: 0.5 }}
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            onDragEnd={(event, info) => {
+                                if (info.offset.x > 100) {
+                                    handleSwipe(card);
+                                }
+                            }}
+                        >
+                            <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100 shadow-lg">
+                                <AnimatedSvg svgContent={card.drawing} />
+                                <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                                    Round {card.round}
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            </div>
           </div>
         </div>
         <Button onClick={() => router.push('/')} className="mt-8">
