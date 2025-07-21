@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${spaceGrotesk.variable} font-sans`}>
       <body className="bg-[#F4F1E9]">
-        <div className="h-screen-dynamic overflow-hidden">{children}</div>
+        <div>{children}</div>
         <Script id="viewport-height-fix">
           {`
             function setViewportHeight() {
