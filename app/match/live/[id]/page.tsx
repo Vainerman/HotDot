@@ -94,6 +94,11 @@ export default function LiveMatchPage() {
             setMatchState('between-rounds');
         }
       })
+      .on('broadcast', { event: 'clear-canvas' }, () => {
+        if (role === 'creator' && canvasRef.current) {
+            canvasRef.current.clear();
+        }
+      })
       .subscribe();
     
     setChannel(newChannel);
@@ -211,7 +216,7 @@ export default function LiveMatchPage() {
           onCountdownFinish={handleDone}
         />
         <h1 className="text-xl font-bold">
-          {role === 'guesser' ? 'Your turn to draw!' : 'Your partner is drawing...'}
+          {role === 'guesser' ? 'Your turn to draw!' : 'the other player is drawing...'}
         </h1>
       </header>
       <main className="flex-grow flex items-center justify-center">
@@ -248,7 +253,18 @@ export default function LiveMatchPage() {
                     <div className="flex items-center gap-4">
                         <Button
                             variant="outline"
-                            onClick={() => canvasRef.current?.clear()}
+                            onClick={() => {
+                                if (canvasRef.current) {
+                                    canvasRef.current.clear();
+                                }
+                                if (channel) {
+                                    channel.send({
+                                        type: 'broadcast',
+                                        event: 'clear-canvas',
+                                        payload: {},
+                                    });
+                                }
+                            }}
                             className="text-lg"
                         >
                             Clear
