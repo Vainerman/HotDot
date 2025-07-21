@@ -6,6 +6,8 @@ import { createClient } from '@/utils/supabase/client';
 import DrawableCanvas, { DrawableCanvasRef, DrawEvent } from '@/components/drawable-canvas';
 import { Button } from '@/components/ui/button';
 import Clock, { ClockRef } from '@/components/clock';
+import AnimatedSvg from '@/components/animated-svg';
+import { Slider } from '@/components/ui/slider';
 
 export default function LiveMatchPage() {
   const router = useRouter();
@@ -20,6 +22,7 @@ export default function LiveMatchPage() {
   const [matchState, setMatchState] = useState<'live' | 'results'>('live');
   const [originalTemplate, setOriginalTemplate] = useState<{ svg: string; viewBox: string } | null>(null);
   const [guesserDrawing, setGuesserDrawing] = useState<string | null>(null);
+  const [sliderValue, setSliderValue] = useState(50);
 
   useEffect(() => {
     if (!matchId) return;
@@ -68,6 +71,11 @@ export default function LiveMatchPage() {
           setMatchState('results');
         }
       })
+      .on('broadcast', { event: 'slider-moved' }, (payload) => {
+        if (role === 'guesser') {
+          setSliderValue(payload.payload.value);
+        }
+      })
       .subscribe();
     
     setChannel(newChannel);
@@ -83,6 +91,18 @@ export default function LiveMatchPage() {
         type: 'broadcast',
         event: 'draw-event',
         payload: { event },
+      });
+    }
+  };
+
+  const handleSliderChange = (value: number[]) => {
+    const newValue = value[0];
+    setSliderValue(newValue);
+    if (role === 'creator' && channel) {
+      channel.send({
+        type: 'broadcast',
+        event: 'slider-moved',
+        payload: { value: newValue },
       });
     }
   };
@@ -113,19 +133,15 @@ export default function LiveMatchPage() {
         <div className="flex flex-row gap-4 w-full max-w-4xl">
           <div className="flex-1 flex flex-col items-center">
             <h2 className="text-xl font-semibold mb-2">Original</h2>
-            <div
-              className="w-full bg-gray-100 rounded-lg overflow-hidden"
-              style={{ aspectRatio: '346 / 562' }}
-              dangerouslySetInnerHTML={{ __html: originalTemplate?.svg || '' }}
-            />
+            <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
+              {originalTemplate && <AnimatedSvg svgContent={originalTemplate.svg} />}
+            </div>
           </div>
           <div className="flex-1 flex flex-col items-center">
             <h2 className="text-xl font-semibold mb-2">Your Guess</h2>
-            <div
-              className="w-full bg-gray-100 rounded-lg overflow-hidden"
-              style={{ aspectRatio: '346 / 562' }}
-              dangerouslySetInnerHTML={{ __html: guesserDrawing || '' }}
-            />
+            <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
+              {guesserDrawing && <AnimatedSvg svgContent={guesserDrawing} />}
+            </div>
           </div>
         </div>
         <Button onClick={() => router.push('/')} className="mt-8">
@@ -161,11 +177,17 @@ export default function LiveMatchPage() {
           </div>
         </div>
       </main>
-      <footer className="p-4 flex justify-center">
+      <footer className="p-4 flex flex-col items-center gap-4">
+        <Slider
+          value={[sliderValue]}
+          onValueChange={handleSliderChange}
+          disabled={role !== 'creator'}
+          className="w-full max-w-sm"
+        />
         {role === 'guesser' && (
           <Button
             onClick={handleDone}
-            className="bg-[#FF6338] text-[#1A1A1A] hover:bg-[#FF6338]/90 text-[35px] font-bold uppercase rounded-xl h-auto px-8 py-2"
+            className="bg-[#FF6338] text-[#1A1A1A] hover:bg-[#FF6338]/90 text-[35px] font-bold uppercase rounded-xl h-auto px-8 py-2 font-sans"
           >
             done
           </Button>

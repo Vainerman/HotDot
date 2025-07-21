@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { motion, useAnimation, Variants } from 'framer-motion';
 
 interface AnimatedSvgProps {
-  svgUrl: string;
+  svgUrl?: string;
+  svgContent?: string;
 }
 
 interface SvgPath {
@@ -26,16 +27,14 @@ interface SvgPathElement {
 
 type SvgElement = SvgGroup | SvgPathElement;
 
-const AnimatedSvg = ({ svgUrl }: AnimatedSvgProps) => {
+const AnimatedSvg = ({ svgUrl, svgContent }: AnimatedSvgProps) => {
   const [elements, setElements] = useState<SvgElement[]>([]);
   const [viewBox, setViewBox] = useState<string | null>('0 0 100 100');
   const controls = useAnimation();
 
   useEffect(() => {
-    const fetchAndParseSvg = async () => {
+    const parseSvg = (svgText: string) => {
       try {
-        const response = await fetch(svgUrl);
-        const svgText = await response.text();
         const parser = new DOMParser();
         const svgDoc = parser.parseFromString(svgText, 'image/svg+xml');
         
@@ -75,14 +74,27 @@ const AnimatedSvg = ({ svgUrl }: AnimatedSvgProps) => {
         }
         setElements(parsedElements);
       } catch (error) {
-        console.error('Failed to fetch or parse SVG:', error);
+        console.error('Failed to parse SVG:', error);
       }
     };
 
-    if (svgUrl) {
+    const fetchAndParseSvg = async () => {
+      if (!svgUrl) return;
+      try {
+        const response = await fetch(svgUrl);
+        const svgText = await response.text();
+        parseSvg(svgText);
+      } catch (error) {
+        console.error('Failed to fetch SVG:', error);
+      }
+    };
+
+    if (svgContent) {
+      parseSvg(svgContent);
+    } else if (svgUrl) {
       fetchAndParseSvg();
     }
-  }, [svgUrl]);
+  }, [svgUrl, svgContent]);
 
   const handleInteraction = async () => {
     await controls.start("hidden");
