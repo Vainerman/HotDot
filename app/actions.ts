@@ -77,4 +77,4 @@ export async function createChallenge(creatorDrawingSvg: string, templateSvg: st
   }
 
   return { success: true, id: data.id as string };
-}
+} 

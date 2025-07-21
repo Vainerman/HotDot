@@ -13,6 +13,7 @@ import AnimatedSvg from '@/components/animated-svg';
 import HotColdSlider from '@/components/hot-cold-slider';
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { createChallenge } from '@/app/actions';
 
 interface RoundDrawing {
     id: number;
@@ -215,6 +216,109 @@ export default function LiveMatchPage() {
         setIsHintInputVisible(false);
     }
   };
+
+  const handleChallengeIt = async () => {
+    if (!cards.length || !creatorDrawing) return;
+
+    const topCard = cards[0];
+
+    // 1. Create a match to get an ID
+    const matchResponse = await fetch('/api/match/create', { method: 'POST' });
+    const { id: matchId, error: matchError } = await matchResponse.json();
+
+    if (matchError) {
+      console.error('Failed to create match:', matchError);
+      return;
+    }
+
+    // 2. Navigate immediately
+    router.push(`/match/waiting/${matchId}`);
+
+    // 3. Create challenge and update match in the background
+    (async () => {
+      const challengeRes = await createChallenge(topCard.drawing, creatorDrawing.svg, creatorDrawing.viewBox);
+      
+      if (challengeRes?.success && challengeRes.id) {
+        const updateResponse = await fetch(`/api/match/${matchId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ challenge_id: challengeRes.id, status: 'waiting' }),
+        });
+
+        if (!updateResponse.ok) {
+          const { error } = await updateResponse.json();
+          console.error('Failed to update match:', error);
+        }
+      } else {
+        console.error(challengeRes?.error || "Failed to create challenge");
+        await fetch(`/api/match/${matchId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'failed' }),
+        });
+      }
+    })();
+  };
+
+  const downloadPngFromCanvas = (canvas: HTMLCanvasElement) => {
+    const pngUrl = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = pngUrl;
+    a.download = 'hotdot-drawing.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleShare = () => {
+    if (!cards.length) return;
+    const svgString = cards[0].drawing;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const img = new window.Image();
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    img.onload = () => {
+      canvas.width = img.width || 500;
+      canvas.height = img.height || 500;
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+
+      if (isMobile && navigator.share) {
+        canvas.toBlob(async (blob) => {
+          if (!blob) return;
+          const file = new File([blob], 'hotdot-drawing.png', { type: 'image/png' });
+          try {
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: 'HotDot Drawing',
+                    text: 'Check out this drawing I made on HotDot!',
+                });
+            } else {
+                downloadPngFromCanvas(canvas);
+            }
+          } catch (error) {
+            console.error('Error sharing:', error);
+            downloadPngFromCanvas(canvas);
+          }
+        }, 'image/png');
+      } else {
+        downloadPngFromCanvas(canvas);
+      }
+    };
+
+    img.onerror = () => {
+        URL.revokeObjectURL(url);
+        console.error("Failed to load SVG for sharing.");
+    };
+
+    img.src = url;
+  };
   
   useEffect(() => {
     if (matchState === 'results') {
@@ -242,16 +346,16 @@ export default function LiveMatchPage() {
                 className="transition-transform hover:scale-110"
             />
         </Link>
-        <h1 className="text-3xl font-bold mb-8">Results</h1>
+        <h1 className="text-3xl font-bold mb-8 font-sans">Results</h1>
         <div className="flex flex-row gap-4 w-full max-w-4xl">
           <div className="flex-1 flex flex-col items-center">
-            <h2 className="text-xl font-semibold mb-2">Creator's Drawing</h2>
+            <h2 className="text-xl font-semibold mb-2 font-sans">Creator's Drawing</h2>
             <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
               {creatorDrawing && <AnimatedSvg svgContent={creatorDrawing.svg} />}
             </div>
           </div>
           <div className="flex-1 flex flex-col items-center">
-            <h2 className="text-xl font-semibold mb-2">Guesser's Drawing</h2>
+            <h2 className="text-xl font-semibold mb-2 font-sans">Guesser's Drawings</h2>
             <div className="relative w-full aspect-square flex items-center justify-center">
                 <AnimatePresence>
                     {cards.map((card, index) => (
@@ -280,7 +384,7 @@ export default function LiveMatchPage() {
                         >
                             <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100 shadow-lg">
                                 <AnimatedSvg svgContent={card.drawing} />
-                                <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                                <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded font-sans">
                                     Round {card.round}
                                 </div>
                             </div>
@@ -290,9 +394,21 @@ export default function LiveMatchPage() {
             </div>
           </div>
         </div>
-        <Button onClick={() => router.push('/')} className="mt-8">
-          Play Again
-        </Button>
+        <div className="mt-8 flex flex-col gap-4 items-center">
+            <Button 
+                onClick={handleChallengeIt}
+                className="bg-[#FF6338] text-[#1A1A1A] hover:bg-[#FF6338]/90 text-[35px] font-bold uppercase rounded-xl h-auto px-8 py-2 font-sans w-[326px]"
+            >
+                CHALLENGE IT
+            </Button>
+            <Button
+                onClick={handleShare}
+                variant="outline"
+                className="bg-white text-black text-lg font-sans w-[326px] border border-gray-300"
+            >
+                SHARE
+            </Button>
+        </div>
       </div>
     );
   }
@@ -364,7 +480,7 @@ export default function LiveMatchPage() {
                                     });
                                 }
                             }}
-                            className="text-lg"
+                            className="text-lg font-sans"
                         >
                             Clear
                         </Button>
@@ -381,7 +497,7 @@ export default function LiveMatchPage() {
         {matchState === 'between-rounds' && (
             <div className='h-[108px] flex flex-col items-center justify-center'>
                 {role === 'guesser' ? (
-                    <p className="text-lg font-semibold">Waiting for hint...</p>
+                    <p className="text-lg font-semibold font-sans">Waiting for hint...</p>
                 ) : (
                     <>
                     {isMobile && !isHintInputVisible ? (
@@ -397,9 +513,9 @@ export default function LiveMatchPage() {
                                 onChange={(e) => setHintInput(e.target.value)}
                                 maxLength={56}
                                 placeholder="Type your hint here"
-                                className="border rounded px-2 py-1 flex-grow"
+                                className="border rounded px-2 py-1 flex-grow font-sans"
                             />
-                            <Button onClick={handleSendHint}>Send</Button>
+                            <Button onClick={handleSendHint} className="font-sans">Send</Button>
                         </div>
                     )}
                     </>

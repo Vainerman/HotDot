@@ -7,7 +7,7 @@ import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { saveDrawing, createChallenge } from "./actions";
+import { saveDrawing, createChallenge } from "@/app/actions";
 
 export default function SoloPlayPage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);

@@ -62,7 +62,7 @@ const Clock = forwardRef<ClockRef, ClockProps>(
 
     return (
       <div className="w-full max-w-lg h-16 flex items-center justify-center bg-transparent overflow-hidden relative">
-        <div className="text-black text-3xl font-bold tracking-tight uppercase absolute">
+        <div className="text-black text-3xl font-bold tracking-tight uppercase absolute font-sans">
           <div className="flex items-center justify-center gap-4">
             <Image
               src="/assets/clock.svg"
