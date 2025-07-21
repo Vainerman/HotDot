@@ -222,12 +222,13 @@ export default function LiveMatchPage() {
 
   return (
     <div className="flex flex-col h-screen-dynamic">
-      <header className="p-4 text-center">
+      <header className="p-4 flex flex-col items-center">
         <Clock
           ref={clockRef}
           onCountdownFinish={handleDone}
         />
-        <h1 className="text-xl font-bold">
+        <p className="text-lg font-bold font-sans -mt-2">Round {round}/3</p>
+        <h1 className="text-xl font-bold mt-2">
           {role === 'guesser' ? 'Your turn to draw!' : 'the other player is drawing...'}
         </h1>
       </header>
