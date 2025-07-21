@@ -6,6 +6,7 @@ import Image from 'next/image';
 
 export interface ClockRef {
   stopTimer: () => void;
+  startTimer: () => void;
 }
 
 interface ClockProps {
@@ -18,6 +19,17 @@ const Clock = forwardRef<ClockRef, ClockProps>(
     const [isFinished, setIsFinished] = useState(false);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+    const startTimer = () => {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
+        setTimeLeft(30);
+        setIsFinished(false);
+        intervalRef.current = setInterval(() => {
+            setTimeLeft((prev) => prev - 1);
+        }, 1000);
+    };
+
     useImperativeHandle(ref, () => ({
       stopTimer() {
         if (intervalRef.current) {
@@ -25,12 +37,11 @@ const Clock = forwardRef<ClockRef, ClockProps>(
         }
         setIsFinished(true);
       },
+      startTimer,
     }));
 
     useEffect(() => {
-      intervalRef.current = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
+      startTimer();
 
       return () => {
         if (intervalRef.current) {
@@ -40,9 +51,12 @@ const Clock = forwardRef<ClockRef, ClockProps>(
     }, []);
 
     useEffect(() => {
-      if (timeLeft === 0 && !isFinished) {
+      if (timeLeft <= 0 && !isFinished) {
         onCountdownFinish();
         setIsFinished(true);
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
       }
     }, [timeLeft, onCountdownFinish, isFinished]);
 

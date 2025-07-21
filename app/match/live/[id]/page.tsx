@@ -19,10 +19,13 @@ export default function LiveMatchPage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);
   const [supabase] = useState(() => createClient());
   const [channel, setChannel] = useState<any>(null);
-  const [matchState, setMatchState] = useState<'live' | 'results'>('live');
+  const [matchState, setMatchState] = useState<'live' | 'between-rounds' | 'results'>('live');
   const [creatorDrawing, setCreatorDrawing] = useState<{ svg: string; viewBox: string } | null>(null);
   const [guesserDrawing, setGuesserDrawing] = useState<string | null>(null);
   const [sliderValue, setSliderValue] = useState(50);
+  const [round, setRound] = useState(1);
+  const [hints, setHints] = useState<string[]>([]);
+  const [hintInput, setHintInput] = useState('');
 
   useEffect(() => {
     if (!matchId) return;
@@ -80,6 +83,16 @@ export default function LiveMatchPage() {
           setSliderValue(payload.payload.value);
         }
       })
+      .on('broadcast', { event: 'hint-sent' }, (payload) => {
+        setHints((prev) => [...prev, payload.payload.hint]);
+        setTimeout(() => {
+            setMatchState('live');
+            setRound((r) => r + 1);
+            if (clockRef.current) {
+                clockRef.current.startTimer();
+            }
+        }, 3000);
+      })
       .subscribe();
     
     setChannel(newChannel);
@@ -114,18 +127,33 @@ export default function LiveMatchPage() {
     if (clockRef.current) {
       clockRef.current.stopTimer();
     }
-    setMatchState('results');
+    
+    if (round < 3) {
+        setMatchState('between-rounds');
+    } else {
+        setMatchState('results');
+        if (role === 'guesser' && channel) {
+            const drawing = canvasRef.current?.getDrawingAsSvg();
+            if (drawing) {
+                setGuesserDrawing(drawing);
+                channel.send({
+                type: 'broadcast',
+                event: 'match-finished',
+                payload: { drawing },
+                });
+            }
+        }
+    }
+  };
 
-    if (role === 'guesser' && channel) {
-      const drawing = canvasRef.current?.getDrawingAsSvg();
-      if (drawing) {
-        setGuesserDrawing(drawing);
+  const handleSendHint = () => {
+    if (role === 'creator' && channel && hintInput.trim()) {
         channel.send({
-          type: 'broadcast',
-          event: 'match-finished',
-          payload: { drawing },
+            type: 'broadcast',
+            event: 'hint-sent',
+            payload: { hint: hintInput.trim() },
         });
-      }
+        setHintInput('');
     }
   };
 
@@ -174,25 +202,55 @@ export default function LiveMatchPage() {
           <div className="absolute inset-0">
             <DrawableCanvas
               ref={canvasRef}
-              isLocked={role !== 'guesser'}
+              isLocked={role !== 'guesser' || matchState !== 'live'}
               onDrawEvent={handleDrawEvent}
             />
           </div>
         </div>
       </main>
+      <div className="px-4 pb-2">
+        {hints.map((hint, index) => (
+            <div key={index} className="text-center text-sm my-1 p-1 bg-gray-100 rounded-md">
+                <strong>Hint {index + 1}:</strong> {hint}
+            </div>
+        ))}
+      </div>
       <footer className="p-4 flex flex-col items-center gap-4">
-        <HotColdSlider
-          value={sliderValue}
-          onValueChange={handleSliderChange}
-          disabled={role !== 'creator'}
-        />
-        {role === 'guesser' && (
-          <Button
-            onClick={handleDone}
-            className="bg-[#FF6338] text-[#1A1A1A] hover:bg-[#FF6338]/90 text-[35px] font-bold uppercase rounded-xl h-auto px-8 py-2 font-sans"
-          >
-            done
-          </Button>
+        {matchState === 'live' && (
+            <>
+                <HotColdSlider
+                    value={sliderValue}
+                    onValueChange={handleSliderChange}
+                    disabled={role !== 'creator'}
+                />
+                {role === 'guesser' && (
+                    <Button
+                        onClick={handleDone}
+                        className="bg-[#FF6338] text-[#1A1A1A] hover:bg-[#FF6338]/90 text-[35px] font-bold uppercase rounded-xl h-auto px-8 py-2 font-sans"
+                    >
+                        done
+                    </Button>
+                )}
+            </>
+        )}
+        {matchState === 'between-rounds' && (
+            <div className='h-[108px] flex flex-col items-center justify-center'>
+                {role === 'guesser' ? (
+                    <p className="text-lg font-semibold">Waiting for hint...</p>
+                ) : (
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="text"
+                            value={hintInput}
+                            onChange={(e) => setHintInput(e.target.value)}
+                            maxLength={56}
+                            placeholder="Type your hint here"
+                            className="border rounded px-2 py-1 flex-grow"
+                        />
+                        <Button onClick={handleSendHint}>Send</Button>
+                    </div>
+                )}
+            </div>
         )}
       </footer>
     </div>
