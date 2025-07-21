@@ -24,9 +24,7 @@ export default function SoloPlayPage() {
     fetch('/api/templates', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        console.log("Path data fetched:", data);
         if (data.svgContent) {
-          console.log("SVG content available. Animating on canvas...");
           if (canvasRef.current) {
             canvasRef.current.animateSvg(data.svgContent, data.viewBox);
           }
@@ -200,7 +198,7 @@ export default function SoloPlayPage() {
       <Link href="/" className="absolute top-4 left-4 z-10">
         <Image src="/assets/home.png" alt="Home" width={40} height={40} />
       </Link>
-      <main className="flex-grow flex flex-col items-center justify-center gap-4 py-4">
+      <main className="flex-grow flex flex-col items-center justify-center gap-4 py-4 transform sm:scale-90 origin-top">
         <AnimatedChallengeHeader
           ref={headerRef}
           key={headerKey}
