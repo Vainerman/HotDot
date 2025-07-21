@@ -200,7 +200,7 @@ export default function SoloPlayPage() {
       <Link href="/" className="absolute top-4 left-4 z-10">
         <Image src="/assets/home.png" alt="Home" width={40} height={40} />
       </Link>
-      <main className="flex-grow flex flex-col items-center justify-center gap-4 py-4 transform sm:scale-90 origin-top">
+      <main className="flex-grow flex flex-col items-center justify-center gap-4 py-4 transform sm:scale-70 origin-top">
         <AnimatedChallengeHeader
           ref={headerRef}
           key={headerKey}

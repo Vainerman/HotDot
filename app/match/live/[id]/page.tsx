@@ -417,7 +417,7 @@ export default function LiveMatchPage() {
   }
 
   return (
-    <div className="relative flex flex-col h-screen-dynamic transform sm:scale-90 origin-top">
+    <div className="relative flex flex-col h-screen-dynamic transform sm:scale-70 origin-top">
       <Link href="/" className="absolute top-4 left-4 z-20">
           <Image
               src="/assets/Exit_Button.svg"
