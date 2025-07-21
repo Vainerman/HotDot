@@ -79,7 +79,7 @@ export default function SoloPlayPage() {
     if (drawingData) {
       // Call the server action to run in the background.
       // We are not `await`ing the result, so the UI won't block.
-      saveDrawing(drawingData).then(result => {
+      saveDrawing(drawingData).then((result: { success?: boolean; error?: string; path?: string }) => {
         console.log("Background save response:", result);
         if (result?.error) {
           console.error("Background save failed:", result.error);
