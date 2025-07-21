@@ -2,6 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import AnimatedSvg from '@/components/animated-svg'
+import Image from 'next/image'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -41,7 +42,15 @@ export default async function ProfilePage() {
     <div className="container mx-auto p-4">
       <header className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Your Gallery</h1>
-        <Link href="/" className="hover:text-[#FF5C38] transition-colors">Back to Home</Link>
+        <Link href="/">
+            <Image
+                src="/assets/Back_Button.svg"
+                alt="Back to Home"
+                width={41}
+                height={41}
+                className="transition-transform hover:scale-110"
+            />
+        </Link>
       </header>
       {drawingsWithUrls.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

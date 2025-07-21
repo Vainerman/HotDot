@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { createClient } from '@/utils/supabase/client';
 import DrawableCanvas, { DrawableCanvasRef, DrawEvent } from '@/components/drawable-canvas';
 import { Button } from '@/components/ui/button';
@@ -26,6 +28,15 @@ export default function LiveMatchPage() {
   const [round, setRound] = useState(1);
   const [hints, setHints] = useState<string[]>([]);
   const [hintInput, setHintInput] = useState('');
+  const [isHintInputVisible, setIsHintInputVisible] = useState(false);
+  const isMobile = useIsMobile();
+  const hintInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isMobile && isHintInputVisible && hintInputRef.current) {
+      hintInputRef.current.focus();
+    }
+  }, [isMobile, isHintInputVisible]);
 
   useEffect(() => {
     if (!matchId) return;
@@ -180,6 +191,7 @@ export default function LiveMatchPage() {
         });
         setHintInput('');
         advanceToNextRound(hint);
+        setIsHintInputVisible(false);
     }
   };
 
@@ -234,9 +246,9 @@ export default function LiveMatchPage() {
           </div>
         </div>
       </main>
-      <div className="px-4 pb-2">
+      <div className="w-full max-w-sm mx-auto px-4 pb-2">
         {hints.map((hint, index) => (
-            <div key={index} className="text-center text-sm my-1 p-1 bg-gray-100 rounded-md">
+            <div key={index} className="text-left text-sm my-1 p-1 font-sans">
                 <strong>Hint {index + 1}:</strong> {hint}
             </div>
         ))}
@@ -284,17 +296,26 @@ export default function LiveMatchPage() {
                 {role === 'guesser' ? (
                     <p className="text-lg font-semibold">Waiting for hint...</p>
                 ) : (
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="text"
-                            value={hintInput}
-                            onChange={(e) => setHintInput(e.target.value)}
-                            maxLength={56}
-                            placeholder="Type your hint here"
-                            className="border rounded px-2 py-1 flex-grow"
-                        />
-                        <Button onClick={handleSendHint}>Send</Button>
-                    </div>
+                    <>
+                    {isMobile && !isHintInputVisible ? (
+                        <Button variant="ghost" onClick={() => setIsHintInputVisible(true)}>
+                            <Image src="/assets/keyboard.svg" alt="Open keyboard to type hint" width={48} height={47} />
+                        </Button>
+                    ) : (
+                        <div className="flex items-center gap-2 w-full px-4">
+                            <input
+                                ref={hintInputRef}
+                                type="text"
+                                value={hintInput}
+                                onChange={(e) => setHintInput(e.target.value)}
+                                maxLength={56}
+                                placeholder="Type your hint here"
+                                className="border rounded px-2 py-1 flex-grow"
+                            />
+                            <Button onClick={handleSendHint}>Send</Button>
+                        </div>
+                    )}
+                    </>
                 )}
             </div>
         )}
