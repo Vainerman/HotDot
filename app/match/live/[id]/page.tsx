@@ -20,14 +20,13 @@ export default function LiveMatchPage() {
   const [supabase] = useState(() => createClient());
   const [channel, setChannel] = useState<any>(null);
   const [matchState, setMatchState] = useState<'live' | 'results'>('live');
-  const [originalTemplate, setOriginalTemplate] = useState<{ svg: string; viewBox: string } | null>(null);
+  const [creatorDrawing, setCreatorDrawing] = useState<{ svg: string; viewBox: string } | null>(null);
   const [guesserDrawing, setGuesserDrawing] = useState<string | null>(null);
   const [sliderValue, setSliderValue] = useState(50);
 
   useEffect(() => {
     if (!matchId) return;
 
-    // Fetch challenge template
     const fetchChallengeData = async () => {
         const { data: matchData, error: matchError } = await supabase
         .from('matches')
@@ -35,25 +34,30 @@ export default function LiveMatchPage() {
         .eq('id', matchId)
         .single();
     
-      if (matchError || !matchData) {
-        console.error('Error fetching match data:', matchError);
+      if (matchError || !matchData || !matchData.challenge_id) {
+        console.error('Error fetching match data or challenge not ready:', matchError);
         return;
       }
 
       const { data, error } = await supabase
         .from('challenges')
-        .select('template_svg, template_viewbox')
+        .select('template_svg, template_viewbox, creator_drawing_svg')
         .eq('id', matchData.challenge_id)
         .single();
 
       if (error || !data) {
-        console.error('Failed to fetch challenge template:', error);
+        console.error('Failed to fetch challenge data:', error);
         return;
       }
+      
       if (canvasRef.current) {
         canvasRef.current.animateSvg(data.template_svg, data.template_viewbox);
       }
-      setOriginalTemplate({ svg: data.template_svg, viewBox: data.template_viewbox });
+
+      setCreatorDrawing({ 
+        svg: data.creator_drawing_svg || data.template_svg, 
+        viewBox: data.template_viewbox 
+      });
     };
 
     fetchChallengeData();
@@ -132,13 +136,13 @@ export default function LiveMatchPage() {
         <h1 className="text-3xl font-bold mb-8">Results</h1>
         <div className="flex flex-row gap-4 w-full max-w-4xl">
           <div className="flex-1 flex flex-col items-center">
-            <h2 className="text-xl font-semibold mb-2">Original</h2>
+            <h2 className="text-xl font-semibold mb-2">Creator's Drawing</h2>
             <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
-              {originalTemplate && <AnimatedSvg svgContent={originalTemplate.svg} />}
+              {creatorDrawing && <AnimatedSvg svgContent={creatorDrawing.svg} />}
             </div>
           </div>
           <div className="flex-1 flex flex-col items-center">
-            <h2 className="text-xl font-semibold mb-2">Your Guess</h2>
+            <h2 className="text-xl font-semibold mb-2">Guesser's Drawing</h2>
             <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
               {guesserDrawing && <AnimatedSvg svgContent={guesserDrawing} />}
             </div>
