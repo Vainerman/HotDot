@@ -6,20 +6,48 @@ import AnimatedChallengeHeader, { ChallengeHeaderRef } from "@/components/animat
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { saveDrawing } from "@/app/solo-play/actions";
 
-export default function ChallengePage({ params }: { params: { id: string } }) {
+export default function ChallengePage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);
   const headerRef = useRef<ChallengeHeaderRef>(null);
   const [gameState, setGameState] = useState<"drawing" | "finished" | "saved">("drawing");
   const [drawingData, setDrawingData] = useState<string | null>(null);
+  const [headerKey, setHeaderKey] = useState(0);
+  const [template, setTemplate] = useState<{ svgContent: string; viewBox: string } | null>(null);
+  const router = useRouter();
+  const { id: challengeId } = useParams();
+
+  const fetchChallengeTemplate = () => {
+    if (!challengeId) return;
+    console.log("Fetching challenge template data...");
+    fetch(`/api/challenge/${challengeId}`, { cache: 'no-store' })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Failed to fetch challenge template');
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log("Challenge template data fetched:", data);
+        if (data.template_svg) {
+          console.log("SVG content available. Animating on canvas...");
+          if (canvasRef.current) {
+            canvasRef.current.animateSvg(data.template_svg, data.template_viewbox);
+          }
+          setTemplate({ svgContent: data.template_svg, viewBox: data.template_viewbox });
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching challenge template:", error);
+        // Optionally handle the error, e.g., show a message to the user
+      });
+  };
 
   useEffect(() => {
-    fetch(`/api/challenge/${params.id}`).then(res => res.json()).then(data => {
-      if (data.template_svg && canvasRef.current) {
-        canvasRef.current.animateSvg(data.template_svg, data.template_viewbox);
-      }
-    });
-  }, [params.id]);
+    fetchChallengeTemplate();
+  }, [challengeId]);
 
   const handleClear = () => {
     if (canvasRef.current) {
@@ -42,10 +70,19 @@ export default function ChallengePage({ params }: { params: { id: string } }) {
     setGameState("drawing");
     if (canvasRef.current) {
       canvasRef.current.clear(false);
-      // redraw original template automatically
-      fetch(`/api/challenge/${params.id}`).then(res => res.json()).then(data => {
-        if (canvasRef.current) {
-          canvasRef.current.animateSvg(data.template_svg, data.template_viewbox);
+      fetchChallengeTemplate();
+    }
+    setHeaderKey((prevKey: number) => prevKey + 1);
+  };
+  
+  const handleKeep = () => {
+    console.log("handleKeep called. Current drawing data:", drawingData ? "Exists" : "Empty");
+    setGameState("saved");
+    if (drawingData) {
+      saveDrawing(drawingData).then(result => {
+        console.log("Background save response:", result);
+        if (result?.error) {
+          console.error("Background save failed:", result.error);
         }
       });
     }
@@ -56,8 +93,40 @@ export default function ChallengePage({ params }: { params: { id: string } }) {
       case "finished":
         return (
           <div className="flex w-full justify-around">
+             <Button
+               onClick={handlePlayAgain}
+               className="px-8 py-4 text-lg font-sans bg-black text-white hover:bg-gray-800 flex items-center gap-2"
+             >
+               <Image
+                 src="/assets/NopeX.svg"
+                 width={20}
+                 height={20}
+                 alt="Play Again icon"
+               />
+               <span>TRY AGAIN</span>
+             </Button>
+             <Button
+               onClick={handleKeep}
+               className="px-8 py-4 text-lg font-sans bg-[#FF6338] text-black hover:bg-[#C9330A] flex items-center gap-2"
+            >
+               <Image
+                 src="/assets/keepV.svg"
+                 width={20}
+                 height={20}
+                 alt="Keep icon"
+               />
+               <span>KEEP</span>
+             </Button>
+           </div>
+        );
+      case "saved":
+        return (
+          <div className="flex w-full justify-around">
+            <Button asChild className="bg-[#FF6338] text-black hover:bg-[#FF5C38] font-sans">
+              <Link href="/solo-play">PLAY A NEW GAME</Link>
+            </Button>
             <Button variant="secondary" onClick={handlePlayAgain} className="font-sans">
-              PLAY AGAIN
+              REPLAY CHALLENGE
             </Button>
           </div>
         );
@@ -84,6 +153,7 @@ export default function ChallengePage({ params }: { params: { id: string } }) {
       <main className="flex-grow flex flex-col items-center justify-center gap-4 py-4">
         <AnimatedChallengeHeader
           ref={headerRef}
+          key={headerKey}
           onCountdownStart={() => {}}
           onCountdownFinish={handleDone}
         />
