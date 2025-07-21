@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import Clock, { ClockRef } from '@/components/clock';
 import AnimatedSvg from '@/components/animated-svg';
 import HotColdSlider from '@/components/hot-cold-slider';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function LiveMatchPage() {
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function LiveMatchPage() {
   const [hints, setHints] = useState<string[]>([]);
   const [hintInput, setHintInput] = useState('');
   const [isHintInputVisible, setIsHintInputVisible] = useState(false);
+  const [roundDrawings, setRoundDrawings] = useState<string[]>([]);
   const isMobile = useIsMobile();
   const hintInputRef = useRef<HTMLInputElement>(null);
 
@@ -85,7 +87,11 @@ export default function LiveMatchPage() {
       })
       .on('broadcast', { event: 'match-finished' }, (payload) => {
         if (role === 'creator') {
-          setGuesserDrawing(payload.payload.drawing);
+          const finalDrawing = payload.payload.drawing;
+          setGuesserDrawing(finalDrawing);
+          if(finalDrawing) {
+            setRoundDrawings(prev => [...prev, finalDrawing]);
+          }
           setMatchState('results');
         }
       })
@@ -97,10 +103,13 @@ export default function LiveMatchPage() {
       .on('broadcast', { event: 'hint-sent' }, (payload) => {
         advanceToNextRound(payload.payload.hint);
       })
-      .on('broadcast', { event: 'round-finished' }, () => {
+      .on('broadcast', { event: 'round-finished' }, (payload) => {
         if (role === 'creator') {
             if (clockRef.current) {
                 clockRef.current.stopTimer();
+            }
+            if (payload.payload.drawing) {
+                setRoundDrawings(prev => [...prev, payload.payload.drawing]);
             }
             setMatchState('between-rounds');
         }
@@ -155,6 +164,11 @@ export default function LiveMatchPage() {
     if (clockRef.current) {
       clockRef.current.stopTimer();
     }
+    const drawing = canvasRef.current?.getDrawingAsSvg();
+    
+    if (drawing) {
+        setRoundDrawings(prev => [...prev, drawing]);
+    }
     
     if (round < 3) {
         setMatchState('between-rounds');
@@ -162,13 +176,12 @@ export default function LiveMatchPage() {
             channel.send({
                 type: 'broadcast',
                 event: 'round-finished',
-                payload: {},
+                payload: { drawing },
             });
         }
     } else {
         setMatchState('results');
         if (role === 'guesser' && channel) {
-            const drawing = canvasRef.current?.getDrawingAsSvg();
             if (drawing) {
                 setGuesserDrawing(drawing);
                 channel.send({
@@ -208,9 +221,28 @@ export default function LiveMatchPage() {
           </div>
           <div className="flex-1 flex flex-col items-center">
             <h2 className="text-xl font-semibold mb-2">Guesser's Drawing</h2>
-            <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
-              {guesserDrawing && <AnimatedSvg svgContent={guesserDrawing} />}
-            </div>
+            <Tabs defaultValue={`round-${roundDrawings.length > 0 ? roundDrawings.length : 1}`} className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="round-1" disabled={!roundDrawings[0]}>Round 1</TabsTrigger>
+                    <TabsTrigger value="round-2" disabled={!roundDrawings[1]}>Round 2</TabsTrigger>
+                    <TabsTrigger value="round-3" disabled={!roundDrawings[2]}>Round 3</TabsTrigger>
+                </TabsList>
+                <TabsContent value="round-1">
+                    <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
+                        {roundDrawings[0] && <AnimatedSvg svgContent={roundDrawings[0]} />}
+                    </div>
+                </TabsContent>
+                <TabsContent value="round-2">
+                    <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
+                        {roundDrawings[1] && <AnimatedSvg svgContent={roundDrawings[1]} />}
+                    </div>
+                </TabsContent>
+                <TabsContent value="round-3">
+                    <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
+                        {guesserDrawing && <AnimatedSvg svgContent={guesserDrawing} />}
+                    </div>
+                </TabsContent>
+            </Tabs>
           </div>
         </div>
         <Button onClick={() => router.push('/')} className="mt-8">
