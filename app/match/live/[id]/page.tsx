@@ -223,9 +223,9 @@ export default function LiveMatchPage() {
             <h2 className="text-xl font-semibold mb-2">Guesser's Drawing</h2>
             <Tabs defaultValue={`round-${roundDrawings.length > 0 ? roundDrawings.length : 1}`} className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="round-1" disabled={!roundDrawings[0]}>Round 1</TabsTrigger>
-                    <TabsTrigger value="round-2" disabled={!roundDrawings[1]}>Round 2</TabsTrigger>
-                    <TabsTrigger value="round-3" disabled={!roundDrawings[2]}>Round 3</TabsTrigger>
+                    <TabsTrigger value="round-1" disabled={!roundDrawings[0]} className="font-sans">Round 1</TabsTrigger>
+                    <TabsTrigger value="round-2" disabled={!roundDrawings[1]} className="font-sans">Round 2</TabsTrigger>
+                    <TabsTrigger value="round-3" disabled={!roundDrawings[2]} className="font-sans">Round 3</TabsTrigger>
                 </TabsList>
                 <TabsContent value="round-1">
                     <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
@@ -260,7 +260,7 @@ export default function LiveMatchPage() {
           onCountdownFinish={handleDone}
         />
         <p className="text-lg font-bold font-sans -mt-2">Round {round}/3</p>
-        <h1 className="text-xl font-bold mt-2">
+        <h1 className="text-xl font-bold mt-2 font-sans">
           {role === 'guesser' ? 'Your turn to draw!' : 'the other player is drawing...'}
         </h1>
       </header>
