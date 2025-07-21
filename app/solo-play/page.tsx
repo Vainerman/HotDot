@@ -90,11 +90,21 @@ export default function SoloPlayPage() {
 
   const handleChallengeIt = () => {
     if (!template) return;
-    createChallenge(template.svgContent, template.viewBox).then((res) => {
+    createChallenge(template.svgContent, template.viewBox).then(async (res) => {
       if (res?.success && res.id) {
-        router.push(`/challenge/${res.id}/share`);
+        const matchRes = await fetch('/api/match/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ challengeId: res.id }),
+        });
+        const matchData = await matchRes.json();
+        if (matchRes.ok) {
+          router.push(`/match/${matchData.id}/waiting?challenge=${res.id}`);
+        } else {
+          console.error(matchData.error || 'Failed to create match');
+        }
       } else {
-        console.error(res?.error || "Failed to create challenge");
+        console.error(res?.error || 'Failed to create challenge');
       }
     });
   };

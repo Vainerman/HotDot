@@ -2,17 +2,21 @@
 
 import { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo } from 'react';
 
+export type DrawEvent = { type: 'start' | 'move' | 'end'; x: number; y: number };
+
 export interface DrawableCanvasRef {
   clear: (redrawTemplate?: boolean) => void;
   getDrawingAsSvg: () => string;
   animateSvg: (svgContent: string, viewBox: string | null, animated?: boolean) => void;
+  applyRemoteEvent: (event: DrawEvent) => void;
 }
 
 interface DrawableCanvasProps {
   isLocked?: boolean;
+  onDrawEvent?: (event: DrawEvent) => void;
 }
 
-const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isLocked = false }, ref) => {
+const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isLocked = false, onDrawEvent }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawnPathsRef = useRef<string[]>([]);
   const lastPointRef = useRef<{ x: number, y: number } | null>(null);
@@ -93,6 +97,11 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
 
       img.src = url;
     },
+    applyRemoteEvent(event: DrawEvent) {
+      if (event.type === 'start') startAt(event.x, event.y);
+      else if (event.type === 'move') drawAt(event.x, event.y);
+      else if (event.type === 'end') finishInternal();
+    },
   }));
 
   useEffect(() => {
@@ -132,8 +141,7 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
     };
   };
 
-  const startDrawing = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    const { x, y } = getCoordinates(event);
+  const startAt = (x: number, y: number) => {
     if (context) {
       setIsDrawing(true);
       lastPointRef.current = { x, y };
@@ -143,36 +151,52 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
     }
   };
 
-  const finishDrawing = () => {
+  const startDrawing = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const { x, y } = getCoordinates(event);
+    startAt(x, y);
+    onDrawEvent?.({ type: 'start', x, y });
+  };
+
+  const finishInternal = () => {
     if (isDrawing && context && lastPointRef.current) {
-        context.lineTo(lastPointRef.current.x, lastPointRef.current.y);
-        context.stroke();
-        if (drawnPathsRef.current.length > 0) {
-            const lastPath = drawnPathsRef.current[drawnPathsRef.current.length - 1];
-            drawnPathsRef.current[drawnPathsRef.current.length - 1] = `${lastPath} L${lastPointRef.current.x.toFixed(2)},${lastPointRef.current.y.toFixed(2)}`;
-        }
+      context.lineTo(lastPointRef.current.x, lastPointRef.current.y);
+      context.stroke();
+      if (drawnPathsRef.current.length > 0) {
+        const lastPath = drawnPathsRef.current[drawnPathsRef.current.length - 1];
+        drawnPathsRef.current[drawnPathsRef.current.length - 1] = `${lastPath} L${lastPointRef.current.x.toFixed(2)},${lastPointRef.current.y.toFixed(2)}`;
+      }
     }
     setIsDrawing(false);
     lastPointRef.current = null;
-    if(context) context.closePath();
+    if (context) context.closePath();
   };
 
-  const draw = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+  const finishDrawing = () => {
+    finishInternal();
+    onDrawEvent?.({ type: 'end', x: 0, y: 0 });
+  };
+
+  const drawAt = (x: number, y: number) => {
     if (!isDrawing || !context || !lastPointRef.current) return;
-    
-    const { x, y } = getCoordinates(event);
+
     const midPointX = (lastPointRef.current.x + x) / 2;
     const midPointY = (lastPointRef.current.y + y) / 2;
 
     context.quadraticCurveTo(lastPointRef.current.x, lastPointRef.current.y, midPointX, midPointY);
     context.stroke();
-    
+
     if (drawnPathsRef.current.length > 0) {
-        const lastPath = drawnPathsRef.current[drawnPathsRef.current.length - 1];
-        drawnPathsRef.current[drawnPathsRef.current.length - 1] = `${lastPath} Q${lastPointRef.current.x.toFixed(2)},${lastPointRef.current.y.toFixed(2)} ${midPointX.toFixed(2)},${midPointY.toFixed(2)}`;
+      const lastPath = drawnPathsRef.current[drawnPathsRef.current.length - 1];
+      drawnPathsRef.current[drawnPathsRef.current.length - 1] = `${lastPath} Q${lastPointRef.current.x.toFixed(2)},${lastPointRef.current.y.toFixed(2)} ${midPointX.toFixed(2)},${midPointY.toFixed(2)}`;
     }
 
     lastPointRef.current = { x, y };
+  };
+
+  const draw = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const { x, y } = getCoordinates(event);
+    drawAt(x, y);
+    onDrawEvent?.({ type: 'move', x, y });
   };
 
   return (
