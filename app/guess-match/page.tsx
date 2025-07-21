@@ -17,7 +17,7 @@ export default function GuessMatchPage() {
         });
         const data = await res.json();
         if (res.ok && data.matchId) {
-          router.push(`/match/live/${data.matchId}?role=guesser`);
+          router.push(`/match/pre-match/${data.matchId}?role=guesser`);
         } else {
           // Handle no available matches, maybe redirect to a different page or show a message
           alert(data.error || 'No available matches. Please try again later.');
