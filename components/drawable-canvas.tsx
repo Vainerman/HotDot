@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState, useImperativeHandle, forwardRef, memo } from 'react';
 
+export type Point = { x: number; y: number };
 export type DrawEvent = { type: 'start' | 'move' | 'end'; x: number; y: number };
 
 export interface DrawableCanvasRef {
@@ -9,16 +10,19 @@ export interface DrawableCanvasRef {
   getDrawingAsSvg: () => string;
   animateSvg: (svgContent: string, viewBox: string | null, animated?: boolean) => void;
   applyRemoteEvent: (event: DrawEvent) => void;
+  drawRemote: (points: Point[]) => void;
 }
 
 interface DrawableCanvasProps {
   isLocked?: boolean;
   onDrawEvent?: (event: DrawEvent) => void;
+  onDraw?: (points: Point[]) => void;
 }
 
-const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isLocked = false, onDrawEvent }, ref) => {
+const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isLocked = false, onDrawEvent, onDraw }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawnPathsRef = useRef<string[]>([]);
+  const currentPath = useRef<Point[]>([]);
   const lastPointRef = useRef<{ x: number, y: number } | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
@@ -102,6 +106,15 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
       else if (event.type === 'move') drawAt(event.x, event.y);
       else if (event.type === 'end') finishInternal();
     },
+    drawRemote(points: Point[]) {
+        if (!context || points.length === 0) return;
+        context.beginPath();
+        context.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            context.lineTo(points[i].x, points[i].y);
+        }
+        context.stroke();
+    }
   }));
 
   useEffect(() => {
@@ -145,6 +158,7 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
     if (context) {
       setIsDrawing(true);
       lastPointRef.current = { x, y };
+      currentPath.current = [{x, y}];
       context.beginPath();
       context.moveTo(x, y);
       drawnPathsRef.current.push(`M${x.toFixed(2)},${y.toFixed(2)}`);
@@ -166,6 +180,10 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
         drawnPathsRef.current[drawnPathsRef.current.length - 1] = `${lastPath} L${lastPointRef.current.x.toFixed(2)},${lastPointRef.current.y.toFixed(2)}`;
       }
     }
+    if (onDraw && currentPath.current.length > 0) {
+        onDraw(currentPath.current);
+    }
+    currentPath.current = [];
     setIsDrawing(false);
     lastPointRef.current = null;
     if (context) context.closePath();
@@ -184,6 +202,7 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
 
     context.quadraticCurveTo(lastPointRef.current.x, lastPointRef.current.y, midPointX, midPointY);
     context.stroke();
+    currentPath.current.push({x, y});
 
     if (drawnPathsRef.current.length > 0) {
       const lastPath = drawnPathsRef.current[drawnPathsRef.current.length - 1];

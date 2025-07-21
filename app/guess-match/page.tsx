@@ -2,33 +2,41 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/utils/supabase/client';
+import AnimatedCat from '@/components/animated-cat';
 
 export default function GuessMatchPage() {
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
-    const join = async () => {
-      const res = await fetch('/api/match/join', { method: 'POST' });
-      const data = await res.json();
-      if (res.ok) {
-        const channel = supabase.channel(`match-${data.id}`);
-        channel.subscribe(async status => {
-          if (status === 'SUBSCRIBED') {
-            await channel.send({ type: 'broadcast', event: 'start', payload: {} });
-            router.push(`/match/${data.id}?role=guesser&challenge=${data.challengeId}`);
-          }
+    const joinMatch = async () => {
+      try {
+        const res = await fetch('/api/match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'join' }),
         });
-      } else {
-        console.error(data.error);
+        const data = await res.json();
+        if (res.ok && data.matchId) {
+          router.push(`/match/live/${data.matchId}?role=guesser`);
+        } else {
+          // Handle no available matches, maybe redirect to a different page or show a message
+          alert(data.error || 'No available matches. Please try again later.');
+          router.push('/');
+        }
+      } catch (error) {
+        console.error('Failed to join a match:', error);
+        alert('An error occurred while trying to find a match.');
+        router.push('/');
       }
     };
 
-    join();
-  }, [router, supabase]);
+    joinMatch();
+  }, [router]);
 
   return (
-    <div className="flex items-center justify-center h-full text-xl">Finding a match...</div>
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">Finding a match...</h1>
+      <AnimatedCat />
+    </div>
   );
 }
