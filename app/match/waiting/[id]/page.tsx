@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function WaitingForGuesserPage() {
   const router = useRouter();
@@ -36,7 +37,9 @@ export default function WaitingForGuesserPage() {
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-[#1A1A1A] text-white">
         <div className="absolute top-6 left-6">
-            <Image src="/assets/waiting-page-icons/search-icon.svg" alt="Search Icon" width={41} height={41} />
+            <Link href="/">
+                <Image src="/assets/waiting-page-icons/search-icon.svg" alt="Search Icon" width={41} height={41} />
+            </Link>
         </div>
       <div className="text-center">
         <h1 className="text-4xl font-bold uppercase" style={{ fontFamily: 'Space Grotesk' }}>searching...</h1>

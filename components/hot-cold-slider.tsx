@@ -21,12 +21,16 @@ export default function HotColdSlider({ value, onValueChange, disabled }: HotCol
   useEffect(() => {
     if (containerRef.current && textRef.current && wordRefs.current.every(ref => ref)) {
       const containerWidth = containerRef.current.offsetWidth;
-      const textWidth = textRef.current.offsetWidth;
       
       const sliderPercentage = (value - 0) / (100 - 0);
       
-      const maxTextOffset = textWidth - containerWidth;
-      const textOffset = sliderPercentage * maxTextOffset;
+      const firstWordEl = wordRefs.current[0]!;
+      const lastWordEl = wordRefs.current[words.length - 1]!;
+
+      const scrollStart = firstWordEl.offsetLeft + (firstWordEl.offsetWidth / 2) - (containerWidth / 2);
+      const scrollEnd = lastWordEl.offsetLeft + (lastWordEl.offsetWidth / 2) - (containerWidth / 2);
+      
+      const textOffset = scrollStart + sliderPercentage * (scrollEnd - scrollStart);
 
       textRef.current.style.transform = `translateX(-${textOffset}px)`;
 
@@ -61,7 +65,7 @@ export default function HotColdSlider({ value, onValueChange, disabled }: HotCol
     <div ref={containerRef} className="relative w-full max-w-sm overflow-hidden">
       <div
         ref={textRef}
-        className="flex items-center transition-transform duration-100 ease-linear"
+        className="flex items-center transition-transform duration-100 ease-linear px-40"
         style={{ width: 'max-content' }}
       >
         {words.map((word, index) => (
