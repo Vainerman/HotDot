@@ -5,14 +5,14 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import DrawableCanvas, { DrawableCanvasRef, DrawEvent } from '@/components/drawable-canvas';
 import { Button } from '@/components/ui/button';
-import AnimatedChallengeHeader, { ChallengeHeaderRef } from '@/components/animated-challenge-header';
+import Clock, { ClockRef } from '@/components/clock';
 
 export default function LiveMatchPage() {
   const router = useRouter();
   const { id: matchId } = useParams();
   const searchParams = useSearchParams();
   const role = searchParams.get('role');
-  const headerRef = useRef<ChallengeHeaderRef>(null);
+  const clockRef = useRef<ClockRef>(null);
 
   const canvasRef = useRef<DrawableCanvasRef>(null);
   const [supabase] = useState(() => createClient());
@@ -88,8 +88,8 @@ export default function LiveMatchPage() {
   };
 
   const handleDone = () => {
-    if (headerRef.current) {
-      headerRef.current.stopTimer();
+    if (clockRef.current) {
+      clockRef.current.stopTimer();
     }
     setMatchState('results');
 
@@ -138,9 +138,8 @@ export default function LiveMatchPage() {
   return (
     <div className="flex flex-col h-screen-dynamic">
       <header className="p-4 text-center">
-        <AnimatedChallengeHeader
-          ref={headerRef}
-          onCountdownStart={() => {}}
+        <Clock
+          ref={clockRef}
           onCountdownFinish={handleDone}
         />
         <h1 className="text-xl font-bold">
@@ -165,7 +164,7 @@ export default function LiveMatchPage() {
       <footer className="p-4 flex justify-center">
         {role === 'guesser' && (
           <Button
-            onClick={() => router.push('/')}
+            onClick={handleDone}
             className="bg-[#FF6338] text-[#1A1A1A] hover:bg-[#FF6338]/90 text-[35px] font-bold uppercase rounded-xl h-auto px-8 py-2"
           >
             done
