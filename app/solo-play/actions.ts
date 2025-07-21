@@ -47,3 +47,33 @@ export async function saveDrawing(svgString: string) {
 
   return { success: true, path: filePath };
 }
+
+export async function createChallenge(templateSvg: string, viewBox: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    console.error("Create challenge attempt by an unauthenticated user.");
+    return { success: false, error: "User not authenticated" };
+  }
+
+  const { data, error } = await supabase
+    .from("challenges")
+    .insert({
+      user_id: user.id,
+      template_svg: templateSvg,
+      template_viewbox: viewBox,
+    })
+    .select("id")
+    .single();
+
+  if (error || !data) {
+    console.error("Database error while creating challenge:", error);
+    return { success: false, error: "Failed to create challenge" };
+  }
+
+  return { success: true, id: data.id as string };
+}
