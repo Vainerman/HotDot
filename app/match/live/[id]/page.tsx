@@ -245,12 +245,21 @@ export default function LiveMatchPage() {
                     disabled={role !== 'creator'}
                 />
                 {role === 'guesser' && (
-                    <Button
-                        onClick={handleDone}
-                        className="bg-[#FF6338] text-[#1A1A1A] hover:bg-[#FF6338]/90 text-[35px] font-bold uppercase rounded-xl h-auto px-8 py-2 font-sans"
-                    >
-                        done
-                    </Button>
+                    <div className="flex items-center gap-4">
+                        <Button
+                            variant="outline"
+                            onClick={() => canvasRef.current?.clear()}
+                            className="text-lg"
+                        >
+                            Clear
+                        </Button>
+                        <Button
+                            onClick={handleDone}
+                            className="bg-[#FF6338] text-[#1A1A1A] hover:bg-[#FF6338]/90 text-[35px] font-bold uppercase rounded-xl h-auto px-8 py-2 font-sans"
+                        >
+                            done
+                        </Button>
+                    </div>
                 )}
             </>
         )}
