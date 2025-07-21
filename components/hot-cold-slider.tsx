@@ -21,7 +21,7 @@ export default function HotColdSlider({ value, onValueChange, disabled }: HotCol
       const sliderPercentage = (value - 0) / (100 - 0);
       
       const maxTextOffset = textWidth - containerWidth;
-      const textOffset = (1 - sliderPercentage) * maxTextOffset;
+      const textOffset = sliderPercentage * maxTextOffset;
 
       textRef.current.style.transform = `translateX(-${textOffset}px)`;
     }
