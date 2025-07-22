@@ -27,3 +27,14 @@ This table stores the template used when a challenge is created so that other pl
    - The page UI mirrors `solo-play` with a timer, clear/done controls and the ability to replay the challenge with the same template.
 
 With this flow a player can create a drawing, share a link and allow anyone with the link to attempt the same template.
+
+## Automated Data Cleanup
+
+To prevent indefinite storage of match and challenge data, an automated cleanup process has been implemented.
+
+- **Cleanup Logic**: A SQL function `cleanup_old_matches_and_challenges` is created in the database. This function first marks any active matches older than one hour as `completed`. Then, it deletes records from the `matches` and `challenges` tables based on the following criteria:
+    - Matches with a status of `completed` or `failed`.
+    - Associated challenges are deleted along with the matches to prevent orphaned data.
+    - Challenges older than 24 hours that were never associated with a match are also removed.
+
+- **Scheduling**: The cleanup function is scheduled to run daily using the `pg_cron` extension in Supabase. This ensures that old data is periodically and automatically purged from the database.

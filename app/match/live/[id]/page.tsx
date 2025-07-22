@@ -200,6 +200,13 @@ export default function LiveMatchPage() {
                 payload: { drawing: roundDrawing },
                 });
             }
+            if (matchId) {
+                fetch(`/api/match/${matchId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'completed' }),
+                });
+            }
         }
     }
   };
