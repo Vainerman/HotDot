@@ -8,15 +8,25 @@ import { useState, useEffect } from 'react';
 export default function FullscreenButton() {
   const isMobile = useIsMobile();
   const [isClient, setIsClient] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
   }, []);
 
 
   const handleFullscreen = () => {
-    if (document.documentElement.requestFullscreen) {
+    if (!isFullscreen) {
       document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
     }
   };
 
