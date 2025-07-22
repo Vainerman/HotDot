@@ -1,7 +1,7 @@
 # Progress
 
 ## What Works
-- **User Authentication:** A complete, two-tab magic link authentication flow is implemented using Supabase. It is confirmed to work on all major browsers, including Safari.
+- **User Authentication:** Email-based one-time passcodes are used for sign in through Supabase Auth and work across all major browsers, including Safari.
 - A basic Next.js 15 project is set up, with dependencies installed.
 - The new homepage is implemented at `hotdot-landing.tsx`, matching the Figma design.
 - The `memory-bank` is established, populated, and includes a `designSystem.md` file for project tokens.
