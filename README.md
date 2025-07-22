@@ -1,34 +1,68 @@
-# Recreate Figma UI
+# HotDot - A Social Drawing Game
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+[![Deployed on Vercel](https://vercel.com/button)](https://hotdot.vercel.app/)
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/andyanid-gmailcoms-projects/v0-recreate-figma-ui)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/1DEedN0RkAY)
+HotDot is a creative and social drawing game where users can turn simple templates into unique doodles and challenge friends to do the same. It's a fun, simple, and collaborative platform that encourages artistic expression and lighthearted competition.
 
-## Overview
+## Features
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+- **Creative Drawing Canvas:** Start with a basic shape or "hot dot" and let your imagination run wild.
+- **Solo Play Mode:** Create and save drawings to your personal gallery.
+- **Challenge Friends:** Share your creations and challenge friends to replicate or interpret your doodle.
+- **User Authentication:** Secure sign-in using one-time passcodes sent to your email.
+- **Responsive Design:** A seamless experience on both desktop and mobile devices.
 
-## Deployment
+## Tech Stack
 
-Your project is live at:
+**Frontend:**
+- **Framework:** [Next.js](https://nextjs.org/) 15
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **UI:** [React](https://reactjs.org/) 19 & [Tailwind CSS](https://tailwindcss.com/)
+- **Component Library:** [shadcn/ui](https://ui.shadcn.com/)
+- **State Management:** React Hooks & Context API
+- **Deployment:** [Vercel](https://vercel.com/)
 
-**[https://vercel.com/andyanid-gmailcoms-projects/v0-recreate-figma-ui](https://vercel.com/andyanid-gmailcoms-projects/v0-recreate-figma-ui)**
+**Backend:**
+- **Provider:** [Supabase](https://supabase.io/)
+- **Authentication:** Supabase Auth (OTP Email Login)
+- **Database:** Supabase Postgres
+- **Storage:** Supabase Storage for user drawings
 
-## Build your app
+## Getting Started
 
-Continue building your app on:
+To get a local copy up and running, follow these simple steps.
 
-**[https://v0.dev/chat/projects/1DEedN0RkAY](https://v0.dev/chat/projects/1DEedN0RkAY)**
+### Prerequisites
 
-## How It Works
+- Node.js (v18 or later)
+- pnpm
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+### Installation
 
-## Backend Proxy
+1.  **Clone the repo**
+    ```sh
+    git clone https://github.com/your_username_/HotDot.git
+    ```
+2.  **Install NPM packages**
+    ```sh
+    pnpm install
+    ```
+3.  **Set up environment variables**
 
-A Next.js API route is provided to forward requests to the external Flask service `https://flasker-jc14.onrender.com/process_image`. Use `/api/process-image` from the frontend to avoid CORS errors.
+    Create a `.env.local` file in the root of the project and add your Supabase project URL and anon key.
+
+    ```
+    NEXT_PUBLIC_SUPABASE_URL=YOUR_SUPABASE_URL
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+    ```
+
+4.  **Run the development server**
+    ```sh
+    pnpm dev
+    ```
+
+    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
