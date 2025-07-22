@@ -6,7 +6,7 @@
 **Current Mission (Completed):**
 - **Fix and Redesign Authentication:**
   - Resolved a critical bug preventing users from authenticating on the Safari browser by reconfiguring cookie handling in the Supabase middleware.
-  - Implemented a new two-tab magic link sign-in flow. The user initiates login on one tab, clicks the link in their email which opens a second tab to confirm authentication, and the original tab automatically detects the successful session and redirects.
+  - Implemented a one-time passcode email sign-in flow using Supabase Auth. Users enter the six-digit code sent to their inbox to complete authentication.
 
 **Next Mission:**
 - **Implement Daily Challenges:** Create the new primary game mode, where users can participate in a new drawing challenge each day.
