@@ -29,10 +29,8 @@ export default function GuessMatchPage() {
       }
 
       try {
-        const res = await fetch('/api/match', {
+        const res = await fetch('/api/match/join', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'join' }),
         });
 
         // If we found a match (200 OK)
