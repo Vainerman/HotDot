@@ -80,6 +80,8 @@ export async function createMatchWithChallenge(drawingData: string, templateSvg:
         return { success: false, error: "User not authenticated" };
     }
 
+    const creatorName = user.user_metadata?.display_name ?? user.email;
+
     // 1. Create the challenge first
     const { data: challengeData, error: challengeError } = await supabase
         .from("challenges")
@@ -104,6 +106,7 @@ export async function createMatchWithChallenge(drawingData: string, templateSvg:
         .from('matches')
         .insert({
             creator_id: user.id,
+            creator_name: creatorName,
             challenge_id: challengeId,
             status: 'waiting'
         })

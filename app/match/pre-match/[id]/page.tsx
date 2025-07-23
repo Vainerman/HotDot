@@ -25,7 +25,7 @@ export default function PreMatchPage() {
     const fetchOpponentData = async () => {
       const { data: match, error } = await supabase
         .from('matches')
-        .select('creator_id, guesser_id')
+        .select('creator_id, guesser_id, creator_name, guesser_name')
         .eq('id', matchId)
         .single();
 
@@ -34,20 +34,11 @@ export default function PreMatchPage() {
         return;
       }
       
-      const opponentId = role === 'creator' ? match.guesser_id : match.creator_id;
-
-      if (!opponentId) {
-        // This can happen if the guesser hasn't been set yet, though unlikely on this page.
-        return;
-      }
-      
-      const res = await fetch(`/api/user/${opponentId}`);
-      const userData = await res.json();
-      
-      if (res.ok && userData.displayName) {
-          setOpponentName(userData.displayName);
+      const opponentName = role === 'creator' ? match.guesser_name : match.creator_name;
+      if (opponentName) {
+          setOpponentName(opponentName);
       } else {
-          console.error('Failed to fetch opponent name:', userData.error);
+          console.error('Opponent name not found in match data.');
       }
     };
 
