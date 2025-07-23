@@ -14,6 +14,15 @@ import HotColdSlider from '@/components/hot-cold-slider';
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createChallenge } from '@/app/actions';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface RoundDrawing {
     id: number;
@@ -42,6 +51,7 @@ export default function LiveMatchPage() {
   const [roundDrawings, setRoundDrawings] = useState<RoundDrawing[]>([]);
   const [cards, setCards] = useState<RoundDrawing[]>([]);
   const [isChallengeButtonDisabled, setIsChallengeButtonDisabled] = useState(false);
+  const [opponentLeft, setOpponentLeft] = useState(false);
   const isMobile = useIsMobile();
   const hintInputRef = useRef<HTMLInputElement>(null);
 
@@ -128,14 +138,25 @@ export default function LiveMatchPage() {
             canvasRef.current.clear();
         }
       })
+      .on('broadcast', { event: 'leave' }, () => {
+        if (matchState !== 'results') {
+          setOpponentLeft(true);
+        }
+      })
       .subscribe();
     
     setChannel(newChannel);
 
     return () => {
-      supabase.removeChannel(newChannel);
+      if (newChannel) {
+        newChannel.send({
+          type: 'broadcast',
+          event: 'leave',
+        });
+        supabase.removeChannel(newChannel);
+      }
     };
-  }, [matchId, role, supabase]);
+  }, [matchId, role, supabase, matchState]);
 
   const handleDrawEvent = (event: DrawEvent) => {
     if (role === 'guesser' && channel) {
@@ -533,6 +554,22 @@ export default function LiveMatchPage() {
             </div>
         )}
       </footer>
+
+      <AlertDialog open={opponentLeft}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Opponent Left</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your opponent has left the match. You can return to the homepage.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => router.push('/')}>
+              Go to Homepage
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 } 
