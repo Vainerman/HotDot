@@ -3,38 +3,77 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { motion, Variants } from 'framer-motion';
 
 export default function GuessMatchPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const joinMatch = async () => {
+    const searchStartTime = Date.now();
+    const searchDuration = 10000; // 10 seconds
+    const pollFrequency = 2000; // every 2 seconds
+
+    let pollTimer: NodeJS.Timeout;
+
+    const attemptToJoinMatch = async () => {
+      // If time is up, stop polling and show message
+      if (Date.now() - searchStartTime > searchDuration) {
+        clearInterval(pollTimer);
+        alert('No available matches. Please try again later.');
+        router.push('/');
+        return;
+      }
+
       try {
         const res = await fetch('/api/match', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'join' }),
         });
-        const data = await res.json();
-        if (res.ok && data.matchId) {
-          router.push(`/match/pre-match/${data.matchId}?role=guesser`);
-        } else {
-          // Handle no available matches, maybe redirect to a different page or show a message
-          alert(data.error || 'No available matches. Please try again later.');
-          router.push('/');
+
+        // If we found a match (200 OK)
+        if (res.ok) {
+          const data = await res.json();
+          if (data.matchId) {
+            clearInterval(pollTimer);
+            router.push(`/match/pre-match/${data.matchId}?role=guesser`);
+          }
         }
+        // If res is not ok (e.g., 404), the catch block won't run, and we'll just try again on the next interval.
       } catch (error) {
-        console.error('Failed to join a match:', error);
-        alert('An error occurred while trying to find a match.');
-        router.push('/');
+        console.error('Failed to join a match on this attempt:', error);
+        // We'll just keep polling on error
       }
     };
 
-    // Add a small delay to allow the waiting page to render before starting the match search
-    const timer = setTimeout(joinMatch, 1000);
-    return () => clearTimeout(timer);
+    // Poll immediately and then on an interval.
+    attemptToJoinMatch();
+    pollTimer = setInterval(attemptToJoinMatch, pollFrequency);
 
+    // Cleanup interval on component unmount.
+    return () => clearInterval(pollTimer);
   }, [router]);
+
+  const dotsContainer: Variants = {
+    animate: {
+      transition: {
+        staggerChildren: 0.15,
+      },
+    },
+  };
+
+  const dot: Variants = {
+    initial: { y: '0%' },
+    animate: {
+      y: '-80%',
+      transition: {
+        duration: 0.5,
+        repeat: Infinity,
+        repeatType: 'reverse',
+        ease: 'easeInOut',
+      },
+    },
+  };
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-[#1A1A1A] text-white">
@@ -42,7 +81,20 @@ export default function GuessMatchPage() {
           <Image src="/assets/waiting-page-icons/search-icon.svg" alt="Search Icon" width={41} height={41} />
       </div>
       <div className="text-center">
-        <h1 className="text-4xl font-bold uppercase" style={{ fontFamily: 'Space Grotesk' }}>searching...</h1>
+        <h1 className="text-4xl font-bold uppercase flex items-end" style={{ fontFamily: 'Space Grotesk' }}>
+          <span>searching</span>
+          <motion.div
+            variants={dotsContainer}
+            initial="initial"
+            animate="animate"
+            className="flex"
+            style={{ lineHeight: '0.5' }}
+          >
+            <motion.span variants={dot}>.</motion.span>
+            <motion.span variants={dot}>.</motion.span>
+            <motion.span variants={dot}>.</motion.span>
+          </motion.div>
+        </h1>
         <p className="text-lg" style={{ fontFamily: 'Space Grotesk' }}>Looking for another player</p>
       </div>
       <div className="absolute bottom-8">
