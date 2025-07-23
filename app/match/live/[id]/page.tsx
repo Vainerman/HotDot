@@ -269,7 +269,15 @@ export default function LiveMatchPage() {
 
   const handleShare = () => {
     if (!cards.length) return;
-    const svgString = cards[0].drawing;
+    let svgString = cards[0].drawing;
+
+    // Inject a style to prevent unwanted fills
+    if (svgString && svgString.includes('<svg')) {
+      svgString = svgString.replace(
+        /(<svg[^>]*>)/,
+        `$1<style>path { fill: none; }</style>`
+      );
+    }
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -282,7 +290,11 @@ export default function LiveMatchPage() {
     img.onload = () => {
       canvas.width = img.width || 500;
       canvas.height = img.height || 500;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Set a white background for the exported image
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
       ctx.drawImage(img, 0, 0);
       URL.revokeObjectURL(url);
 
