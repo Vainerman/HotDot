@@ -7,6 +7,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from '@/components/ui/input-otp'
+import { Button } from '@/components/ui/button'
 
 export default function SignInPage() {
   const [email, setEmail] = useState('')
@@ -85,13 +86,14 @@ export default function SignInPage() {
           {error && (
             <p className="text-red-500 text-sm">{error}</p>
           )}
-          <button
+          <Button
             type="submit"
             disabled={verifying}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#FF6338] hover:bg-[#C9330A] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            variant="primaryCta"
+            className="w-full"
           >
             {verifying ? 'VERIFYING...' : 'VERIFY'}
-          </button>
+          </Button>
         </form>
         <button
           onClick={resendCode}
@@ -130,12 +132,13 @@ export default function SignInPage() {
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
           <div>
-            <button
+            <Button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#FF6338] hover:bg-[#C9330A] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              variant="primaryCta"
+              className="w-full"
             >
               ENTER
-            </button>
+            </Button>
           </div>
         </form>
         <p className="text-center text-xs text-gray-500">
