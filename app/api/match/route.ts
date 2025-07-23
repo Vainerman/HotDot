@@ -65,13 +65,13 @@ export async function POST(request: NextRequest) {
       }
       
       // Notify creator that a guesser has joined
-      await supabase.channel(`match-${updatedMatch.id}`).send({
+      await supabase.channel(`match-${availableMatch.id}`).send({
         type: 'broadcast',
         event: 'guesser-joined',
-        payload: { matchId: updatedMatch.id },
+        payload: { matchId: availableMatch.id },
       });
 
-      return NextResponse.json({ matchId: updatedMatch.id });
+      return NextResponse.json({ matchId: availableMatch.id });
 
     default:
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
