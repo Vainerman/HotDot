@@ -83,7 +83,7 @@ export default function PreMatchPage() {
         </div>
         <h1 className="text-3xl font-bold uppercase" style={{ fontFamily: 'Space Grotesk' }}>it’s a match</h1>
         <p className="text-md" style={{ fontFamily: 'Space Grotesk' }}>
-          {role === 'creator' ? `It’s a match, ${opponentName} will guess` : `It's a match, you will guess`}
+          {role === 'creator' ? `It’s a match, ${opponentName} will guess` : `Try to guess what ${opponentName} drew`}
         </p>
       </div>
       <div className="absolute bottom-8 z-10">
