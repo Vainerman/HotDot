@@ -11,19 +11,19 @@ export default function GuessMatchPage() {
   const [statusMessage, setStatusMessage] = useState('');
 
   useEffect(() => {
+    let isMounted = true;
     const searchStartTime = Date.now();
     const searchDuration = 10000; // 10 seconds
     const pollFrequency = 2000; // every 2 seconds
 
-    let pollTimer: NodeJS.Timeout;
-
     const attemptToJoinMatch = async () => {
+      if (!isMounted) return;
+
       // If time is up, stop polling and show message
       if (Date.now() - searchStartTime > searchDuration) {
-        clearInterval(pollTimer);
         setStatusMessage('No available matches found. Redirecting...');
         setTimeout(() => {
-          router.push('/');
+          if (isMounted) router.push('/');
         }, 3000);
         return;
       }
@@ -33,27 +33,30 @@ export default function GuessMatchPage() {
           method: 'POST',
         });
 
-        // If we found a match (200 OK)
         if (res.ok) {
           const data = await res.json();
-          if (data.matchId) {
-            clearInterval(pollTimer);
-            router.push(`/match/pre-match/${data.matchId}?role=guesser`);
+          if (data.id && isMounted) {
+            router.push(`/match/pre-match/${data.id}?role=guesser`);
+            return; // Stop polling on success
           }
         }
-        // If res is not ok (e.g., 404), the catch block won't run, and we'll just try again on the next interval.
       } catch (error) {
         console.error('Failed to join a match on this attempt:', error);
-        // We'll just keep polling on error
+      }
+
+      // If still mounted and no success, poll again
+      if (isMounted) {
+        setTimeout(attemptToJoinMatch, pollFrequency);
       }
     };
 
-    // Poll immediately and then on an interval.
+    // Start the polling
     attemptToJoinMatch();
-    pollTimer = setInterval(attemptToJoinMatch, pollFrequency);
 
-    // Cleanup interval on component unmount.
-    return () => clearInterval(pollTimer);
+    // Cleanup on component unmount
+    return () => {
+      isMounted = false;
+    };
   }, [router]);
 
   const dotsContainer: Variants = {
