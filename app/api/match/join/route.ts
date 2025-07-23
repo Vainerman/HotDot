@@ -8,17 +8,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
   }
 
-  const { data: matchData, error } = await supabase
+  const { data: matches, error } = await supabase
     .from('matches')
     .select('id, challenge_id')
     .eq('status', 'waiting')
     .order('created_at', { ascending: true })
-    .limit(1)
-    .single();
+    .limit(1);
 
-  if (error || !matchData) {
+  if (error) {
+    console.error("Error fetching matches:", error);
+    return NextResponse.json({ error: 'failed to query matches' }, { status: 500 });
+  }
+
+  if (!matches || matches.length === 0) {
     return NextResponse.json({ error: 'no match available' }, { status: 404 });
   }
+
+  const matchData = matches[0];
 
   const { error: updateError } = await supabase
     .from('matches')
