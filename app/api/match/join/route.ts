@@ -8,32 +8,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
   }
 
-  const { data: matches, error } = await supabase
+  // 1. Find an available match.
+  const { data: availableMatches, error: findError } = await supabase
     .from('matches')
-    .select('id, challenge_id')
+    .select('id')
     .eq('status', 'waiting')
+    .is('guesser_id', null)
     .order('created_at', { ascending: true })
     .limit(1);
 
-  if (error) {
-    console.error("Error fetching matches:", error);
+  if (findError) {
+    console.error("Error finding matches:", findError);
     return NextResponse.json({ error: 'failed to query matches' }, { status: 500 });
   }
 
-  if (!matches || matches.length === 0) {
+  if (!availableMatches || availableMatches.length === 0) {
     return NextResponse.json({ error: 'no match available' }, { status: 404 });
   }
 
-  const matchData = matches[0];
+  const matchToJoin = availableMatches[0];
 
-  const { error: updateError } = await supabase
-    .from('matches')
-    .update({ guesser_id: user.id, status: 'active' })
-    .eq('id', matchData.id);
+  // 2. Attempt to join the match using the RPC.
+  const { data: joinedMatch, error: joinError } = await supabase.rpc('join_match', {
+    match_id_to_join: matchToJoin.id
+  });
 
-  if (updateError) {
-    return NextResponse.json({ error: 'failed to join match' }, { status: 500 });
+  if (joinError) {
+    console.error('Error joining match:', joinError.message);
+    // This could happen if another user joined the match in the time it took to call the RPC.
+    // The client will poll again, so we can return a 404.
+    return NextResponse.json({ error: 'failed to join match, maybe it was taken' }, { status: 404 });
   }
 
-  return NextResponse.json({ id: matchData.id, challengeId: matchData.challenge_id });
+  return NextResponse.json(joinedMatch[0]);
 }
