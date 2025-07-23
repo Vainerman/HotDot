@@ -7,7 +7,7 @@ import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { saveDrawing, createChallenge, getTodaysDrawingsCount } from "@/app/actions";
+import { saveDrawing, createMatchWithChallenge, getTodaysDrawingsCount } from "@/app/actions";
 
 export default function SoloPlayPage() {
   const canvasRef = useRef<DrawableCanvasRef>(null);
@@ -94,44 +94,15 @@ export default function SoloPlayPage() {
     if (!drawingData || !template) return;
     setIsChallengeButtonDisabled(true);
 
-    // 1. Create a match to get an ID
-    const matchResponse = await fetch('/api/match/create', { method: 'POST' });
-    const { id: matchId, error: matchError } = await matchResponse.json();
+    const result = await createMatchWithChallenge(drawingData, template.svgContent, template.viewBox);
 
-    if (matchError) {
-      console.error('Failed to create match:', matchError);
-      // Handle error appropriately, maybe show a toast notification
-      return;
+    if (result.success && result.matchId) {
+      router.push(`/match/waiting/${result.matchId}`);
+    } else {
+      console.error(result.error || "Failed to create match and challenge");
+      // Optionally, show an error to the user
+      setIsChallengeButtonDisabled(false);
     }
-
-    // 2. Navigate immediately
-    router.push(`/match/waiting/${matchId}`);
-
-    // 3. Create challenge and update match in the background
-    (async () => {
-      const challengeRes = await createChallenge(drawingData, template.svgContent, template.viewBox);
-      
-      if (challengeRes?.success && challengeRes.id) {
-        const updateResponse = await fetch(`/api/match/${matchId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ challenge_id: challengeRes.id, status: 'waiting' }),
-        });
-
-        if (!updateResponse.ok) {
-          const { error } = await updateResponse.json();
-          console.error('Failed to update match:', error);
-        }
-      } else {
-        console.error(challengeRes?.error || "Failed to create challenge");
-        // If challenge creation fails, we should probably update the match status to 'failed'
-        await fetch(`/api/match/${matchId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'failed' }),
-        });
-      }
-    })();
   };
 
   const renderFooterButtons = () => {

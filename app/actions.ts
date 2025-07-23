@@ -72,6 +72,52 @@ export async function updateDisplayName(displayName: string) {
   return { success: true, user: data.user };
 }
 
+export async function createMatchWithChallenge(drawingData: string, templateSvg: string, viewBox: string) {
+    const supabase = await createServerClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return { success: false, error: "User not authenticated" };
+    }
+
+    // 1. Create the challenge first
+    const { data: challengeData, error: challengeError } = await supabase
+        .from("challenges")
+        .insert({
+            user_id: user.id,
+            creator_drawing_svg: drawingData,
+            template_svg: templateSvg,
+            template_viewbox: viewBox,
+        })
+        .select("id")
+        .single();
+
+    if (challengeError) {
+        console.error("Error creating challenge:", challengeError);
+        return { success: false, error: "Failed to create challenge." };
+    }
+
+    const challengeId = challengeData.id;
+
+    // 2. Create the match with the new challenge_id and status 'waiting'
+    const { data: matchData, error: matchError } = await supabase
+        .from('matches')
+        .insert({
+            creator_id: user.id,
+            challenge_id: challengeId,
+            status: 'waiting'
+        })
+        .select('id')
+        .single();
+
+    if (matchError) {
+        console.error("Error creating match:", matchError);
+        return { success: false, error: 'failed to create match' };
+    }
+
+    return { success: true, matchId: matchData.id };
+}
+
 export async function createChallenge(creatorDrawingSvg: string, templateSvg: string, viewBox: string) {
   const supabase = await createServerClient();
 
