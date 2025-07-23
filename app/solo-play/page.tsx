@@ -149,7 +149,7 @@ export default function SoloPlayPage() {
             >
               CHALLENGE IT
             </Button>
-            <Button variant="secondary" onClick={handlePlayAgain} className="font-sans">
+            <Button variant="secondaryCta" onClick={handlePlayAgain} className="font-sans">
               PLAY AGAIN
             </Button>
           </div>
