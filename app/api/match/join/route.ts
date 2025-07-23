@@ -44,12 +44,25 @@ export async function POST(req: NextRequest) {
 
   // 3. Notify the creator that a guesser has joined.
   const channel = supabase.channel(`match-${matchToJoin.id}`);
+  
+  // Subscribe to the channel before sending to ensure reliable delivery
+  await new Promise<void>((resolve) => {
+    channel.subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        resolve();
+      }
+    });
+  });
+
+  // Send the broadcast notification
   await channel.send({
     type: 'broadcast',
     event: 'guesser-joined',
     payload: { guesserId: user.id },
   });
 
+  // Clean up the channel
+  supabase.removeChannel(channel);
 
   return NextResponse.json(joinedMatch[0]);
 }
