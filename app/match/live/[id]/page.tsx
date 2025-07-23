@@ -282,6 +282,7 @@ export default function LiveMatchPage() {
     img.onload = () => {
       canvas.width = img.width || 500;
       canvas.height = img.height || 500;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0);
       URL.revokeObjectURL(url);
 
