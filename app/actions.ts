@@ -1,52 +1,58 @@
 "use server";
 
 import { createClient as createServerClient } from "@/utils/supabase/server";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/client";
 import { v4 as uuidv4 } from 'uuid';
 
-export async function saveDrawing(svgString: string) {
-  const supabase = await createServerClient();
+export async function saveDrawing(svgContent: string, title?: string) {
+    const supabase = await createServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    if (!user) {
+        return { success: false, error: 'User not authenticated' };
+    }
 
-  if (!user) {
-    console.error("Save drawing attempt by an unauthenticated user.");
-    return { success: false, error: "User not authenticated" };
-  }
+    const drawingId = uuidv4();
+    const filePath = `${user.id}/${drawingId}.svg`;
 
-  // The input is a raw SVG string, so we can convert it directly to a buffer.
-  const imageBuffer = Buffer.from(svgString, 'utf8');
-  const filePath = `${user.id}/${uuidv4()}.svg`;
+    const { error: uploadError } = await supabase.storage
+        .from('drawings')
+        .upload(filePath, svgContent, {
+            contentType: 'image/svg+xml',
+        });
 
-  // Upload to storage
-  const { error: storageError } = await supabase.storage
-    .from("drawings")
-    .upload(filePath, imageBuffer, {
-      contentType: 'image/svg+xml',
-    });
+    if (uploadError) {
+        console.error('Error uploading drawing:', uploadError);
+        return { success: false, error: uploadError.message };
+    }
+    
+    let width = null;
+    let height = null;
+    const viewBoxMatch = svgContent.match(/viewBox="([^"]*)"/);
+    if (viewBoxMatch) {
+        const parts = viewBoxMatch[1].split(' ');
+        if (parts.length === 4) {
+            width = parseFloat(parts[2]);
+            height = parseFloat(parts[3]);
+        }
+    }
 
-  if (storageError) {
-    console.error("Storage error:", storageError);
-    return { error: "Failed to save drawing to storage." };
-  }
+    const { data: insertData, error: dbError } = await supabase.from('drawings').insert({
+        user_id: user.id,
+        image_path: filePath,
+        title: title || 'Untitled Drawing',
+        width,
+        height,
+    }).select('id').single();
 
-  // Save metadata to database
-  const { error: dbError } = await supabase.from("drawings").insert({
-    user_id: user.id,
-    image_path: filePath,
-    // Add other fields as necessary, e.g., title, width, height
-  });
+    if (dbError) {
+        console.error('Error saving drawing to db:', dbError);
+        // Rollback storage upload if db insert fails
+        await supabase.storage.from('drawings').remove([filePath]);
+        return { success: false, error: dbError.message };
+    }
 
-  if (dbError) {
-    console.error("Database error:", dbError);
-    // Optionally, delete the uploaded file if the db insert fails
-    await supabase.storage.from("drawings").remove([filePath]);
-    return { error: "Failed to save drawing metadata." };
-  }
-
-  return { success: true, path: filePath };
+    return { success: true, drawingId: insertData.id };
 }
 
 export async function updateDisplayName(displayName: string) {

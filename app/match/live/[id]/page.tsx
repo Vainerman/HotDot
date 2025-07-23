@@ -13,7 +13,7 @@ import AnimatedSvg from '@/components/animated-svg';
 import HotColdSlider from '@/components/hot-cold-slider';
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createMatchWithChallenge } from '@/app/actions';
+import { createMatchWithChallenge, saveDrawing } from '@/app/actions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,6 +54,7 @@ export default function LiveMatchPage() {
   const [roundDrawings, setRoundDrawings] = useState<RoundDrawing[]>([]);
   const [cards, setCards] = useState<RoundDrawing[]>([]);
   const [isChallengeButtonDisabled, setIsChallengeButtonDisabled] = useState(false);
+  const [savedDrawings, setSavedDrawings] = useState<Set<number>>(new Set());
   const [opponentLeft, setOpponentLeft] = useState(false);
   const isMobile = useIsMobile();
   const hintInputRef = useRef<HTMLInputElement>(null);
@@ -257,6 +258,22 @@ export default function LiveMatchPage() {
     }
   };
 
+  const handleKeep = async () => {
+    if (!cards.length) return;
+
+    const topCard = cards[0];
+    if (savedDrawings.has(topCard.id)) return;
+
+    const { success } = await saveDrawing(topCard.drawing, `Match Drawing - Round ${topCard.round}`);
+
+    if (success) {
+        setSavedDrawings(prev => new Set(prev).add(topCard.id));
+    } else {
+        console.error("Failed to save drawing");
+        // Optionally show a toast or message to the user
+    }
+  };
+
   const downloadPngFromCanvas = (canvas: HTMLCanvasElement) => {
     const pngUrl = canvas.toDataURL('image/png');
     const a = document.createElement('a');
@@ -406,12 +423,12 @@ export default function LiveMatchPage() {
         </div>
         <div className="mt-8 flex flex-col gap-4 items-center">
             <Button 
-                onClick={handleChallengeIt}
+                onClick={handleKeep}
                 variant="primaryCta"
                 className="w-[326px]"
-                disabled={isChallengeButtonDisabled}
+                disabled={cards.length > 0 && savedDrawings.has(cards[0].id)}
             >
-                CHALLENGE IT
+                {cards.length > 0 && savedDrawings.has(cards[0].id) ? 'SAVED' : 'KEEP'}
             </Button>
             <Button
                 onClick={handleShare}
