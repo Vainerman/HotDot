@@ -13,7 +13,7 @@ import AnimatedSvg from '@/components/animated-svg';
 import HotColdSlider from '@/components/hot-cold-slider';
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createChallenge } from '@/app/actions';
+import { createMatchWithChallenge } from '@/app/actions';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -67,33 +67,22 @@ export default function LiveMatchPage() {
     const fetchChallengeData = async () => {
         const { data: matchData, error: matchError } = await supabase
         .from('matches')
-        .select('challenge_id')
+        .select('template_svg, template_viewbox, creator_drawing_svg')
         .eq('id', matchId)
         .single();
     
-      if (matchError || !matchData || !matchData.challenge_id) {
-        console.error('Error fetching match data or challenge not ready:', matchError);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('challenges')
-        .select('template_svg, template_viewbox, creator_drawing_svg')
-        .eq('id', matchData.challenge_id)
-        .single();
-
-      if (error || !data) {
-        console.error('Failed to fetch challenge data:', error);
+      if (matchError || !matchData) {
+        console.error('Error fetching match data:', matchError);
         return;
       }
       
       if (canvasRef.current) {
-        canvasRef.current.animateSvg(data.template_svg, data.template_viewbox);
+        canvasRef.current.animateSvg(matchData.template_svg, matchData.template_viewbox);
       }
 
       setCreatorDrawing({ 
-        svg: data.creator_drawing_svg || data.template_svg, 
-        viewBox: data.template_viewbox 
+        svg: matchData.creator_drawing_svg || matchData.template_svg, 
+        viewBox: matchData.template_viewbox 
       });
     };
 
@@ -252,42 +241,14 @@ export default function LiveMatchPage() {
 
     const topCard = cards[0];
 
-    // 1. Create a match to get an ID
-    const matchResponse = await fetch('/api/match/create', { method: 'POST' });
-    const { id: matchId, error: matchError } = await matchResponse.json();
-
-    if (matchError) {
-      console.error('Failed to create match:', matchError);
-      return;
-    }
-
-    // 2. Navigate immediately
-    router.push(`/match/waiting/${matchId}`);
-
-    // 3. Create challenge and update match in the background
-    (async () => {
-      const challengeRes = await createChallenge(topCard.drawing, creatorDrawing.svg, creatorDrawing.viewBox);
+    const { success, matchId: newMatchId } = await createMatchWithChallenge(topCard.drawing, creatorDrawing.svg, creatorDrawing.viewBox);
       
-      if (challengeRes?.success && challengeRes.id) {
-        const updateResponse = await fetch(`/api/match/${matchId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ challenge_id: challengeRes.id, status: 'waiting' }),
-        });
-
-        if (!updateResponse.ok) {
-          const { error } = await updateResponse.json();
-          console.error('Failed to update match:', error);
-        }
-      } else {
-        console.error(challengeRes?.error || "Failed to create challenge");
-        await fetch(`/api/match/${matchId}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'failed' }),
-        });
-      }
-    })();
+    if (success && newMatchId) {
+        router.push(`/match/waiting/${newMatchId}`);
+    } else {
+        console.error("Failed to create new match");
+        setIsChallengeButtonDisabled(false);
+    }
   };
 
   const downloadPngFromCanvas = (canvas: HTMLCanvasElement) => {

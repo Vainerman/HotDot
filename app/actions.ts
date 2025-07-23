@@ -82,33 +82,16 @@ export async function createMatchWithChallenge(drawingData: string, templateSvg:
 
     const creatorName = user.user_metadata?.display_name ?? user.email;
 
-    // 1. Create the challenge first
-    const { data: challengeData, error: challengeError } = await supabase
-        .from("challenges")
-        .insert({
-            user_id: user.id,
-            creator_drawing_svg: drawingData,
-            template_svg: templateSvg,
-            template_viewbox: viewBox,
-        })
-        .select("id")
-        .single();
-
-    if (challengeError) {
-        console.error("Error creating challenge:", challengeError);
-        return { success: false, error: "Failed to create challenge." };
-    }
-
-    const challengeId = challengeData.id;
-
-    // 2. Create the match with the new challenge_id and status 'waiting'
+    // Create the match with the challenge data directly
     const { data: matchData, error: matchError } = await supabase
         .from('matches')
         .insert({
             creator_id: user.id,
             creator_name: creatorName,
-            challenge_id: challengeId,
-            status: 'waiting'
+            status: 'waiting',
+            template_svg: templateSvg,
+            template_viewbox: viewBox,
+            creator_drawing_svg: drawingData,
         })
         .select('id')
         .single();
@@ -121,42 +104,8 @@ export async function createMatchWithChallenge(drawingData: string, templateSvg:
     return { success: true, matchId: matchData.id };
 }
 
-export async function createChallenge(creatorDrawingSvg: string, templateSvg: string, viewBox: string) {
-  const supabase = await createServerClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    console.error("Create challenge attempt by an unauthenticated user.");
-    return { success: false, error: "User not authenticated" };
-  }
-
-  const { data, error } = await supabase
-    .from("challenges")
-    .insert({
-      user_id: user.id,
-      creator_drawing_svg: creatorDrawingSvg,
-      template_svg: templateSvg,
-      template_viewbox: viewBox,
-    })
-    .select("id")
-    .single();
-
-  if (error || !data) {
-    console.error("Database error while creating challenge:", error);
-    return { success: false, error: "Failed to create challenge" };
-  }
-
-  return { success: true, id: data.id as string };
-} 
-
 export async function getTodaysDrawingsCount() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const supabase = await createServerClient();
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
