@@ -124,7 +124,7 @@ export default function ChallengePage() {
       case "saved":
         return (
           <div className="flex w-full justify-around">
-            <Button asChild className="bg-[#FF6338] text-black hover:bg-[#FF5C38] font-sans">
+            <Button asChild variant="primaryCta" className="font-sans">
               <Link href="/solo-play">PLAY A NEW GAME</Link>
             </Button>
             <Button variant="secondary" onClick={handlePlayAgain} className="font-sans">
@@ -141,7 +141,7 @@ export default function ChallengePage() {
                 Clear
               </Button>
             </div>
-            <Button onClick={handleDone} className="font-sans">Done</Button>
+            <Button onClick={handleDone} variant="primaryCta" className="font-sans">Done</Button>
           </>
         );
     }
@@ -156,6 +156,7 @@ export default function ChallengePage() {
         <AnimatedChallengeHeader
           ref={headerRef}
           key={headerKey}
+          todaysDrawings={0}
           onCountdownStart={() => {}}
           onCountdownFinish={handleDone}
         />

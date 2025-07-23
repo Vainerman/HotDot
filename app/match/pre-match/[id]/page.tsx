@@ -87,9 +87,17 @@ export default function PreMatchPage() {
         </p>
       </div>
       <div className="absolute bottom-8 z-10">
-        <Button onClick={handleStart} disabled={userReady} className="w-80 h-14 bg-[#FF6338] hover:bg-[#C9330A] text-black text-3xl font-bold uppercase rounded-[11.55px]" style={{ fontFamily: 'Space Grotesk' }}>
-          {userReady ? "Waiting..." : "Start now"}
-        </Button>
+        <div className="flex flex-col items-center space-y-4">
+          <p className="text-xl font-bold" style={{ fontFamily: 'Space Grotesk' }}>Ready to start?</p>
+          <Button 
+            onClick={handleStart} 
+            disabled={userReady} 
+            variant="primaryCta" 
+            className="w-80 h-14 text-3xl"
+          >
+            {userReady ? "Waiting..." : "I'm Ready"}
+          </Button>
+        </div>
       </div>
     </div>
   );

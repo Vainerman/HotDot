@@ -6,6 +6,7 @@ import type { User } from '@supabase/supabase-js';
 import Link from 'next/link';
 import { updateDisplayName } from '@/app/actions';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 export default function HeaderAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -69,14 +70,14 @@ export default function HeaderAuth() {
         <div className="flex items-center space-x-4">
           {isEditing ? (
             <div className="flex items-center gap-2">
-              <input
+              <Input
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 className="text-sm bg-transparent border-b border-gray-500 focus:outline-none"
                 autoFocus
               />
-              <Button onClick={handleSave} size="sm">Save</Button>
+              <Button onClick={handleSave} size="sm" variant="primaryCta">Save</Button>
             </div>
           ) : (
             <span className="text-sm cursor-pointer" onClick={() => setIsEditing(true)}>

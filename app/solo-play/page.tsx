@@ -141,7 +141,8 @@ export default function SoloPlayPage() {
           <div className="flex w-full justify-around">
             <Button
               onClick={handleChallengeIt}
-              className="bg-[#FF6338] text-black hover:bg-[#FF5C38] font-sans"
+              variant="primaryCta"
+              className="font-sans"
               disabled={isChallengeButtonDisabled}
             >
               CHALLENGE IT
@@ -160,7 +161,7 @@ export default function SoloPlayPage() {
                 Clear
               </Button>
             </div>
-            <Button onClick={handleDone} className="font-sans">Done</Button>
+            <Button onClick={handleDone} variant="primaryCta" className="font-sans">Done</Button>
           </>
         );
     }

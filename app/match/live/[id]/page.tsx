@@ -526,7 +526,7 @@ export default function LiveMatchPage() {
                                 placeholder="Type your hint here"
                                 className="border rounded px-2 py-1 flex-grow font-sans"
                             />
-                            <Button onClick={handleSendHint} className="font-sans">Send</Button>
+                            <Button onClick={handleSendHint} variant="primaryCta" className="font-sans">Send</Button>
                         </div>
                     )}
                     </>
