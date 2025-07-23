@@ -114,7 +114,7 @@ export default function GuessMatchPage() {
         )}
       </div>
       <div className="absolute bottom-8">
-        <Button variant="primaryCta" className="w-80 h-14 text-4xl" disabled>
+        <Button variant="disabledCta" className="w-80 h-14 text-4xl" disabled>
           Start now
         </Button>
       </div>

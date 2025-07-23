@@ -12,6 +12,8 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         primaryCta:
           "bg-[#FF6338] text-black hover:bg-[#FF6338]/90 border-b-4 border-[#C9330A] active:border-b-0 uppercase font-bold tracking-wider rounded-[12px]",
+        disabledCta:
+          "bg-[#FF6338] text-black border-b-4 border-[#C9330A] uppercase font-bold tracking-wider rounded-[12px] opacity-30",
         secondaryCta:
           "bg-black text-white hover:bg-black/90 border-b-4 border-[#737373] active:border-b-0 uppercase font-bold tracking-wider rounded-[12px]",
         destructive:
