@@ -407,7 +407,8 @@ export default function LiveMatchPage() {
         <div className="mt-8 flex flex-col gap-4 items-center">
             <Button 
                 onClick={handleChallengeIt}
-                className="bg-[#FF6338] text-[#1A1A1A] hover:bg-[#FF6338]/90 text-[35px] font-bold uppercase rounded-xl h-auto px-8 py-2 font-sans w-[326px]"
+                variant="primaryCta"
+                className="w-[326px]"
                 disabled={isChallengeButtonDisabled}
             >
                 CHALLENGE IT
@@ -497,7 +498,8 @@ export default function LiveMatchPage() {
                         </Button>
                         <Button
                             onClick={handleDone}
-                            className="bg-[#FF6338] text-[#1A1A1A] hover:bg-[#FF6338]/90 text-[35px] font-bold uppercase rounded-xl h-auto px-8 py-2 font-sans"
+                            variant="primaryCta"
+                            className="text-lg font-sans"
                         >
                             done
                         </Button>

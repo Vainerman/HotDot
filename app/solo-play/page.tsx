@@ -125,7 +125,8 @@ export default function SoloPlayPage() {
             </Button>
             <Button
               onClick={handleKeep}
-              className="px-8 py-4 text-lg font-sans bg-[#FF6338] text-black hover:bg-[#C9330A] flex items-center gap-2"
+              variant="primaryCta"
+              className="px-8 py-4 text-lg font-sans flex items-center gap-2"
             >
               <Image
                 src="/assets/keepV.svg"
