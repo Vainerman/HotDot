@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion, Variants } from 'framer-motion';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function GuessMatchPage() {
   const router = useRouter();
@@ -113,12 +114,9 @@ export default function GuessMatchPage() {
         )}
       </div>
       <div className="absolute bottom-8">
-        <div className="relative w-80 h-14 opacity-30">
-            <div className="absolute inset-x-0 bottom-0 h-full bg-[#C9330A] rounded-[13px]"></div>
-            <div className="absolute inset-0 bg-[#FF6338] rounded-[11.55px] flex items-center justify-center">
-                <span className="text-4xl font-bold uppercase" style={{ fontFamily: 'Space Grotesk' }}>Start now</span>
-            </div>
-        </div>
+        <Button variant="primaryCta" className="w-80 h-14 text-4xl" disabled>
+          Start now
+        </Button>
       </div>
     </div>
   );

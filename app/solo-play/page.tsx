@@ -112,7 +112,8 @@ export default function SoloPlayPage() {
           <div className="flex w-full justify-around">
             <Button
               onClick={handleNope}
-              className="px-8 py-4 text-lg font-sans bg-black text-white hover:bg-gray-800 flex items-center gap-2"
+              variant="secondaryCta"
+              className="px-8 py-4 text-lg font-sans flex items-center gap-2"
             >
               <Image
                 src="/assets/NopeX.svg"

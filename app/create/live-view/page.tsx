@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { X, Eye } from "lucide-react"
 import HotColdSlider from "../../../components/hot-cold-slider"
+import { Button } from "../../../components/ui/button"
 
 export default function LiveViewPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -365,13 +366,13 @@ export default function LiveViewPage() {
 
           {/* Action Buttons */}
           <div className="flex gap-4">
-            <button className="flex-1 bg-[#ff5c38] text-white py-3 px-6 rounded-lg text-lg font-semibold hover:bg-[#e54d2e] transition-colors">
+            <Button variant="primaryCta" className="flex-1">
               Next Round
-            </button>
+            </Button>
             <Link href="/" className="flex-1">
-              <button className="w-full bg-gray-200 text-black py-3 px-6 rounded-lg text-lg font-semibold hover:bg-gray-300 transition-colors">
+              <Button variant="secondary" className="w-full">
                 Home
-              </button>
+              </Button>
             </Link>
           </div>
         </div>
@@ -439,7 +440,7 @@ export default function LiveViewPage() {
           </h2>
           <p className="text-gray-600">Give {guesserName} a hint</p>
         </div>
-        <HotColdSlider value={hotColdValue} onChange={setHotColdValue} />
+        <HotColdSlider value={hotColdValue} onValueChange={setHotColdValue} />
       </div>
     </div>
   )
