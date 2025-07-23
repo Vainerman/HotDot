@@ -21,11 +21,19 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const supabase = await createClient();
   const { id } = params;
-  const { challenge_id, status } = await request.json();
+  const body = await request.json();
+
+  const updateData: { challenge_id?: string; status?: string } = {};
+  if (body.challenge_id) {
+    updateData.challenge_id = body.challenge_id;
+  }
+  if (body.status) {
+    updateData.status = body.status;
+  }
 
   const { data, error } = await supabase
     .from('matches')
-    .update({ challenge_id, status })
+    .update(updateData)
     .eq('id', id)
     .select('id')
     .single();

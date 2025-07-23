@@ -17,5 +17,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  return NextResponse.json({ email: user.email });
+  const displayName = user.user_metadata?.display_name ?? user.email;
+
+  return NextResponse.json({ displayName });
 } 

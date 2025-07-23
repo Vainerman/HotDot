@@ -13,7 +13,7 @@ export default function PreMatchPage() {
   const searchParams = useSearchParams();
   const role = searchParams.get('role');
 
-  const [opponentEmail, setOpponentEmail] = useState('');
+  const [opponentName, setOpponentName] = useState('');
   const [userReady, setUserReady] = useState(false);
   const [opponentReady, setOpponentReady] = useState(false);
   
@@ -44,10 +44,10 @@ export default function PreMatchPage() {
       const res = await fetch(`/api/user/${opponentId}`);
       const userData = await res.json();
       
-      if (res.ok && userData.email) {
-          setOpponentEmail(userData.email);
+      if (res.ok && userData.displayName) {
+          setOpponentName(userData.displayName);
       } else {
-          console.error('Failed to fetch opponent email:', userData.error);
+          console.error('Failed to fetch opponent name:', userData.error);
       }
     };
 
@@ -92,7 +92,7 @@ export default function PreMatchPage() {
         </div>
         <h1 className="text-3xl font-bold uppercase" style={{ fontFamily: 'Space Grotesk' }}>it’s a match</h1>
         <p className="text-md" style={{ fontFamily: 'Space Grotesk' }}>
-          {role === 'creator' ? `It’s a match, ${opponentEmail} will guess` : `It's a match, you will guess`}
+          {role === 'creator' ? `It’s a match, ${opponentName} will guess` : `It's a match, you will guess`}
         </p>
       </div>
       <div className="absolute bottom-8 z-10">
