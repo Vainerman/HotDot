@@ -18,6 +18,31 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   return NextResponse.json(data);
 }
 
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const supabase = await createClient();
+  const { id } = params;
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
+  }
+
+  const { data, error } = await supabase
+    .from('matches')
+    .update({ status: 'cancelled' })
+    .eq('id', id)
+    .eq('creator_id', user.id)
+    .eq('status', 'waiting')
+    .select('id')
+    .single();
+
+  if (error || !data) {
+    return NextResponse.json({ error: 'failed to cancel match' }, { status: 500 });
+  }
+
+  return NextResponse.json({ id: data.id });
+}
+
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   const supabase = await createClient();
   const { id } = params;

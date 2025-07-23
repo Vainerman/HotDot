@@ -50,6 +50,13 @@ export default function WaitingForGuesserPage() {
     return () => {
       clearTimeout(timeoutId); // Clean up the timeout if the component unmounts
       supabase.removeChannel(channel);
+
+      // If the user navigates away, cancel the match.
+      // We don't need to wait for the response.
+      fetch(`/api/match/${matchId}`, {
+        method: 'DELETE',
+        keepalive: true, // Ensure the request is sent even if the page is closing
+      });
     };
   }, [matchId, router]);
 
