@@ -19,7 +19,25 @@ export default function WaitingForGuesserPage() {
 
     const timeoutDuration = 15000; // 15 seconds
 
+    const supabase = createClient();
+
+    // Polling as a fallback
+    const intervalId = setInterval(async () => {
+      const { data, error } = await supabase
+        .from('matches')
+        .select('status')
+        .eq('id', matchId)
+        .single();
+
+      if (data?.status === 'matched') {
+        clearInterval(intervalId);
+        clearTimeout(timeoutId);
+        router.push(`/match/pre-match/${matchId}?role=creator`);
+      }
+    }, 3000); // Poll every 3 seconds
+
     const timeoutId = setTimeout(async () => {
+      clearInterval(intervalId);
       setStatusMessage("Couldn't find a player. Redirecting...");
       // Update the match to failed so it's no longer available
       await fetch(`/api/match/${matchId}`, {
@@ -32,11 +50,11 @@ export default function WaitingForGuesserPage() {
       }, 3000);
     }, timeoutDuration);
 
-    const supabase = createClient();
     const channel = supabase.channel(`match-${matchId}`);
 
     channel
       .on('broadcast', { event: 'guesser-joined' }, (payload) => {
+        clearInterval(intervalId);
         clearTimeout(timeoutId); // Guesser found, cancel the timeout
         console.log('Guesser joined!', payload);
         router.push(`/match/pre-match/${matchId}?role=creator`);
@@ -48,6 +66,7 @@ export default function WaitingForGuesserPage() {
       });
 
     return () => {
+      clearInterval(intervalId);
       clearTimeout(timeoutId); // Clean up the timeout if the component unmounts
       supabase.removeChannel(channel);
 
