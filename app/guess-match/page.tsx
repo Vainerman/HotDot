@@ -65,7 +65,7 @@ export default function GuessMatchPage() {
   const dot: Variants = {
     initial: { y: '0%' },
     animate: {
-      y: '-80%',
+      y: '-40%',
       transition: {
         duration: 0.5,
         repeat: Infinity,

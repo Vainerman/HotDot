@@ -7,6 +7,7 @@ import { createClient } from '@/utils/supabase/client';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { motion, Variants } from 'framer-motion';
 
 export default function WaitingForGuesserPage() {
   const router = useRouter();
@@ -15,11 +16,25 @@ export default function WaitingForGuesserPage() {
   useEffect(() => {
     if (!matchId) return;
 
+    const timeoutDuration = 15000; // 15 seconds
+
+    const timeoutId = setTimeout(async () => {
+      alert("Couldn't find a player in time. Please try creating a new challenge.");
+      // Update the match to failed so it's no longer available
+      await fetch(`/api/match/${matchId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'failed' }),
+      });
+      router.push('/');
+    }, timeoutDuration);
+
     const supabase = createClient();
     const channel = supabase.channel(`match-${matchId}`);
 
     channel
       .on('broadcast', { event: 'guesser-joined' }, (payload) => {
+        clearTimeout(timeoutId); // Guesser found, cancel the timeout
         console.log('Guesser joined!', payload);
         router.push(`/match/pre-match/${matchId}?role=creator`);
       })
@@ -30,9 +45,31 @@ export default function WaitingForGuesserPage() {
       });
 
     return () => {
+      clearTimeout(timeoutId); // Clean up the timeout if the component unmounts
       supabase.removeChannel(channel);
     };
   }, [matchId, router]);
+
+  const dotsContainer: Variants = {
+    animate: {
+      transition: {
+        staggerChildren: 0.15,
+      },
+    },
+  };
+
+  const dot: Variants = {
+    initial: { y: '0%' },
+    animate: {
+      y: '-40%',
+      transition: {
+        duration: 0.5,
+        repeat: Infinity,
+        repeatType: 'reverse',
+        ease: 'easeInOut',
+      },
+    },
+  };
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-[#1A1A1A] text-white">
@@ -42,7 +79,20 @@ export default function WaitingForGuesserPage() {
             </Link>
         </div>
       <div className="text-center">
-        <h1 className="text-4xl font-bold uppercase" style={{ fontFamily: 'Space Grotesk' }}>searching...</h1>
+        <h1 className="text-4xl font-bold uppercase flex items-end" style={{ fontFamily: 'Space Grotesk' }}>
+          <span>searching</span>
+          <motion.div
+            variants={dotsContainer}
+            initial="initial"
+            animate="animate"
+            className="flex"
+            style={{ lineHeight: '0.5' }}
+          >
+            <motion.span variants={dot}>.</motion.span>
+            <motion.span variants={dot}>.</motion.span>
+            <motion.span variants={dot}>.</motion.span>
+          </motion.div>
+        </h1>
         <p className="text-lg" style={{ fontFamily: 'Space Grotesk' }}>Looking for another player</p>
       </div>
       <div className="absolute bottom-8">
