@@ -40,5 +40,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'failed to join match, maybe it was taken' }, { status: 404 });
   }
 
+  // 3. Notify the creator that a guesser has joined.
+  const channel = supabase.channel(`match-${matchToJoin.id}`);
+  await channel.send({
+    type: 'broadcast',
+    event: 'guesser-joined',
+    payload: { guesserId: user.id },
+  });
+
+
   return NextResponse.json(joinedMatch[0]);
 }
