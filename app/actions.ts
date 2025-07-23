@@ -49,6 +49,29 @@ export async function saveDrawing(svgString: string) {
   return { success: true, path: filePath };
 }
 
+export async function updateDisplayName(displayName: string) {
+  const supabase = await createServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "User not authenticated" };
+  }
+
+  const { data, error } = await supabase.auth.updateUser({
+    data: { display_name: displayName },
+  });
+
+  if (error) {
+    console.error("Error updating display name:", error);
+    return { success: false, error: "Failed to update display name." };
+  }
+
+  return { success: true, user: data.user };
+}
+
 export async function createChallenge(creatorDrawingSvg: string, templateSvg: string, viewBox: string) {
   const supabase = await createServerClient();
 

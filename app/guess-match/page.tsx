@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion, Variants } from 'framer-motion';
+import Link from 'next/link';
 
 export default function GuessMatchPage() {
   const router = useRouter();
@@ -81,7 +82,9 @@ export default function GuessMatchPage() {
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-[#1A1A1A] text-white">
       <div className="absolute top-6 left-6">
+        <Link href="/">
           <Image src="/assets/waiting-page-icons/search-icon.svg" alt="Search Icon" width={41} height={41} />
+        </Link>
       </div>
       <div className="text-center">
         {statusMessage ? (
