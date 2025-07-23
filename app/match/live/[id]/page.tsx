@@ -41,6 +41,9 @@ export default function LiveMatchPage() {
   const [supabase] = useState(() => createClient());
   const [channel, setChannel] = useState<any>(null);
   const [matchState, setMatchState] = useState<'live' | 'between-rounds' | 'results'>('live');
+  const matchStateRef = useRef(matchState);
+  matchStateRef.current = matchState;
+
   const [creatorDrawing, setCreatorDrawing] = useState<{ svg: string; viewBox: string } | null>(null);
   const [guesserDrawing, setGuesserDrawing] = useState<string | null>(null); // This will hold the final drawing for the results
   const [sliderValue, setSliderValue] = useState(50);
@@ -128,7 +131,7 @@ export default function LiveMatchPage() {
         }
       })
       .on('broadcast', { event: 'leave' }, () => {
-        if (matchState !== 'results') {
+        if (matchStateRef.current !== 'results') {
           setOpponentLeft(true);
         }
       })
@@ -138,14 +141,17 @@ export default function LiveMatchPage() {
 
     return () => {
       if (newChannel) {
-        newChannel.send({
-          type: 'broadcast',
-          event: 'leave',
-        });
+        // Only send leave event if match is not already over
+        if (matchStateRef.current !== 'results') {
+          newChannel.send({
+            type: 'broadcast',
+            event: 'leave',
+          });
+        }
         supabase.removeChannel(newChannel);
       }
     };
-  }, [matchId, role, supabase, matchState]);
+  }, [matchId, role, supabase]);
 
   const handleDrawEvent = (event: DrawEvent) => {
     if (role === 'guesser' && channel) {
