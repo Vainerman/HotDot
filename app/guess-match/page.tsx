@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion, Variants } from 'framer-motion';
 
 export default function GuessMatchPage() {
   const router = useRouter();
+  const [statusMessage, setStatusMessage] = useState('');
 
   useEffect(() => {
     const searchStartTime = Date.now();
@@ -19,8 +20,10 @@ export default function GuessMatchPage() {
       // If time is up, stop polling and show message
       if (Date.now() - searchStartTime > searchDuration) {
         clearInterval(pollTimer);
-        alert('No available matches. Please try again later.');
-        router.push('/');
+        setStatusMessage('No available matches found. Redirecting...');
+        setTimeout(() => {
+          router.push('/');
+        }, 3000);
         return;
       }
 
@@ -81,21 +84,29 @@ export default function GuessMatchPage() {
           <Image src="/assets/waiting-page-icons/search-icon.svg" alt="Search Icon" width={41} height={41} />
       </div>
       <div className="text-center">
-        <h1 className="text-4xl font-bold uppercase flex items-end" style={{ fontFamily: 'Space Grotesk' }}>
-          <span>searching</span>
-          <motion.div
-            variants={dotsContainer}
-            initial="initial"
-            animate="animate"
-            className="flex"
-            style={{ lineHeight: '0.5' }}
-          >
-            <motion.span variants={dot}>.</motion.span>
-            <motion.span variants={dot}>.</motion.span>
-            <motion.span variants={dot}>.</motion.span>
-          </motion.div>
-        </h1>
-        <p className="text-lg" style={{ fontFamily: 'Space Grotesk' }}>Looking for another player</p>
+        {statusMessage ? (
+          <h1 className="text-4xl font-bold uppercase" style={{ fontFamily: 'Space Grotesk' }}>
+            {statusMessage}
+          </h1>
+        ) : (
+          <>
+            <h1 className="text-4xl font-bold uppercase flex items-end" style={{ fontFamily: 'Space Grotesk' }}>
+              <span>searching</span>
+              <motion.div
+                variants={dotsContainer}
+                initial="initial"
+                animate="animate"
+                className="flex"
+                style={{ lineHeight: '0.5' }}
+              >
+                <motion.span variants={dot}>.</motion.span>
+                <motion.span variants={dot}>.</motion.span>
+                <motion.span variants={dot}>.</motion.span>
+              </motion.div>
+            </h1>
+            <p className="text-lg" style={{ fontFamily: 'Space Grotesk' }}>Looking for another player</p>
+          </>
+        )}
       </div>
       <div className="absolute bottom-8">
         <div className="relative w-80 h-14 opacity-30">
