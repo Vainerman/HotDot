@@ -95,14 +95,14 @@ export default function SoloPlayPage() {
     setIsChallengeButtonDisabled(true);
 
     const result = await createMatchWithChallenge(drawingData, template.svgContent, template.viewBox);
-
+      
     if (result.success && result.matchId) {
       router.push(`/match/waiting/${result.matchId}`);
-    } else {
+      } else {
       console.error(result.error || "Failed to create match and challenge");
       // Optionally, show an error to the user
       setIsChallengeButtonDisabled(false);
-    }
+      }
   };
 
   const renderFooterButtons = () => {
