@@ -94,6 +94,22 @@ body {
     font-size: clamp(1.5rem, 3rem, 4vw) !important;
   }
   
+  /* Ensure hot-cold slider is properly sized */
+  .hot-cold-slider {
+    min-height: 120px;
+    flex-shrink: 0;
+  }
+  
+  /* Fix slider track and thumb sizing for responsive layout */
+  .hot-cold-slider .bg-slider-track {
+    min-height: 15px;
+  }
+  
+  .hot-cold-slider .bg-slider-thumb {
+    min-height: 90px;
+    min-width: 16px;
+  }
+  
   /* Enhanced viewport utilities */
   .h-viewport-safe {
     height: 100vh;

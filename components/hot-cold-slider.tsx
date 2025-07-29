@@ -62,34 +62,39 @@ export default function HotColdSlider({ value, onValueChange, disabled }: HotCol
   };
 
   return (
-    <div ref={containerRef} className="hot-cold-slider relative w-full max-w-sm overflow-hidden">
-      <div
-        ref={textRef}
-        className="flex items-center transition-transform duration-100 ease-linear px-40"
-        style={{ width: 'max-content' }}
-      >
-        {words.map((word, index) => (
-          <span
-            key={word}
-            ref={el => { wordRefs.current[index] = el; }}
-            className={cn(
-              'text-5xl font-space-grotesk transition-colors',
-              {
-                'text-[#1A1A1A]': activeIndex === index,
-                'text-[#979797]': activeIndex !== index,
-                'pr-6': index < words.length - 1,
-              }
-            )}
-          >
-            {word}
-          </span>
-        ))}
+    <div className="hot-cold-slider w-full flex flex-col items-center gap-2">
+      <div ref={containerRef} className="relative w-full max-w-sm overflow-hidden">
+        <div
+          ref={textRef}
+          className="flex items-center transition-transform duration-100 ease-linear px-40"
+          style={{ width: 'max-content' }}
+        >
+          {words.map((word, index) => (
+            <span
+              key={word}
+              ref={el => { wordRefs.current[index] = el; }}
+              className={cn(
+                'text-5xl font-space-grotesk transition-colors',
+                {
+                  'text-[#1A1A1A]': activeIndex === index,
+                  'text-[#979797]': activeIndex !== index,
+                  'pr-6': index < words.length - 1,
+                }
+              )}
+            >
+              {word}
+            </span>
+          ))}
+        </div>
       </div>
-      <div className="absolute inset-0">
+      <div className="w-full max-w-sm">
         <Slider
           value={[value]}
           onValueChange={handleSliderChange}
           disabled={disabled}
+          min={0}
+          max={100}
+          step={1}
           className="w-full"
         />
       </div>
