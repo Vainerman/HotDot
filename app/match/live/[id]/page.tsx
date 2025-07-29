@@ -374,59 +374,63 @@ export default function LiveMatchPage() {
                   className="transition-transform hover:scale-110"
               />
           </Link>
-          <h1 className="text-3xl font-bold mb-8 font-sans text-center pt-8">Results</h1>
-          <div className="flex flex-row gap-4 w-full max-w-4xl px-4">
-            <div className="flex-1 flex flex-col items-center">
-              <h2 className="text-xl font-semibold mb-2 font-sans">Creator's Drawing</h2>
-              <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
-                {creatorDrawing && <AnimatedSvg svgContent={creatorDrawing.svg} />}
+          <header className="canvas-header-responsive text-center">
+            <h1 className="font-bold mb-4 font-sans">Results</h1>
+          </header>
+          <main className="flex-1 flex flex-col items-center justify-center px-4 min-h-0">
+            <div className="flex flex-row gap-4 w-full max-w-4xl max-h-full">
+              <div className="flex-1 flex flex-col items-center min-h-0">
+                <h2 className="font-semibold mb-2 font-sans">Creator's Drawing</h2>
+                <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100 max-h-full">
+                  {creatorDrawing && <AnimatedSvg svgContent={creatorDrawing.svg} />}
+                </div>
+              </div>
+              <div className="flex-1 flex flex-col items-center min-h-0">
+                <h2 className="font-semibold mb-2 font-sans">Guesser's Drawings</h2>
+                <div className="relative w-full aspect-square flex items-center justify-center max-h-full">
+                    <AnimatePresence>
+                        {cards.map((card, index) => (
+                            <motion.div
+                                key={card.id}
+                                className="absolute w-full h-full"
+                                style={{
+                                    zIndex: cards.length - index,
+                                }}
+                                initial={{ scale: 1, y: 20, x: -20, opacity: 0 }}
+                                animate={{ 
+                                    scale: 1, 
+                                    x: (cards.length - 1 - index) * -10,
+                                    y: (cards.length - 1 - index) * 10,
+                                    opacity: 1,
+                                }}
+                                exit={{ scale: 0.5, opacity: 0 }}
+                                drag
+                                dragSnapToOrigin
+                                onDragEnd={(event, info) => {
+                                    const swipeThreshold = 100;
+                                    if (Math.sqrt(info.offset.x ** 2 + info.offset.y ** 2) > swipeThreshold) {
+                                        handleSwipe(card);
+                                    }
+                                }}
+                            >
+                                <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100 shadow-lg">
+                                    <AnimatedSvg svgContent={card.drawing} />
+                                    <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded font-sans">
+                                        Round {card.round}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
               </div>
             </div>
-            <div className="flex-1 flex flex-col items-center">
-              <h2 className="text-xl font-semibold mb-2 font-sans">Guesser's Drawings</h2>
-              <div className="relative w-full aspect-square flex items-center justify-center">
-                  <AnimatePresence>
-                      {cards.map((card, index) => (
-                          <motion.div
-                              key={card.id}
-                              className="absolute w-full h-full"
-                              style={{
-                                  zIndex: cards.length - index,
-                              }}
-                              initial={{ scale: 1, y: 20, x: -20, opacity: 0 }}
-                              animate={{ 
-                                  scale: 1, 
-                                  x: (cards.length - 1 - index) * -10,
-                                  y: (cards.length - 1 - index) * 10,
-                                  opacity: 1,
-                              }}
-                              exit={{ scale: 0.5, opacity: 0 }}
-                              drag
-                              dragSnapToOrigin
-                              onDragEnd={(event, info) => {
-                                  const swipeThreshold = 100;
-                                  if (Math.sqrt(info.offset.x ** 2 + info.offset.y ** 2) > swipeThreshold) {
-                                      handleSwipe(card);
-                                  }
-                              }}
-                          >
-                              <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100 shadow-lg">
-                                  <AnimatedSvg svgContent={card.drawing} />
-                                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded font-sans">
-                                      Round {card.round}
-                                  </div>
-                              </div>
-                          </motion.div>
-                      ))}
-                  </AnimatePresence>
-              </div>
-            </div>
-          </div>
-          <div className="mt-8 flex flex-col gap-4 items-center pb-8">
+          </main>
+          <footer className="canvas-footer-responsive flex flex-col gap-2 items-center">
               <Button 
                   onClick={handleKeep}
                   variant="primaryCta"
-                  className="w-[326px]"
+                  className="w-full max-w-xs"
                   disabled={cards.length > 0 && savedDrawings.has(cards[0].id)}
               >
                   {cards.length > 0 && savedDrawings.has(cards[0].id) ? 'SAVED' : 'KEEP'}
@@ -434,11 +438,11 @@ export default function LiveMatchPage() {
               <Button
                   onClick={handleShare}
                   variant="outline"
-                  className="bg-white text-black text-lg font-sans w-[326px] border border-gray-300"
+                  className="bg-white text-black font-sans w-full max-w-xs border border-gray-300"
               >
                   SHARE
               </Button>
-          </div>
+          </footer>
         </div>
       </div>
     );
@@ -456,18 +460,18 @@ export default function LiveMatchPage() {
                 className="transition-transform hover:scale-110"
             />
         </Link>
-        <header className="p-4 flex flex-col items-center">
+        <header className="canvas-header-responsive flex flex-col items-center">
           <Clock
             ref={clockRef}
             onCountdownFinish={handleDone}
           />
-          <p className="text-lg font-bold font-sans -mt-2">Round {round}/3</p>
-          <h1 className="text-xl font-bold mt-2 font-sans">
+          <p className="font-bold font-sans -mt-1">Round {round}/3</p>
+          <h1 className="font-bold mt-1 font-sans">
             {role === 'guesser' ? 'Your turn to draw!' : 'the other player is drawing...'}
           </h1>
         </header>
-        <main className="flex-grow flex items-center justify-center">
-          <div className="canvas-container-responsive" style={{ aspectRatio: '346 / 562' }}>
+        <main className="canvas-main-responsive">
+          <div className="canvas-container-responsive">
             <div
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: "url('/assets/Card_1.svg')" }}
@@ -481,14 +485,14 @@ export default function LiveMatchPage() {
             </div>
           </div>
         </main>
-        <div className="w-full max-w-sm mx-auto px-4 pb-2">
+        <div className="w-full px-4 pb-1 text-center">
           {hints.map((hint, index) => (
-              <div key={index} className="text-left text-sm my-1 p-1 font-sans">
+              <div key={index} className="text-sm my-1 font-sans">
                   <strong>Hint {index + 1}:</strong> {hint}
               </div>
           ))}
         </div>
-        <footer className="p-4 flex flex-col items-center gap-4">
+        <footer className="canvas-footer-responsive flex flex-col items-center gap-2">
           {matchState === 'live' && (
               <>
                   <HotColdSlider
@@ -512,14 +516,14 @@ export default function LiveMatchPage() {
                                       });
                                   }
                               }}
-                              className="text-lg font-sans"
+                              className="font-sans"
                           >
                               Clear
                           </Button>
                           <Button
                               onClick={handleDone}
                               variant="primaryCta"
-                              className="text-lg font-sans"
+                              className="font-sans"
                           >
                               done
                           </Button>
@@ -528,14 +532,14 @@ export default function LiveMatchPage() {
               </>
           )}
           {matchState === 'between-rounds' && (
-              <div className='h-[108px] flex flex-col items-center justify-center'>
+              <div className='h-20 flex flex-col items-center justify-center'>
                   {role === 'guesser' ? (
-                      <p className="text-lg font-semibold font-sans">Waiting for hint...</p>
+                      <p className="font-semibold font-sans">Waiting for hint...</p>
                   ) : (
                       <>
                       {isMobile && !isHintInputVisible ? (
                           <Button variant="ghost" onClick={() => setIsHintInputVisible(true)}>
-                              <Image src="/assets/keyboard.svg" alt="Open keyboard to type hint" width={48} height={47} />
+                              <Image src="/assets/keyboard.svg" alt="Open keyboard to type hint" width={40} height={39} />
                           </Button>
                       ) : (
                           <div className="flex items-center gap-2 w-full px-4">
@@ -546,7 +550,7 @@ export default function LiveMatchPage() {
                                   onChange={(e) => setHintInput(e.target.value)}
                                   maxLength={56}
                                   placeholder="Type your hint here"
-                                  className="border rounded px-2 py-1 flex-grow font-sans"
+                                  className="border rounded px-2 py-1 flex-grow font-sans text-sm"
                               />
                               <Button onClick={handleSendHint} variant="primaryCta" className="font-sans">Send</Button>
                           </div>

@@ -175,7 +175,7 @@ export default function SoloPlayPage() {
         <Link href="/" className="absolute top-4 left-4 z-10">
           <Image src="/assets/home.png" alt="Home" width={40} height={40} />
         </Link>
-        <main className="flex-grow flex flex-col items-center justify-center gap-4 py-4">
+        <header className="canvas-header-responsive flex flex-col items-center">
           <AnimatedChallengeHeader
             ref={headerRef}
             key={headerKey}
@@ -183,12 +183,9 @@ export default function SoloPlayPage() {
             onCountdownStart={() => {}}
             onCountdownFinish={handleDone}
           />
-          <div
-            className="canvas-container-responsive"
-            style={{
-              aspectRatio: '346 / 562',
-            }}
-          >
+        </header>
+        <main className="canvas-main-responsive">
+          <div className="canvas-container-responsive">
             <div
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: "url('/assets/Card_1.svg')" }}
@@ -198,7 +195,7 @@ export default function SoloPlayPage() {
             </div>
           </div>
         </main>
-        <footer className="flex items-center justify-between p-4 border-t border-gray-300">
+        <footer className="canvas-footer-responsive flex items-center justify-between border-t border-gray-300">
           {renderFooterButtons()}
         </footer>
       </div>

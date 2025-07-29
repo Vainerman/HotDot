@@ -11,49 +11,78 @@ body {
     text-wrap: balance;
   }
   
-  /* Responsive canvas page scaling utilities */
+  /* Simple viewport-based responsive canvas pages */
   .canvas-page-responsive {
-    /* Set the "design size" - the size the page is designed for */
-    width: 425px;
-    height: 750px;
-    
-    /* Calculate scale to fit within viewport */
-    --scale-x: calc(100vw / 425);
-    --scale-y: calc((var(--vh, 1vh) * 100) / 750);
-    --scale: min(var(--scale-x), var(--scale-y));
-    
-    /* Apply the scaling transformation */
-    transform: scale(var(--scale));
-    transform-origin: top center;
-    
-    /* Center the scaled container */
-    margin: 0 auto;
-    
-    /* Set up as flex container for layout */
+    width: 100vw;
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
     display: flex;
     flex-direction: column;
     position: relative;
-    
-    /* Prevent any overflow */
+    overflow: hidden;
     box-sizing: border-box;
   }
   
-  /* Create a wrapper to contain the scaled content properly */
   .canvas-page-wrapper {
-    width: calc(425px * min(100vw / 425, (var(--vh, 1vh) * 100) / 750));
-    height: calc(750px * min(100vw / 425, (var(--vh, 1vh) * 100) / 750));
-    margin: 0 auto;
+    width: 100vw;
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100);
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;
     overflow: hidden;
   }
   
   .canvas-container-responsive {
     position: relative;
-    width: 100%;
-    max-width: 346px;
+    width: min(80vw, 50vh);
+    height: min(80vw * 562/346, 75vh);
     margin: 0 auto;
+    flex-shrink: 0;
+  }
+  
+  /* Make header and footer scale appropriately */
+  .canvas-header-responsive {
+    padding: min(1rem, 2vh);
+    flex-shrink: 0;
+  }
+  
+  .canvas-footer-responsive {
+    padding: min(1rem, 2vh);
+    flex-shrink: 0;
+    margin-top: auto;
+  }
+  
+  .canvas-main-responsive {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+  }
+  
+  /* Scale text and elements based on viewport */
+  .canvas-page-responsive h1 {
+    font-size: min(1.5rem, 4vw);
+  }
+  
+  .canvas-page-responsive h2 {
+    font-size: min(1.25rem, 3.5vw);
+  }
+  
+  .canvas-page-responsive p {
+    font-size: min(1rem, 3vw);
+  }
+  
+  .canvas-page-responsive .text-lg {
+    font-size: min(1.125rem, 3.2vw);
+  }
+  
+  .canvas-page-responsive .text-xl {
+    font-size: min(1.25rem, 3.5vw);
+  }
+  
+  .canvas-page-responsive .text-3xl {
+    font-size: min(1.875rem, 5vw);
   }
   
   /* Enhanced viewport utilities */
@@ -66,7 +95,7 @@ body {
     min-height: calc(var(--vh, 1vh) * 100);
   }
   
-  /* Ensure touch interactions work properly with scaling */
+  /* Ensure touch interactions work properly */
   .canvas-page-responsive * {
     touch-action: manipulation;
   }
