@@ -10,6 +10,55 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  
+  /* Responsive canvas page scaling utilities */
+  .canvas-page-responsive {
+    --min-scale: 0.5;
+    --max-scale: 1.0;
+    --target-width: 425;
+    --target-height: 750;
+    --scale-factor: clamp(
+      var(--min-scale),
+      min(
+        calc((100vw - 32px) / var(--target-width)),
+        calc((var(--vh, 1vh) * 100 - 32px) / var(--target-height))
+      ),
+      var(--max-scale)
+    );
+    transform: scale(var(--scale-factor));
+    transform-origin: top center;
+    width: calc(100% / var(--scale-factor));
+    height: calc(100% / var(--scale-factor));
+    margin: 0 auto;
+  }
+  
+  .canvas-container-responsive {
+    /* Ensure the canvas container maintains proper dimensions */
+    position: relative;
+    width: 100%;
+    max-width: 346px;
+    margin: 0 auto;
+  }
+  
+  /* Enhanced viewport utilities for precise sizing */
+  .h-viewport-safe {
+    height: calc(var(--vh, 1vh) * 100);
+    max-height: calc(var(--vh, 1vh) * 100);
+    overflow: hidden;
+  }
+  
+  .min-h-viewport-safe {
+    min-height: calc(var(--vh, 1vh) * 100);
+  }
+  
+  /* Ensure touch interactions work properly with scaling */
+  .canvas-page-responsive * {
+    touch-action: manipulation;
+  }
+  
+  .canvas-page-responsive canvas {
+    touch-action: none;
+  }
 }
 
 @layer base {

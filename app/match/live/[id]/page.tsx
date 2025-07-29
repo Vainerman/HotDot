@@ -363,7 +363,90 @@ export default function LiveMatchPage() {
 
   if (matchState === 'results') {
     return (
-      <div className="relative flex flex-col h-screen-dynamic items-center justify-center p-4">
+      <div className="canvas-page-responsive">
+        <div className="relative flex flex-col h-viewport-safe items-center justify-center p-4">
+          <Link href="/" className="absolute top-4 left-4 z-20">
+              <Image
+                  src="/assets/Exit_Button.svg"
+                  alt="Exit to Home"
+                  width={41}
+                  height={41}
+                  className="transition-transform hover:scale-110"
+              />
+          </Link>
+          <h1 className="text-3xl font-bold mb-8 font-sans">Results</h1>
+          <div className="flex flex-row gap-4 w-full max-w-4xl">
+            <div className="flex-1 flex flex-col items-center">
+              <h2 className="text-xl font-semibold mb-2 font-sans">Creator's Drawing</h2>
+              <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
+                {creatorDrawing && <AnimatedSvg svgContent={creatorDrawing.svg} />}
+              </div>
+            </div>
+            <div className="flex-1 flex flex-col items-center">
+              <h2 className="text-xl font-semibold mb-2 font-sans">Guesser's Drawings</h2>
+              <div className="relative w-full aspect-square flex items-center justify-center">
+                  <AnimatePresence>
+                      {cards.map((card, index) => (
+                          <motion.div
+                              key={card.id}
+                              className="absolute w-full h-full"
+                              style={{
+                                  zIndex: cards.length - index,
+                              }}
+                              initial={{ scale: 1, y: 20, x: -20, opacity: 0 }}
+                              animate={{ 
+                                  scale: 1, 
+                                  x: (cards.length - 1 - index) * -10,
+                                  y: (cards.length - 1 - index) * 10,
+                                  opacity: 1,
+                              }}
+                              exit={{ scale: 0.5, opacity: 0 }}
+                              drag
+                              dragSnapToOrigin
+                              onDragEnd={(event, info) => {
+                                  const swipeThreshold = 100;
+                                  if (Math.sqrt(info.offset.x ** 2 + info.offset.y ** 2) > swipeThreshold) {
+                                      handleSwipe(card);
+                                  }
+                              }}
+                          >
+                              <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100 shadow-lg">
+                                  <AnimatedSvg svgContent={card.drawing} />
+                                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded font-sans">
+                                      Round {card.round}
+                                  </div>
+                              </div>
+                          </motion.div>
+                      ))}
+                  </AnimatePresence>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 flex flex-col gap-4 items-center">
+              <Button 
+                  onClick={handleKeep}
+                  variant="primaryCta"
+                  className="w-[326px]"
+                  disabled={cards.length > 0 && savedDrawings.has(cards[0].id)}
+              >
+                  {cards.length > 0 && savedDrawings.has(cards[0].id) ? 'SAVED' : 'KEEP'}
+              </Button>
+              <Button
+                  onClick={handleShare}
+                  variant="outline"
+                  className="bg-white text-black text-lg font-sans w-[326px] border border-gray-300"
+              >
+                  SHARE
+              </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="canvas-page-responsive">
+      <div className="relative flex flex-col h-viewport-safe">
         <Link href="/" className="absolute top-4 left-4 z-20">
             <Image
                 src="/assets/Exit_Button.svg"
@@ -373,202 +456,123 @@ export default function LiveMatchPage() {
                 className="transition-transform hover:scale-110"
             />
         </Link>
-        <h1 className="text-3xl font-bold mb-8 font-sans">Results</h1>
-        <div className="flex flex-row gap-4 w-full max-w-4xl">
-          <div className="flex-1 flex flex-col items-center">
-            <h2 className="text-xl font-semibold mb-2 font-sans">Creator's Drawing</h2>
-            <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
-              {creatorDrawing && <AnimatedSvg svgContent={creatorDrawing.svg} />}
-            </div>
-          </div>
-          <div className="flex-1 flex flex-col items-center">
-            <h2 className="text-xl font-semibold mb-2 font-sans">Guesser's Drawings</h2>
-            <div className="relative w-full aspect-square flex items-center justify-center">
-                <AnimatePresence>
-                    {cards.map((card, index) => (
-                        <motion.div
-                            key={card.id}
-                            className="absolute w-full h-full"
-                            style={{
-                                zIndex: cards.length - index,
-                            }}
-                            initial={{ scale: 1, y: 20, x: -20, opacity: 0 }}
-                            animate={{ 
-                                scale: 1, 
-                                x: (cards.length - 1 - index) * -10,
-                                y: (cards.length - 1 - index) * 10,
-                                opacity: 1,
-                            }}
-                            exit={{ scale: 0.5, opacity: 0 }}
-                            drag
-                            dragSnapToOrigin
-                            onDragEnd={(event, info) => {
-                                const swipeThreshold = 100;
-                                if (Math.sqrt(info.offset.x ** 2 + info.offset.y ** 2) > swipeThreshold) {
-                                    handleSwipe(card);
-                                }
-                            }}
-                        >
-                            <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100 shadow-lg">
-                                <AnimatedSvg svgContent={card.drawing} />
-                                <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded font-sans">
-                                    Round {card.round}
-                                </div>
-                            </div>
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
-            </div>
-          </div>
-        </div>
-        <div className="mt-8 flex flex-col gap-4 items-center">
-            <Button 
-                onClick={handleKeep}
-                variant="primaryCta"
-                className="w-[326px]"
-                disabled={cards.length > 0 && savedDrawings.has(cards[0].id)}
-            >
-                {cards.length > 0 && savedDrawings.has(cards[0].id) ? 'SAVED' : 'KEEP'}
-            </Button>
-            <Button
-                onClick={handleShare}
-                variant="outline"
-                className="bg-white text-black text-lg font-sans w-[326px] border border-gray-300"
-            >
-                SHARE
-            </Button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative flex flex-col h-screen-dynamic transform sm:scale-70 origin-top">
-      <Link href="/" className="absolute top-4 left-4 z-20">
-          <Image
-              src="/assets/Exit_Button.svg"
-              alt="Exit to Home"
-              width={41}
-              height={41}
-              className="transition-transform hover:scale-110"
+        <header className="p-4 flex flex-col items-center">
+          <Clock
+            ref={clockRef}
+            onCountdownFinish={handleDone}
           />
-      </Link>
-      <header className="p-4 flex flex-col items-center">
-        <Clock
-          ref={clockRef}
-          onCountdownFinish={handleDone}
-        />
-        <p className="text-lg font-bold font-sans -mt-2">Round {round}/3</p>
-        <h1 className="text-xl font-bold mt-2 font-sans">
-          {role === 'guesser' ? 'Your turn to draw!' : 'the other player is drawing...'}
-        </h1>
-      </header>
-      <main className="flex-grow flex items-center justify-center">
-        <div className="relative w-full max-w-sm mx-auto" style={{ aspectRatio: '346 / 562' }}>
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: "url('/assets/Card_1.svg')" }}
-          ></div>
-          <div className="absolute inset-0">
-            <DrawableCanvas
-              ref={canvasRef}
-              isLocked={role !== 'guesser' || matchState !== 'live'}
-              onDrawEvent={handleDrawEvent}
-            />
+          <p className="text-lg font-bold font-sans -mt-2">Round {round}/3</p>
+          <h1 className="text-xl font-bold mt-2 font-sans">
+            {role === 'guesser' ? 'Your turn to draw!' : 'the other player is drawing...'}
+          </h1>
+        </header>
+        <main className="flex-grow flex items-center justify-center">
+          <div className="canvas-container-responsive" style={{ aspectRatio: '346 / 562' }}>
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: "url('/assets/Card_1.svg')" }}
+            ></div>
+            <div className="absolute inset-0">
+              <DrawableCanvas
+                ref={canvasRef}
+                isLocked={role !== 'guesser' || matchState !== 'live'}
+                onDrawEvent={handleDrawEvent}
+              />
+            </div>
           </div>
+        </main>
+        <div className="w-full max-w-sm mx-auto px-4 pb-2">
+          {hints.map((hint, index) => (
+              <div key={index} className="text-left text-sm my-1 p-1 font-sans">
+                  <strong>Hint {index + 1}:</strong> {hint}
+              </div>
+          ))}
         </div>
-      </main>
-      <div className="w-full max-w-sm mx-auto px-4 pb-2">
-        {hints.map((hint, index) => (
-            <div key={index} className="text-left text-sm my-1 p-1 font-sans">
-                <strong>Hint {index + 1}:</strong> {hint}
-            </div>
-        ))}
-      </div>
-      <footer className="p-4 flex flex-col items-center gap-4">
-        {matchState === 'live' && (
-            <>
-                <HotColdSlider
-                    value={sliderValue}
-                    onValueChange={handleSliderChange}
-                    disabled={role !== 'creator'}
-                />
-                {role === 'guesser' && (
-                    <div className="flex items-center gap-4">
-                        <Button
-                            variant="outline"
-                            onClick={() => {
-                                if (canvasRef.current) {
-                                    canvasRef.current.clear();
-                                }
-                                if (channel) {
-                                    channel.send({
-                                        type: 'broadcast',
-                                        event: 'clear-canvas',
-                                        payload: {},
-                                    });
-                                }
-                            }}
-                            className="text-lg font-sans"
-                        >
-                            Clear
-                        </Button>
-                        <Button
-                            onClick={handleDone}
-                            variant="primaryCta"
-                            className="text-lg font-sans"
-                        >
-                            done
-                        </Button>
-                    </div>
-                )}
-            </>
-        )}
-        {matchState === 'between-rounds' && (
-            <div className='h-[108px] flex flex-col items-center justify-center'>
-                {role === 'guesser' ? (
-                    <p className="text-lg font-semibold font-sans">Waiting for hint...</p>
-                ) : (
-                    <>
-                    {isMobile && !isHintInputVisible ? (
-                        <Button variant="ghost" onClick={() => setIsHintInputVisible(true)}>
-                            <Image src="/assets/keyboard.svg" alt="Open keyboard to type hint" width={48} height={47} />
-                        </Button>
-                    ) : (
-                        <div className="flex items-center gap-2 w-full px-4">
-                            <input
-                                ref={hintInputRef}
-                                type="text"
-                                value={hintInput}
-                                onChange={(e) => setHintInput(e.target.value)}
-                                maxLength={56}
-                                placeholder="Type your hint here"
-                                className="border rounded px-2 py-1 flex-grow font-sans"
-                            />
-                            <Button onClick={handleSendHint} variant="primaryCta" className="font-sans">Send</Button>
-                        </div>
-                    )}
-                    </>
-                )}
-            </div>
-        )}
-      </footer>
+        <footer className="p-4 flex flex-col items-center gap-4">
+          {matchState === 'live' && (
+              <>
+                  <HotColdSlider
+                      value={sliderValue}
+                      onValueChange={handleSliderChange}
+                      disabled={role !== 'creator'}
+                  />
+                  {role === 'guesser' && (
+                      <div className="flex items-center gap-4">
+                          <Button
+                              variant="outline"
+                              onClick={() => {
+                                  if (canvasRef.current) {
+                                      canvasRef.current.clear();
+                                  }
+                                  if (channel) {
+                                      channel.send({
+                                          type: 'broadcast',
+                                          event: 'clear-canvas',
+                                          payload: {},
+                                      });
+                                  }
+                              }}
+                              className="text-lg font-sans"
+                          >
+                              Clear
+                          </Button>
+                          <Button
+                              onClick={handleDone}
+                              variant="primaryCta"
+                              className="text-lg font-sans"
+                          >
+                              done
+                          </Button>
+                      </div>
+                  )}
+              </>
+          )}
+          {matchState === 'between-rounds' && (
+              <div className='h-[108px] flex flex-col items-center justify-center'>
+                  {role === 'guesser' ? (
+                      <p className="text-lg font-semibold font-sans">Waiting for hint...</p>
+                  ) : (
+                      <>
+                      {isMobile && !isHintInputVisible ? (
+                          <Button variant="ghost" onClick={() => setIsHintInputVisible(true)}>
+                              <Image src="/assets/keyboard.svg" alt="Open keyboard to type hint" width={48} height={47} />
+                          </Button>
+                      ) : (
+                          <div className="flex items-center gap-2 w-full px-4">
+                              <input
+                                  ref={hintInputRef}
+                                  type="text"
+                                  value={hintInput}
+                                  onChange={(e) => setHintInput(e.target.value)}
+                                  maxLength={56}
+                                  placeholder="Type your hint here"
+                                  className="border rounded px-2 py-1 flex-grow font-sans"
+                              />
+                              <Button onClick={handleSendHint} variant="primaryCta" className="font-sans">Send</Button>
+                          </div>
+                      )}
+                      </>
+                  )}
+              </div>
+          )}
+        </footer>
 
-      <AlertDialog open={opponentLeft}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Opponent Left</AlertDialogTitle>
-            <AlertDialogDescription>
-              Your opponent has left the match. You can return to the homepage.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => router.push('/')}>
-              Go to Homepage
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        <AlertDialog open={opponentLeft}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Opponent Left</AlertDialogTitle>
+              <AlertDialogDescription>
+                Your opponent has left the match. You can return to the homepage.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => router.push('/')}>
+                Go to Homepage
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
     </div>
   );
 } 

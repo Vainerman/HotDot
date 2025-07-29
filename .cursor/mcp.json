@@ -11,7 +11,7 @@
         "--stdio"
       ]
     },
-    "supabase": {
+    "supabase-hotdot": {
         "command": "npx",
         "args": [
           "-y",

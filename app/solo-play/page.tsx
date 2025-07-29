@@ -170,36 +170,38 @@ export default function SoloPlayPage() {
   };
 
   return (
-    <div className="relative flex flex-col h-screen-dynamic">
-      <Link href="/" className="absolute top-4 left-4 z-10">
-        <Image src="/assets/home.png" alt="Home" width={40} height={40} />
-      </Link>
-      <main className="flex-grow flex flex-col items-center justify-center gap-4 py-4 transform sm:scale-70 origin-top">
-        <AnimatedChallengeHeader
-          ref={headerRef}
-          key={headerKey}
-          todaysDrawings={todaysDrawings}
-          onCountdownStart={() => {}}
-          onCountdownFinish={handleDone}
-        />
-        <div
-          className="relative w-full max-w-sm mx-auto"
-          style={{
-            aspectRatio: '346 / 562',
-          }}
-        >
+    <div className="canvas-page-responsive">
+      <div className="relative flex flex-col h-viewport-safe">
+        <Link href="/" className="absolute top-4 left-4 z-10">
+          <Image src="/assets/home.png" alt="Home" width={40} height={40} />
+        </Link>
+        <main className="flex-grow flex flex-col items-center justify-center gap-4 py-4">
+          <AnimatedChallengeHeader
+            ref={headerRef}
+            key={headerKey}
+            todaysDrawings={todaysDrawings}
+            onCountdownStart={() => {}}
+            onCountdownFinish={handleDone}
+          />
           <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: "url('/assets/Card_1.svg')" }}
-          ></div>
-          <div className="absolute inset-0">
-            <DrawableCanvas ref={canvasRef} isLocked={gameState !== "drawing"} />
+            className="canvas-container-responsive"
+            style={{
+              aspectRatio: '346 / 562',
+            }}
+          >
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: "url('/assets/Card_1.svg')" }}
+            ></div>
+            <div className="absolute inset-0">
+              <DrawableCanvas ref={canvasRef} isLocked={gameState !== "drawing"} />
+            </div>
           </div>
-        </div>
-      </main>
-      <footer className="flex items-center justify-between p-4 border-t border-gray-300">
-        {renderFooterButtons()}
-      </footer>
+        </main>
+        <footer className="flex items-center justify-between p-4 border-t border-gray-300">
+          {renderFooterButtons()}
+        </footer>
+      </div>
     </div>
   );
 }
