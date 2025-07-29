@@ -69,8 +69,8 @@ export async function saveDrawing(svgContent: string, title?: string) {
     if (viewBoxMatch) {
         const parts = viewBoxMatch[1].split(' ');
         if (parts.length === 4) {
-            width = parseFloat(parts[2]);
-            height = parseFloat(parts[3]);
+            width = Math.round(parseFloat(parts[2])); // Convert to integer
+            height = Math.round(parseFloat(parts[3])); // Convert to integer
         }
     }
 
@@ -87,11 +87,11 @@ export async function saveDrawing(svgContent: string, title?: string) {
         // Rollback storage upload if db insert fails
         await supabase.storage.from('drawings').remove([filePath]);
         
-        // More specific error messages
+        // More specific error messages (removed redundant "Failed to save drawing:" prefix)
         if (dbError.message.includes('violates row-level security policy')) {
             return { success: false, error: 'Permission denied. Please sign in again.' };
         }
-        return { success: false, error: `Failed to save drawing: ${dbError.message}` };
+        return { success: false, error: dbError.message };
     }
 
     console.log('SaveDrawing: Database insert successful', { drawingId: insertData.id });
