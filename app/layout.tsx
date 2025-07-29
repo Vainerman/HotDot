@@ -34,6 +34,35 @@ export default function RootLayout({
             window.addEventListener('resize', setViewportHeight);
           `}
         </Script>
+        <Script id="safari-address-bar-hide">
+          {`
+            function hideSafariAddressBar() {
+              // Check if we're on mobile Safari
+              if (/iPhone|iPad|iPod/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent) && !/CriOS|FxiOS/.test(navigator.userAgent)) {
+                // Wait for page to load, then trigger a small scroll to hide address bar
+                setTimeout(() => {
+                  // Save current scroll position
+                  const currentScroll = window.scrollY;
+                  
+                  // Scroll down 1px to trigger address bar hide
+                  window.scrollTo(0, 1);
+                  
+                  // Restore original position after a brief delay
+                  setTimeout(() => {
+                    window.scrollTo(0, currentScroll);
+                  }, 100);
+                }, 500);
+              }
+            }
+            
+            // Run on page load
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', hideSafariAddressBar);
+            } else {
+              hideSafariAddressBar();
+            }
+          `}
+        </Script>
       </body>
     </html>
   )
