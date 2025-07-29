@@ -13,38 +13,53 @@ body {
   
   /* Responsive canvas page scaling utilities */
   .canvas-page-responsive {
-    --min-scale: 0.5;
-    --max-scale: 1.0;
-    --target-width: 425;
-    --target-height: 750;
-    --scale-factor: clamp(
-      var(--min-scale),
-      min(
-        calc((100vw - 32px) / var(--target-width)),
-        calc((var(--vh, 1vh) * 100 - 32px) / var(--target-height))
-      ),
-      var(--max-scale)
-    );
-    transform: scale(var(--scale-factor));
+    /* Set the "design size" - the size the page is designed for */
+    width: 425px;
+    height: 750px;
+    
+    /* Calculate scale to fit within viewport */
+    --scale-x: calc(100vw / 425);
+    --scale-y: calc((var(--vh, 1vh) * 100) / 750);
+    --scale: min(var(--scale-x), var(--scale-y));
+    
+    /* Apply the scaling transformation */
+    transform: scale(var(--scale));
     transform-origin: top center;
-    width: calc(100% / var(--scale-factor));
-    height: calc(100% / var(--scale-factor));
+    
+    /* Center the scaled container */
     margin: 0 auto;
+    
+    /* Set up as flex container for layout */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    
+    /* Prevent any overflow */
+    box-sizing: border-box;
+  }
+  
+  /* Create a wrapper to contain the scaled content properly */
+  .canvas-page-wrapper {
+    width: calc(425px * min(100vw / 425, (var(--vh, 1vh) * 100) / 750));
+    height: calc(750px * min(100vw / 425, (var(--vh, 1vh) * 100) / 750));
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: hidden;
   }
   
   .canvas-container-responsive {
-    /* Ensure the canvas container maintains proper dimensions */
     position: relative;
     width: 100%;
     max-width: 346px;
     margin: 0 auto;
   }
   
-  /* Enhanced viewport utilities for precise sizing */
+  /* Enhanced viewport utilities */
   .h-viewport-safe {
+    height: 100vh;
     height: calc(var(--vh, 1vh) * 100);
-    max-height: calc(var(--vh, 1vh) * 100);
-    overflow: hidden;
   }
   
   .min-h-viewport-safe {

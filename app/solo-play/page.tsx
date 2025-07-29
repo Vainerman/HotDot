@@ -170,8 +170,8 @@ export default function SoloPlayPage() {
   };
 
   return (
-    <div className="canvas-page-responsive">
-      <div className="relative flex flex-col h-viewport-safe">
+    <div className="canvas-page-wrapper">
+      <div className="canvas-page-responsive">
         <Link href="/" className="absolute top-4 left-4 z-10">
           <Image src="/assets/home.png" alt="Home" width={40} height={40} />
         </Link>

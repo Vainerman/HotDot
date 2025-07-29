@@ -363,8 +363,8 @@ export default function LiveMatchPage() {
 
   if (matchState === 'results') {
     return (
-      <div className="canvas-page-responsive">
-        <div className="relative flex flex-col h-viewport-safe items-center justify-center p-4">
+      <div className="canvas-page-wrapper">
+        <div className="canvas-page-responsive">
           <Link href="/" className="absolute top-4 left-4 z-20">
               <Image
                   src="/assets/Exit_Button.svg"
@@ -374,8 +374,8 @@ export default function LiveMatchPage() {
                   className="transition-transform hover:scale-110"
               />
           </Link>
-          <h1 className="text-3xl font-bold mb-8 font-sans">Results</h1>
-          <div className="flex flex-row gap-4 w-full max-w-4xl">
+          <h1 className="text-3xl font-bold mb-8 font-sans text-center pt-8">Results</h1>
+          <div className="flex flex-row gap-4 w-full max-w-4xl px-4">
             <div className="flex-1 flex flex-col items-center">
               <h2 className="text-xl font-semibold mb-2 font-sans">Creator's Drawing</h2>
               <div className="aspect-square w-full rounded-lg overflow-hidden relative flex items-center justify-center bg-gray-100">
@@ -422,7 +422,7 @@ export default function LiveMatchPage() {
               </div>
             </div>
           </div>
-          <div className="mt-8 flex flex-col gap-4 items-center">
+          <div className="mt-8 flex flex-col gap-4 items-center pb-8">
               <Button 
                   onClick={handleKeep}
                   variant="primaryCta"
@@ -445,8 +445,8 @@ export default function LiveMatchPage() {
   }
 
   return (
-    <div className="canvas-page-responsive">
-      <div className="relative flex flex-col h-viewport-safe">
+    <div className="canvas-page-wrapper">
+      <div className="canvas-page-responsive">
         <Link href="/" className="absolute top-4 left-4 z-20">
             <Image
                 src="/assets/Exit_Button.svg"
