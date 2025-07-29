@@ -62,7 +62,7 @@ export default function HotColdSlider({ value, onValueChange, disabled }: HotCol
   };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-sm overflow-hidden">
+    <div ref={containerRef} className="hot-cold-slider relative w-full max-w-sm overflow-hidden">
       <div
         ref={textRef}
         className="flex items-center transition-transform duration-100 ease-linear px-40"

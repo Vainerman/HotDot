@@ -85,6 +85,15 @@ body {
     font-size: min(1.875rem, 5vw);
   }
   
+  .canvas-page-responsive .text-5xl {
+    font-size: min(3rem, 8vw);
+  }
+  
+  /* Protect hot-cold slider from responsive scaling */
+  .canvas-page-responsive .hot-cold-slider .text-5xl {
+    font-size: clamp(1.5rem, 3rem, 4vw) !important;
+  }
+  
   /* Enhanced viewport utilities */
   .h-viewport-safe {
     height: 100vh;
