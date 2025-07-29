@@ -128,6 +128,15 @@ body {
   .canvas-page-responsive canvas {
     touch-action: none;
   }
+  
+  /* Allow slider to work properly with touch */
+  .canvas-page-responsive .hot-cold-slider * {
+    touch-action: auto;
+  }
+  
+  .canvas-page-responsive .hot-cold-slider [role="slider"] {
+    touch-action: auto;
+  }
 }
 
 @layer base {
