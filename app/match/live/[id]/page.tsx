@@ -503,14 +503,14 @@ export default function LiveMatchPage() {
             </div>
           </div>
         </main>
-        <div className="w-full px-4 pb-1 text-center">
+        <div className="w-full px-4 pb-2 text-center min-h-[60px] flex flex-col justify-center">
           {hints.map((hint, index) => (
               <div key={index} className="text-sm my-1 font-sans">
                   <strong>Hint {index + 1}:</strong> {hint}
               </div>
           ))}
         </div>
-        <footer className="canvas-footer-responsive flex flex-col items-center gap-2">
+        <footer className="canvas-footer-responsive flex flex-col items-center gap-4">
           {matchState === 'live' && (
               <>
                   <HotColdSlider

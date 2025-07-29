@@ -49,7 +49,7 @@ body {
   .canvas-footer-responsive {
     padding: min(1rem, 2vh);
     flex-shrink: 0;
-    margin-top: auto;
+    gap: min(1rem, 2vh);
   }
   
   .canvas-main-responsive {
@@ -58,6 +58,7 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 0;
+    margin-bottom: min(1rem, 2vh);
   }
   
   /* Scale text and elements based on viewport */
