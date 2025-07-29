@@ -63,6 +63,19 @@ export default function ChallengePage() {
     }
     if (canvasRef.current) {
       const data = canvasRef.current.getDrawingAsSvg();
+      
+      // Validate that there's actually drawing content
+      if (!data || data.trim().length === 0) {
+        alert("Please draw something before finishing!");
+        return;
+      }
+      
+      // Check if drawing contains actual paths (user drawing)
+      if (!data.includes('<path') && !data.includes('<g')) {
+        alert("Your drawing appears to be empty. Please draw something before finishing!");
+        return;
+      }
+      
       setDrawingData(data);
     }
     setGameState("finished");
@@ -79,13 +92,37 @@ export default function ChallengePage() {
   
   const handleKeep = () => {
     console.log("handleKeep called. Current drawing data:", drawingData ? "Exists" : "Empty");
+    
+    // Validate drawing content before attempting to save
+    if (!drawingData || drawingData.trim().length === 0) {
+      alert("Please draw something before saving!");
+      return;
+    }
+
+    // Check if drawing contains actual content
+    if (!drawingData.includes('<path') && !drawingData.includes('<g')) {
+      alert("Your drawing appears to be empty. Please draw something before saving!");
+      return;
+    }
+
     setGameState("saved");
+    
     if (drawingData) {
       saveDrawing(drawingData).then(result => {
         console.log("Background save response:", result);
         if (result?.error) {
           console.error("Background save failed:", result.error);
+          // Show error to user and revert state
+          alert(`Failed to save drawing: ${result.error}`);
+          setGameState("finished"); // Revert to previous state so user can try again
+        } else if (result?.success) {
+          console.log("Drawing saved successfully!");
+          // Could show a success toast here if desired
         }
+      }).catch((error) => {
+        console.error("Save operation failed:", error);
+        alert("Failed to save drawing. Please try again.");
+        setGameState("finished"); // Revert to previous state so user can try again
       });
     }
   };

@@ -5,15 +5,43 @@ import { createClient } from "@/utils/supabase/client";
 import { v4 as uuidv4 } from 'uuid';
 
 export async function saveDrawing(svgContent: string, title?: string) {
+    // Debug logging for troubleshooting
+    console.log('SaveDrawing called with:', {
+        svgContentLength: svgContent?.length || 0,
+        title: title || 'Untitled Drawing',
+        timestamp: new Date().toISOString()
+    });
+
+    // Input validation
+    if (!svgContent || svgContent.trim().length === 0) {
+        console.warn('SaveDrawing failed: Drawing content is empty');
+        return { success: false, error: 'Drawing content is empty' };
+    }
+
+    // Basic SVG validation - check if it contains actual drawing paths
+    if (!svgContent.includes('<path') && !svgContent.includes('<g')) {
+        console.warn('SaveDrawing failed: Drawing appears to be empty (no paths or groups)');
+        return { success: false, error: 'Drawing appears to be empty. Please draw something before saving.' };
+    }
+
     const supabase = await createServerClient();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
+        console.warn('SaveDrawing failed: User not authenticated');
         return { success: false, error: 'User not authenticated' };
     }
 
+    console.log('SaveDrawing: User authenticated', { userId: user.id });
+
     const drawingId = uuidv4();
     const filePath = `${user.id}/${drawingId}.svg`;
+
+    // Additional validation: check SVG size isn't too large (prevent abuse)
+    if (svgContent.length > 1024 * 1024) { // 1MB limit
+        console.warn('SaveDrawing failed: Drawing too large', { size: svgContent.length });
+        return { success: false, error: 'Drawing is too large to save' };
+    }
 
     const { error: uploadError } = await supabase.storage
         .from('drawings')
@@ -23,8 +51,17 @@ export async function saveDrawing(svgContent: string, title?: string) {
 
     if (uploadError) {
         console.error('Error uploading drawing:', uploadError);
-        return { success: false, error: uploadError.message };
+        // More specific error messages based on error type
+        if (uploadError.message.includes('Bucket not found')) {
+            return { success: false, error: 'Storage configuration error. Please try again later.' };
+        }
+        if (uploadError.message.includes('Permission denied')) {
+            return { success: false, error: 'Permission denied. Please sign in again.' };
+        }
+        return { success: false, error: `Upload failed: ${uploadError.message}` };
     }
+    
+    console.log('SaveDrawing: Storage upload successful', { filePath });
     
     let width = null;
     let height = null;
@@ -49,9 +86,15 @@ export async function saveDrawing(svgContent: string, title?: string) {
         console.error('Error saving drawing to db:', dbError);
         // Rollback storage upload if db insert fails
         await supabase.storage.from('drawings').remove([filePath]);
-        return { success: false, error: dbError.message };
+        
+        // More specific error messages
+        if (dbError.message.includes('violates row-level security policy')) {
+            return { success: false, error: 'Permission denied. Please sign in again.' };
+        }
+        return { success: false, error: `Failed to save drawing: ${dbError.message}` };
     }
 
+    console.log('SaveDrawing: Database insert successful', { drawingId: insertData.id });
     return { success: true, drawingId: insertData.id };
 }
 

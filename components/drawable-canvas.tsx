@@ -63,6 +63,11 @@ const DrawableCanvas = forwardRef<DrawableCanvasRef, DrawableCanvasProps>(({ isL
           `<path d="${pathD}" stroke="black" stroke-width="2" fill="none" />`
       ).join('');
 
+      // Check if there's actually any drawing content
+      if (drawnPathsRef.current.length === 0 && !templateGroup) {
+          return ""; // Return empty string to indicate no drawing content
+      }
+
       return `<svg width="${canvasWidth}" height="${canvasHeight}" viewBox="0 0 ${canvasWidth} ${canvasHeight}" xmlns="http://www.w3.org/2000/svg">${templateGroup}${userDrawingContent}</svg>`;
     },
     animateSvg(svgContent: string, viewBox: string | null, animated = true) {

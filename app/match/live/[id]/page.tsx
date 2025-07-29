@@ -264,13 +264,31 @@ export default function LiveMatchPage() {
     const topCard = cards[0];
     if (savedDrawings.has(topCard.id)) return;
 
-    const { success } = await saveDrawing(topCard.drawing, `Match Drawing - Round ${topCard.round}`);
+    // Validate drawing content before attempting to save
+    if (!topCard.drawing || topCard.drawing.trim().length === 0) {
+      alert("Drawing content is empty!");
+      return;
+    }
 
-    if (success) {
-        setSavedDrawings(prev => new Set(prev).add(topCard.id));
-    } else {
-        console.error("Failed to save drawing");
-        // Optionally show a toast or message to the user
+    // Check if drawing contains actual content
+    if (!topCard.drawing.includes('<path') && !topCard.drawing.includes('<g')) {
+      alert("Drawing appears to be empty!");
+      return;
+    }
+
+    try {
+      const result = await saveDrawing(topCard.drawing, `Match Drawing - Round ${topCard.round}`);
+
+      if (result.success) {
+          setSavedDrawings(prev => new Set(prev).add(topCard.id));
+          console.log("Drawing saved successfully!");
+      } else {
+          console.error("Failed to save drawing:", result.error);
+          alert(`Failed to save drawing: ${result.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error("Save operation failed:", error);
+      alert("Failed to save drawing. Please try again.");
     }
   };
 
