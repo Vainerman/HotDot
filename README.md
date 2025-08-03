@@ -63,6 +63,14 @@ To get a local copy up and running, follow these simple steps.
 
     Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Security
+
+This repository is public, so take care not to commit sensitive credentials. All environment variables should live in files such as `.env.local`, which are already ignored by Git. To scan for unintended secrets, you can run a tool like [`trufflehog`](https://github.com/trufflesecurity/trufflehog):
+
+```
+pnpm dlx trufflehog3 --exclude node_modules --exclude .git .
+```
+
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
